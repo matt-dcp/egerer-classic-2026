@@ -306,8 +306,10 @@ export default function Admin() {
               const teamBPlayers = (teams.find(t => t.id === 'team-b')?.player_ids ?? [])
                 .filter(id => !usedTeamB.has(id) || id === m.team_b_player_id)
 
+              const isEmpty = !m.team_a_player_id && !m.team_b_player_id
+
               return (
-                <div key={m.id} className={`p-2.5 rounded-lg border ${m.is_pressure_bet ? 'border-gold bg-gold/5' : 'border-gray-100'}`}>
+                <div key={m.id} className={`p-2.5 rounded-lg border ${m.is_pressure_bet ? 'border-gold bg-gold/5' : isEmpty ? 'border-dashed border-gray-200' : 'border-gray-100'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] text-gray-400 w-4">#{m.order}</span>
@@ -318,9 +320,10 @@ export default function Admin() {
                           updated[idx] = { ...m, team_a_player_id: e.target.value }
                           setStrokePlayMatchups(updated)
                         }}
-                        className="text-xs border border-gray-200 rounded px-1.5 py-1"
+                        className={`text-xs border border-gray-200 rounded px-1.5 py-1 ${!m.team_a_player_id ? 'text-gray-400' : ''}`}
                       >
-                        {teamAPlayers.map(id => (
+                        <option value="">— Select —</option>
+                        {teamAPlayers.filter(id => id).map(id => (
                           <option key={id} value={id}>{getName(id)}</option>
                         ))}
                       </select>
@@ -332,24 +335,40 @@ export default function Admin() {
                           updated[idx] = { ...m, team_b_player_id: e.target.value }
                           setStrokePlayMatchups(updated)
                         }}
-                        className="text-xs border border-gray-200 rounded px-1.5 py-1"
+                        className={`text-xs border border-gray-200 rounded px-1.5 py-1 ${!m.team_b_player_id ? 'text-gray-400' : ''}`}
                       >
-                        {teamBPlayers.map(id => (
+                        <option value="">— Select —</option>
+                        {teamBPlayers.filter(id => id).map(id => (
                           <option key={id} value={id}>{getName(id)}</option>
                         ))}
                       </select>
                     </div>
-                    <button
-                      onClick={() => {
-                        const updated = [...strokePlayMatchups]
-                        updated[idx] = { ...m, is_pressure_bet: !m.is_pressure_bet }
-                        setStrokePlayMatchups(updated)
-                      }}
-                      className={`p-1.5 rounded-full ${m.is_pressure_bet ? 'bg-gold text-white' : 'bg-gray-100 text-gray-400'}`}
-                      title="Toggle pressure bet"
-                    >
-                      <Flame size={12} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      {!isEmpty && (
+                        <button
+                          onClick={() => {
+                            const updated = [...strokePlayMatchups]
+                            updated[idx] = { ...m, team_a_player_id: '', team_b_player_id: '', is_pressure_bet: false }
+                            setStrokePlayMatchups(updated)
+                          }}
+                          className="p-1.5 rounded-full text-red-400 active:bg-red-50"
+                          title="Clear matchup"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          const updated = [...strokePlayMatchups]
+                          updated[idx] = { ...m, is_pressure_bet: !m.is_pressure_bet }
+                          setStrokePlayMatchups(updated)
+                        }}
+                        className={`p-1.5 rounded-full ${m.is_pressure_bet ? 'bg-gold text-white' : 'bg-gray-100 text-gray-400'}`}
+                        title="Toggle pressure bet"
+                      >
+                        <Flame size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
