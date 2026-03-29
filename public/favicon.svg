@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#1a472a"/>
+  <text x="50" y="38" text-anchor="middle" font-family="serif" font-weight="bold" font-size="28" fill="#c5a55a">EC</text>
+  <text x="50" y="68" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="18" fill="#faf9f6">2026</text>
+</svg>
