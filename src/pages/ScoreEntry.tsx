@@ -19,35 +19,21 @@ export default function ScoreEntry() {
 
   const myPlayerId = currentPlayerId
 
-  // R1 auto-locks when Day 2 matchups are published (visible)
-  // R2 is hidden until Day 2 matchups are published
-  const r2Published = adminSettings.showDay2Matchups
   const isRoundLocked = (roundId: string) => {
-    if (roundId === 'r1') return adminSettings.r1Locked || r2Published
+    if (roundId === 'r1') return adminSettings.r1Locked
     if (roundId === 'r2') return adminSettings.r2Locked
     return false
   }
-  const visibleRounds = rounds.filter(r => {
-    if (r.id === 'r2' && !r2Published && !isAdmin) return false
-    return true
-  })
-
-  const [selectedRound, setSelectedRound] = useState(rounds[0]?.id || '')
+  // Determine active round: R1 until locked, then R2
+  const activeRoundId = adminSettings.r1Locked ? 'r2' : 'r1'
+  const [selectedRound, setSelectedRound] = useState(activeRoundId)
   const [editingHole, setEditingHole] = useState<number | null>(null)
   const [editValue, setEditValue] = useState(4)
 
+  // Auto-switch when R1 gets locked
   useEffect(() => {
-    if (!selectedRound && rounds.length > 0) {
-      setSelectedRound(rounds[0].id)
-    }
-  }, [rounds, selectedRound])
-
-  // Auto-switch to R2 when it's published and R1 is locked (non-admin only)
-  useEffect(() => {
-    if (r2Published && selectedRound === 'r1' && !isAdmin) {
-      setSelectedRound('r2')
-    }
-  }, [r2Published, selectedRound, isAdmin])
+    setSelectedRound(activeRoundId)
+  }, [activeRoundId])
 
   const round = rounds.find(r => r.id === selectedRound)
   const course = round ? courses.find(c => c.id === round.course_id) : null
@@ -203,28 +189,30 @@ export default function ScoreEntry() {
         </div>
       </div>
 
-      {/* Round selector */}
-      <div className="px-4 py-3 bg-white border-b border-gray-100 flex gap-2">
-        {visibleRounds.map(r => {
-          const c = courses.find(c => c.id === r.course_id)
-          return (
-            <button
-              key={r.id}
-              onClick={() => { setSelectedRound(r.id); setEditingHole(null) }}
-              className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                selectedRound === r.id ? 'bg-forest text-white' : 'bg-gray-100 text-gray-600'
-              }`}
-            >
-              R{r.round_number}: {c?.name.split('–')[1]?.trim() || c?.name}
-            </button>
-          )
-        })}
-      </div>
+      {/* Admin: round switcher for reviewing both rounds */}
+      {isAdmin && (
+        <div className="px-4 py-2 bg-white border-b border-gray-100 flex gap-2">
+          {rounds.map(r => {
+            const c = courses.find(c => c.id === r.course_id)
+            return (
+              <button
+                key={r.id}
+                onClick={() => { setSelectedRound(r.id); setEditingHole(null) }}
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                  selectedRound === r.id ? 'bg-forest text-white' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                R{r.round_number}: {c?.name.split('–')[1]?.trim() || c?.name}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Round locked banner */}
       {isRoundLocked(selectedRound) && (
         <div className="mx-4 mt-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-600 font-medium text-center">
-          🔒 This round is locked. Scores cannot be changed.
+          This round is locked. Scores cannot be changed.
         </div>
       )}
 

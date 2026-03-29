@@ -189,8 +189,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
   const createFoursome = useCallback((roundId: string, playerIds: [string, string, string, string]) => {
     const fs: Foursome = { id: `fs-${roundId}-${Date.now()}`, round_id: roundId, player_ids: playerIds }
     setFoursomes(prev => {
-      const filtered = prev.filter(f => f.round_id !== roundId)
-      const next = [...filtered, fs]
+      const next = [...prev, fs]
       localStorage.setItem('ec-foursomes', JSON.stringify(next))
       return next
     })
