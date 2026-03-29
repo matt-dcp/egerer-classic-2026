@@ -480,25 +480,35 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
     }
   }
 
-  const available = matchups.filter(m => !assignedMatchupIds.has(m.id))
+  // Only show matchups that have both players assigned and aren't in a foursome
+  const available = matchups.filter(m => !assignedMatchupIds.has(m.id) && m.team_a_player_id && m.team_b_player_id)
   const nextGroupNum = foursomes.length + 1
   const allDone = available.length === 0 && foursomes.length > 0
   const totalGroups = Math.floor(matchups.length / 2)
 
+  const [secondPick, setSecondPick] = useState<string | null>(null)
+
   const handleTap = (mId: string) => {
     if (!firstPick) {
       setFirstPick(mId)
+      setSecondPick(null)
     } else if (firstPick === mId) {
       setFirstPick(null) // deselect
+      setSecondPick(null)
     } else {
-      // Two selected — auto-create foursome
-      const m1 = matchups.find(m => m.id === firstPick)
-      const m2 = matchups.find(m => m.id === mId)
-      if (m1 && m2) {
-        onCreateFoursome([m1.team_a_player_id, m1.team_b_player_id, m2.team_a_player_id, m2.team_b_player_id])
-      }
-      setFirstPick(null)
+      setSecondPick(mId)
     }
+  }
+
+  const confirmGroup = () => {
+    if (!firstPick || !secondPick) return
+    const m1 = matchups.find(m => m.id === firstPick)
+    const m2 = matchups.find(m => m.id === secondPick)
+    if (m1 && m2) {
+      onCreateFoursome([m1.team_a_player_id, m1.team_b_player_id, m2.team_a_player_id, m2.team_b_player_id])
+    }
+    setFirstPick(null)
+    setSecondPick(null)
   }
 
   const renderMatchupLabel = (m: StrokePlayMatchup, highlight?: boolean) => (
@@ -558,24 +568,36 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
             Building Group {nextGroupNum} — tap 2 matchups
           </div>
           <div className="space-y-1.5">
-            {available.map(m => (
-              <button
-                key={m.id}
-                onClick={() => handleTap(m.id)}
-                className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[11px] font-medium transition-all text-left ${
-                  firstPick === m.id
-                    ? 'bg-forest text-white ring-2 ring-forest ring-offset-1'
-                    : 'bg-white text-gray-600 border border-gray-200 active:bg-gray-50'
-                }`}
-              >
-                {renderMatchupLabel(m)}
-              </button>
+            {available.map(m => {
+              const isSelected = firstPick === m.id || secondPick === m.id
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => handleTap(m.id)}
+                  className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[11px] font-medium transition-all text-left ${
+                    isSelected
+                      ? 'bg-forest text-white ring-2 ring-forest ring-offset-1'
+                      : 'bg-white text-gray-600 border border-gray-200 active:bg-gray-50'
+                  }`}
+                >
+                  {renderMatchupLabel(m)}
+                </button>
+              )
+            }
             ))}
           </div>
-          {firstPick && (
+          {firstPick && !secondPick && (
             <div className="mt-2 text-[10px] text-forest/70">
               First matchup selected — tap another to complete Group {nextGroupNum}
             </div>
+          )}
+          {firstPick && secondPick && (
+            <button
+              onClick={confirmGroup}
+              className="mt-3 w-full py-3 bg-forest text-white rounded-xl font-semibold text-sm"
+            >
+              Save Group {nextGroupNum} →
+            </button>
           )}
         </div>
       )}
