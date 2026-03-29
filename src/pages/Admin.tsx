@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Shield, Eye, EyeOff, Lock, Unlock, Megaphone, Users, ArrowLeftRight, Flame, Save, UserPlus, Trash2 } from 'lucide-react'
+import { Shield, Eye, EyeOff, Lock, Unlock, Megaphone, Users, ArrowLeftRight, Flame, Save, Trash2 } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
 import Header from '../components/Header'
 
@@ -419,7 +419,7 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
   onCreateFoursome: (ids: [string, string, string, string]) => void
   onDeleteFoursome: (id: string) => void
 }) {
-  const [selected, setSelected] = useState<string[]>([]) // matchup IDs
+  const [firstPick, setFirstPick] = useState<string | null>(null)
 
   // Which matchups are already in a foursome?
   const assignedMatchupIds = new Set<string>()
@@ -432,89 +432,113 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
   }
 
   const available = matchups.filter(m => !assignedMatchupIds.has(m.id))
+  const nextGroupNum = foursomes.length + 1
+  const allDone = available.length === 0 && foursomes.length > 0
+  const totalGroups = Math.floor(matchups.length / 2)
 
-  const toggle = (mId: string) => {
-    setSelected(prev =>
-      prev.includes(mId) ? prev.filter(x => x !== mId) : prev.length < 2 ? [...prev, mId] : prev,
-    )
+  const handleTap = (mId: string) => {
+    if (!firstPick) {
+      setFirstPick(mId)
+    } else if (firstPick === mId) {
+      setFirstPick(null) // deselect
+    } else {
+      // Two selected — auto-create foursome
+      const m1 = matchups.find(m => m.id === firstPick)
+      const m2 = matchups.find(m => m.id === mId)
+      if (m1 && m2) {
+        onCreateFoursome([m1.team_a_player_id, m1.team_b_player_id, m2.team_a_player_id, m2.team_b_player_id])
+      }
+      setFirstPick(null)
+    }
   }
 
-  const createFromSelected = () => {
-    const m1 = matchups.find(m => m.id === selected[0])
-    const m2 = matchups.find(m => m.id === selected[1])
-    if (!m1 || !m2) return
-    onCreateFoursome([m1.team_a_player_id, m1.team_b_player_id, m2.team_a_player_id, m2.team_b_player_id])
-    setSelected([])
-  }
+  const renderMatchupLabel = (m: StrokePlayMatchup, highlight?: boolean) => (
+    <span className={`flex items-center gap-1.5 ${highlight ? '' : ''}`}>
+      {m.is_pressure_bet && <Flame size={10} className="text-gold" />}
+      <span>{getName(m.team_a_player_id)}</span>
+      <span className="text-gray-300">vs</span>
+      <span>{getName(m.team_b_player_id)}</span>
+    </span>
+  )
 
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm">
       <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
         <Users size={14} /> R1 Foursomes
       </h3>
-      <p className="text-[10px] text-gray-400 mb-3">
-        Pair two 1v1 matchups to form a foursome. {available.length} matchup{available.length !== 1 ? 's' : ''} unpaired.
-      </p>
 
-      {/* Existing foursomes */}
+      {/* Progress bar */}
+      {matchups.length > 0 && (
+        <div className="flex items-center gap-2 mb-3">
+          {Array.from({ length: totalGroups }, (_, i) => (
+            <div
+              key={i}
+              className={`flex-1 h-1.5 rounded-full ${i < foursomes.length ? 'bg-forest' : 'bg-gray-200'}`}
+            />
+          ))}
+          <span className="text-[10px] text-gray-400">{foursomes.length}/{totalGroups}</span>
+        </div>
+      )}
+
+      {/* Completed groups */}
       {foursomes.map((fs, fi) => {
-        // Find which matchups are in this foursome
         const fsMatchups = matchups.filter(m =>
           fs.player_ids.includes(m.team_a_player_id) && fs.player_ids.includes(m.team_b_player_id)
         )
         return (
-          <div key={fs.id} className="mb-3 p-2.5 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] font-bold text-gray-400">Group {fi + 1}</span>
+          <div key={fs.id} className="mb-2 p-2.5 rounded-lg border border-green-100 bg-green-50/30">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold text-green-700">Group {fi + 1} ✓</span>
               <button onClick={() => onDeleteFoursome(fs.id)} className="text-red-400 p-1">
                 <Trash2 size={12} />
               </button>
             </div>
             {fsMatchups.map(m => (
-              <div key={m.id} className={`flex items-center gap-2 text-[11px] py-0.5 ${m.is_pressure_bet ? 'text-gold font-semibold' : 'text-gray-600'}`}>
-                {m.is_pressure_bet && <Flame size={10} />}
-                <span>{getName(m.team_a_player_id)}</span>
-                <span className="text-gray-300">vs</span>
-                <span>{getName(m.team_b_player_id)}</span>
+              <div key={m.id} className={`flex items-center gap-1.5 text-[11px] py-0.5 ${m.is_pressure_bet ? 'text-gold font-semibold' : 'text-gray-600'}`}>
+                {renderMatchupLabel(m)}
               </div>
             ))}
           </div>
         )
       })}
 
-      {/* Matchup picker */}
+      {/* Active picker for next group */}
       {available.length >= 2 && (
-        <div className="mt-2">
-          <div className="text-[10px] font-semibold text-gray-500 mb-1.5">Select 2 matchups to pair ({selected.length}/2)</div>
+        <div className="mt-2 p-3 rounded-lg border-2 border-dashed border-forest/30 bg-forest/5">
+          <div className="text-[11px] font-bold text-forest mb-2">
+            Building Group {nextGroupNum} — tap 2 matchups
+          </div>
           <div className="space-y-1.5">
             {available.map(m => (
               <button
                 key={m.id}
-                onClick={() => toggle(m.id)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] font-medium transition-colors text-left ${
-                  selected.includes(m.id) ? 'bg-forest text-white' : 'bg-gray-50 text-gray-600 border border-gray-100'
+                onClick={() => handleTap(m.id)}
+                className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[11px] font-medium transition-all text-left ${
+                  firstPick === m.id
+                    ? 'bg-forest text-white ring-2 ring-forest ring-offset-1'
+                    : 'bg-white text-gray-600 border border-gray-200 active:bg-gray-50'
                 }`}
               >
-                {m.is_pressure_bet && <Flame size={10} className={selected.includes(m.id) ? 'text-gold' : 'text-gold'} />}
-                <span>{getName(m.team_a_player_id)}</span>
-                <span className={selected.includes(m.id) ? 'text-white/50' : 'text-gray-300'}>vs</span>
-                <span>{getName(m.team_b_player_id)}</span>
+                {renderMatchupLabel(m)}
               </button>
             ))}
           </div>
-          {selected.length === 2 && (
-            <button
-              onClick={createFromSelected}
-              className="mt-2 flex items-center gap-1.5 px-4 py-1.5 bg-forest text-white rounded-full text-xs font-semibold"
-            >
-              <UserPlus size={12} /> Pair as Foursome
-            </button>
+          {firstPick && (
+            <div className="mt-2 text-[10px] text-forest/70">
+              First matchup selected — tap another to complete Group {nextGroupNum}
+            </div>
           )}
         </div>
       )}
-      {available.length === 0 && foursomes.length > 0 && (
-        <div className="text-[10px] text-green-600 mt-1">All matchups paired into foursomes.</div>
+
+      {/* All done */}
+      {allDone && (
+        <div className="mt-3 p-3 rounded-lg bg-green-50 border border-green-200 text-center">
+          <div className="text-sm font-bold text-green-700">All {totalGroups} foursomes set ✓</div>
+          <div className="text-[10px] text-green-600 mt-0.5">Tap the trash icon on any group to edit</div>
+        </div>
       )}
+
       {matchups.length === 0 && (
         <div className="text-[10px] text-gray-400 mt-1">Set up Day 1 matchups first.</div>
       )}
