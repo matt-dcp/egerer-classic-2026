@@ -297,53 +297,63 @@ export default function Admin() {
             <ArrowLeftRight size={14} /> Day 1 Matchups (1v1)
           </h3>
           <div className="space-y-2">
-            {strokePlayMatchups.map((m, idx) => (
-              <div key={m.id} className={`p-2.5 rounded-lg border ${m.is_pressure_bet ? 'border-gold bg-gold/5' : 'border-gray-100'}`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-400 w-4">#{m.order}</span>
-                    <select
-                      value={m.team_a_player_id}
-                      onChange={e => {
+            {strokePlayMatchups.map((m, idx) => {
+              // Players already used in OTHER matchups (not this one)
+              const usedTeamA = new Set(strokePlayMatchups.filter((_, i) => i !== idx).map(x => x.team_a_player_id))
+              const usedTeamB = new Set(strokePlayMatchups.filter((_, i) => i !== idx).map(x => x.team_b_player_id))
+              const teamAPlayers = (teams.find(t => t.id === 'team-a')?.player_ids ?? [])
+                .filter(id => !usedTeamA.has(id) || id === m.team_a_player_id)
+              const teamBPlayers = (teams.find(t => t.id === 'team-b')?.player_ids ?? [])
+                .filter(id => !usedTeamB.has(id) || id === m.team_b_player_id)
+
+              return (
+                <div key={m.id} className={`p-2.5 rounded-lg border ${m.is_pressure_bet ? 'border-gold bg-gold/5' : 'border-gray-100'}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-gray-400 w-4">#{m.order}</span>
+                      <select
+                        value={m.team_a_player_id}
+                        onChange={e => {
+                          const updated = [...strokePlayMatchups]
+                          updated[idx] = { ...m, team_a_player_id: e.target.value }
+                          setStrokePlayMatchups(updated)
+                        }}
+                        className="text-xs border border-gray-200 rounded px-1.5 py-1"
+                      >
+                        {teamAPlayers.map(id => (
+                          <option key={id} value={id}>{getName(id)}</option>
+                        ))}
+                      </select>
+                      <span className="text-[10px] text-gray-400">vs</span>
+                      <select
+                        value={m.team_b_player_id}
+                        onChange={e => {
+                          const updated = [...strokePlayMatchups]
+                          updated[idx] = { ...m, team_b_player_id: e.target.value }
+                          setStrokePlayMatchups(updated)
+                        }}
+                        className="text-xs border border-gray-200 rounded px-1.5 py-1"
+                      >
+                        {teamBPlayers.map(id => (
+                          <option key={id} value={id}>{getName(id)}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <button
+                      onClick={() => {
                         const updated = [...strokePlayMatchups]
-                        updated[idx] = { ...m, team_a_player_id: e.target.value }
+                        updated[idx] = { ...m, is_pressure_bet: !m.is_pressure_bet }
                         setStrokePlayMatchups(updated)
                       }}
-                      className="text-xs border border-gray-200 rounded px-1.5 py-1"
+                      className={`p-1.5 rounded-full ${m.is_pressure_bet ? 'bg-gold text-white' : 'bg-gray-100 text-gray-400'}`}
+                      title="Toggle pressure bet"
                     >
-                      {teams.find(t => t.id === 'team-a')?.player_ids.map(id => (
-                        <option key={id} value={id}>{getName(id)}</option>
-                      ))}
-                    </select>
-                    <span className="text-[10px] text-gray-400">vs</span>
-                    <select
-                      value={m.team_b_player_id}
-                      onChange={e => {
-                        const updated = [...strokePlayMatchups]
-                        updated[idx] = { ...m, team_b_player_id: e.target.value }
-                        setStrokePlayMatchups(updated)
-                      }}
-                      className="text-xs border border-gray-200 rounded px-1.5 py-1"
-                    >
-                      {teams.find(t => t.id === 'team-b')?.player_ids.map(id => (
-                        <option key={id} value={id}>{getName(id)}</option>
-                      ))}
-                    </select>
+                      <Flame size={12} />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      const updated = [...strokePlayMatchups]
-                      updated[idx] = { ...m, is_pressure_bet: !m.is_pressure_bet }
-                      setStrokePlayMatchups(updated)
-                    }}
-                    className={`p-1.5 rounded-full ${m.is_pressure_bet ? 'bg-gold text-white' : 'bg-gray-100 text-gray-400'}`}
-                    title="Toggle pressure bet"
-                  >
-                    <Flame size={12} />
-                  </button>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 
@@ -353,54 +363,64 @@ export default function Admin() {
             <Users size={14} /> Day 2 Matchups (2v2)
           </h3>
           <div className="space-y-2">
-            {bestBallPairings.map((p, idx) => (
-              <div key={p.id} className="p-2.5 rounded-lg border border-gray-100">
-                <div className="text-[10px] text-gray-400 mb-1">Match #{p.order}</div>
-                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-                  <div className="space-y-1">
-                    {[0, 1].map(slot => (
-                      <select
-                        key={slot}
-                        value={p.team_a_player_ids[slot]}
-                        onChange={e => {
-                          const updated = [...bestBallPairings]
-                          const newIds = [...p.team_a_player_ids] as [string, string]
-                          newIds[slot] = e.target.value
-                          updated[idx] = { ...p, team_a_player_ids: newIds }
-                          setBestBallPairings(updated)
-                        }}
-                        className="text-xs border border-gray-200 rounded px-1.5 py-1 w-full"
-                      >
-                        {teams.find(t => t.id === 'team-a')?.player_ids.map(id => (
-                          <option key={id} value={id}>{getName(id)}</option>
-                        ))}
-                      </select>
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-gray-400">vs</span>
-                  <div className="space-y-1">
-                    {[0, 1].map(slot => (
-                      <select
-                        key={slot}
-                        value={p.team_b_player_ids[slot]}
-                        onChange={e => {
-                          const updated = [...bestBallPairings]
-                          const newIds = [...p.team_b_player_ids] as [string, string]
-                          newIds[slot] = e.target.value
-                          updated[idx] = { ...p, team_b_player_ids: newIds }
-                          setBestBallPairings(updated)
-                        }}
-                        className="text-xs border border-gray-200 rounded px-1.5 py-1 w-full"
-                      >
-                        {teams.find(t => t.id === 'team-b')?.player_ids.map(id => (
-                          <option key={id} value={id}>{getName(id)}</option>
-                        ))}
-                      </select>
-                    ))}
+            {bestBallPairings.map((p, idx) => {
+              // Players used in OTHER pairings (not this one)
+              const usedTeamA = new Set(bestBallPairings.filter((_, i) => i !== idx).flatMap(x => x.team_a_player_ids))
+              const usedTeamB = new Set(bestBallPairings.filter((_, i) => i !== idx).flatMap(x => x.team_b_player_ids))
+              const teamAPool = (teams.find(t => t.id === 'team-a')?.player_ids ?? [])
+                .filter(id => !usedTeamA.has(id) || p.team_a_player_ids.includes(id))
+              const teamBPool = (teams.find(t => t.id === 'team-b')?.player_ids ?? [])
+                .filter(id => !usedTeamB.has(id) || p.team_b_player_ids.includes(id))
+
+              return (
+                <div key={p.id} className="p-2.5 rounded-lg border border-gray-100">
+                  <div className="text-[10px] text-gray-400 mb-1">Match #{p.order}</div>
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                    <div className="space-y-1">
+                      {[0, 1].map(slot => (
+                        <select
+                          key={slot}
+                          value={p.team_a_player_ids[slot]}
+                          onChange={e => {
+                            const updated = [...bestBallPairings]
+                            const newIds = [...p.team_a_player_ids] as [string, string]
+                            newIds[slot] = e.target.value
+                            updated[idx] = { ...p, team_a_player_ids: newIds }
+                            setBestBallPairings(updated)
+                          }}
+                          className="text-xs border border-gray-200 rounded px-1.5 py-1 w-full"
+                        >
+                          {teamAPool.map(id => (
+                            <option key={id} value={id}>{getName(id)}</option>
+                          ))}
+                        </select>
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-gray-400">vs</span>
+                    <div className="space-y-1">
+                      {[0, 1].map(slot => (
+                        <select
+                          key={slot}
+                          value={p.team_b_player_ids[slot]}
+                          onChange={e => {
+                            const updated = [...bestBallPairings]
+                            const newIds = [...p.team_b_player_ids] as [string, string]
+                            newIds[slot] = e.target.value
+                            updated[idx] = { ...p, team_b_player_ids: newIds }
+                            setBestBallPairings(updated)
+                          }}
+                          className="text-xs border border-gray-200 rounded px-1.5 py-1 w-full"
+                        >
+                          {teamBPool.map(id => (
+                            <option key={id} value={id}>{getName(id)}</option>
+                          ))}
+                        </select>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 
