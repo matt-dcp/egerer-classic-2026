@@ -282,7 +282,7 @@ export default function ScoreEntry() {
                   <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                     aWinning ? 'bg-green-100 text-green-700' : bWinning ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
                   }`}>
-                    {aWinning ? `${getName(matchup.team_a_player_id)} leads` : bWinning ? `${getName(matchup.team_b_player_id)} leads` : 'Tied'}
+                    {aWinning ? `${getName(matchup.team_a_player_id)} leads by ${bVsPar - aVsPar}` : bWinning ? `${getName(matchup.team_b_player_id)} leads by ${aVsPar - bVsPar}` : 'Tied'}
                   </span>
                 )}
               </div>

@@ -244,7 +244,7 @@ export default function Leaderboard() {
         </>
       ) : (
         /* Teams View */
-        <TeamLeaderboardView teamStandings={teamStandings} players={players} adminSettings={adminSettings} isAdmin={isAdmin} />
+        <TeamLeaderboardView teamStandings={teamStandings} players={players} adminSettings={adminSettings} />
       )}
     </div>
   )
@@ -254,7 +254,7 @@ export default function Leaderboard() {
 
 import type { AdminSettings } from '../lib/TournamentContext'
 
-function TeamLeaderboardView({ teamStandings, players, adminSettings, isAdmin }: { teamStandings: TeamStandings | null; players: Player[]; adminSettings: AdminSettings; isAdmin: boolean }) {
+function TeamLeaderboardView({ teamStandings, players, adminSettings }: { teamStandings: TeamStandings | null; players: Player[]; adminSettings: AdminSettings }) {
   if (!teamStandings) {
     return (
       <div className="px-4 py-8 text-center text-gray-400 text-sm">
