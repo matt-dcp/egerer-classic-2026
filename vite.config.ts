@@ -4,7 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/egerer-classic-2026/',
   server: {
     host: true, // Listen on all interfaces so phone can access via LAN IP
   },
@@ -18,7 +17,7 @@ export default defineConfig({
         name: 'Egerer Classic 2026',
         short_name: 'Egerer Classic',
         description: 'Live scoring for the Egerer Classic golf tournament',
-        start_url: '/egerer-classic-2026/',
+        start_url: '/',
         display: 'standalone',
         background_color: '#1a472a',
         theme_color: '#1a472a',
