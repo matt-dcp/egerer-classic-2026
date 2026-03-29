@@ -52,6 +52,35 @@ export default function Admin() {
 
       <div className="px-4 py-4 space-y-4">
 
+        {/* Section: App Mode */}
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <Shield size={14} /> App Mode
+          </h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-bold text-amber-600">DEMO MODE</div>
+              <div className="text-[10px] text-gray-400">Local data only — safe to test freely</div>
+            </div>
+            <button
+              onClick={() => {
+                if (confirm('Reset all scores and side games? This cannot be undone.')) {
+                  localStorage.removeItem('ec-scores')
+                  localStorage.removeItem('ec-foursomes')
+                  localStorage.removeItem('ec-side-games')
+                  window.location.reload()
+                }
+              }}
+              className="px-3 py-1.5 bg-red-50 text-red-600 rounded-full text-xs font-semibold"
+            >
+              Reset Demo Data
+            </button>
+          </div>
+          <div className="mt-2 px-2 py-1 bg-amber-50 border border-amber-200 rounded-lg text-[10px] text-amber-700">
+            Live mode (Supabase) will be enabled before tournament day. All demo data will be replaced with real-time data.
+          </div>
+        </div>
+
         {/* Section: Visibility Controls */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
