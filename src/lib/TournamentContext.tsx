@@ -70,6 +70,7 @@ interface TournamentContextType {
   // Current player (global identity)
   currentPlayerId: string
   setCurrentPlayer: (playerId: string) => void
+  logout: () => void
   isOnboarded: boolean
 }
 
@@ -97,6 +98,11 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('ec-my-player-id', playerId)
     setIsAdmin(true)
     localStorage.setItem('ec-admin', 'true')
+  }, [])
+
+  const logout = useCallback(() => {
+    setCurrentPlayerId('')
+    localStorage.removeItem('ec-my-player-id')
   }, [])
 
   const getHolesForCourse = useCallback(
@@ -345,7 +351,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
       setStrokePlayMatchups: updateStrokePlayMatchups,
       setBestBallPairings: updateBestBallPairings,
       adminSettings, updateAdminSettings,
-      currentPlayerId, setCurrentPlayer, isOnboarded,
+      currentPlayerId, setCurrentPlayer, logout, isOnboarded,
     }}>
       {children}
     </TournamentContext.Provider>

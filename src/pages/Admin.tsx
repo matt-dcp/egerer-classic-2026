@@ -273,59 +273,23 @@ export default function Admin() {
           )}
         </div>
 
-        {/* Section: Foursome Assignment */}
-        {rounds.map(r => {
-          const roundFoursomes = foursomes.filter(f => f.round_id === r.id)
-          const assignedPlayerIds = new Set(roundFoursomes.flatMap(f => f.player_ids))
-          const unassigned = players.filter(p => !assignedPlayerIds.has(p.id))
+        {/* Section: R1 Foursomes (pair matchups) */}
+        <R1FoursomePairer
+          matchups={strokePlayMatchups}
+          foursomes={foursomes.filter(f => f.round_id === 'r1')}
+          getName={getName}
+          onCreateFoursome={(ids) => createFoursome('r1', ids)}
+          onDeleteFoursome={deleteFoursome}
+        />
 
-          return (
-            <div key={r.id} className="bg-white rounded-xl p-4 shadow-sm">
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Users size={14} /> R{r.round_number} Foursomes
-              </h3>
-              <p className="text-[10px] text-gray-400 mb-3">
-                Group players into foursomes for round {r.round_number}. {unassigned.length} unassigned.
-              </p>
-
-              {/* Existing foursomes */}
-              {roundFoursomes.map((fs, fi) => (
-                <div key={fs.id} className="mb-3 p-2.5 rounded-lg border border-gray-100">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-bold text-gray-400">Group {fi + 1}</span>
-                    <button
-                      onClick={() => deleteFoursome(fs.id)}
-                      className="text-red-400 p-1"
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {fs.player_ids.map(id => (
-                      <span key={id} className="px-2 py-0.5 bg-forest/10 text-forest text-[11px] font-medium rounded-full">
-                        {getName(id)}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              {/* Quick-add foursome from unassigned */}
-              {unassigned.length >= 4 && (
-                <FoursomeQuickAdd
-                  unassigned={unassigned}
-                  onAdd={(ids) => createFoursome(r.id, ids as [string, string, string, string])}
-                  getName={getName}
-                />
-              )}
-              {unassigned.length > 0 && unassigned.length < 4 && (
-                <div className="text-[10px] text-orange-500 mt-1">
-                  {unassigned.length} player{unassigned.length > 1 ? 's' : ''} remaining: {unassigned.map(p => getName(p.id)).join(', ')}
-                </div>
-              )}
-            </div>
-          )
-        })}
+        {/* Section: R2 Foursomes (pair best-ball matchups) */}
+        <R2FoursomePairer
+          pairings={bestBallPairings}
+          foursomes={foursomes.filter(f => f.round_id === 'r2')}
+          getName={getName}
+          onCreateFoursome={(ids) => createFoursome('r2', ids)}
+          onDeleteFoursome={deleteFoursome}
+        />
 
         {/* Section: Day 1 Matchups Editor */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -445,45 +409,193 @@ export default function Admin() {
   )
 }
 
-// --- Quick-add foursome helper ---
-import type { Player } from '../lib/types'
+// --- R1 Foursome Pairer: pair two 1v1 matchups ---
+import type { StrokePlayMatchup, BestBallPairing, Foursome as FoursomeType } from '../lib/types'
 
-function FoursomeQuickAdd({ unassigned, onAdd, getName }: {
-  unassigned: Player[]
-  onAdd: (ids: string[]) => void
+function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDeleteFoursome }: {
+  matchups: StrokePlayMatchup[]
+  foursomes: FoursomeType[]
   getName: (id: string) => string
+  onCreateFoursome: (ids: [string, string, string, string]) => void
+  onDeleteFoursome: (id: string) => void
 }) {
-  const [selected, setSelected] = useState<string[]>([])
+  const [selected, setSelected] = useState<string[]>([]) // matchup IDs
 
-  const toggle = (id: string) => {
+  // Which matchups are already in a foursome?
+  const assignedMatchupIds = new Set<string>()
+  for (const fs of foursomes) {
+    for (const m of matchups) {
+      if (fs.player_ids.includes(m.team_a_player_id) && fs.player_ids.includes(m.team_b_player_id)) {
+        assignedMatchupIds.add(m.id)
+      }
+    }
+  }
+
+  const available = matchups.filter(m => !assignedMatchupIds.has(m.id))
+
+  const toggle = (mId: string) => {
     setSelected(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 4 ? [...prev, id] : prev,
+      prev.includes(mId) ? prev.filter(x => x !== mId) : prev.length < 2 ? [...prev, mId] : prev,
     )
   }
 
+  const createFromSelected = () => {
+    const m1 = matchups.find(m => m.id === selected[0])
+    const m2 = matchups.find(m => m.id === selected[1])
+    if (!m1 || !m2) return
+    onCreateFoursome([m1.team_a_player_id, m1.team_b_player_id, m2.team_a_player_id, m2.team_b_player_id])
+    setSelected([])
+  }
+
   return (
-    <div className="mt-2">
-      <div className="text-[10px] font-semibold text-gray-500 mb-1.5">Add Foursome ({selected.length}/4)</div>
-      <div className="flex flex-wrap gap-1.5">
-        {unassigned.map(p => (
-          <button
-            key={p.id}
-            onClick={() => toggle(p.id)}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-              selected.includes(p.id) ? 'bg-forest text-white' : 'bg-gray-100 text-gray-600'
-            }`}
-          >
-            {getName(p.id)}
-          </button>
-        ))}
-      </div>
-      {selected.length === 4 && (
+    <div className="bg-white rounded-xl p-4 shadow-sm">
+      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <Users size={14} /> R1 Foursomes
+      </h3>
+      <p className="text-[10px] text-gray-400 mb-3">
+        Pair two 1v1 matchups to form a foursome. {available.length} matchup{available.length !== 1 ? 's' : ''} unpaired.
+      </p>
+
+      {/* Existing foursomes */}
+      {foursomes.map((fs, fi) => {
+        // Find which matchups are in this foursome
+        const fsMatchups = matchups.filter(m =>
+          fs.player_ids.includes(m.team_a_player_id) && fs.player_ids.includes(m.team_b_player_id)
+        )
+        return (
+          <div key={fs.id} className="mb-3 p-2.5 rounded-lg border border-gray-100">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-bold text-gray-400">Group {fi + 1}</span>
+              <button onClick={() => onDeleteFoursome(fs.id)} className="text-red-400 p-1">
+                <Trash2 size={12} />
+              </button>
+            </div>
+            {fsMatchups.map(m => (
+              <div key={m.id} className={`flex items-center gap-2 text-[11px] py-0.5 ${m.is_pressure_bet ? 'text-gold font-semibold' : 'text-gray-600'}`}>
+                {m.is_pressure_bet && <Flame size={10} />}
+                <span>{getName(m.team_a_player_id)}</span>
+                <span className="text-gray-300">vs</span>
+                <span>{getName(m.team_b_player_id)}</span>
+              </div>
+            ))}
+          </div>
+        )
+      })}
+
+      {/* Matchup picker */}
+      {available.length >= 2 && (
+        <div className="mt-2">
+          <div className="text-[10px] font-semibold text-gray-500 mb-1.5">Select 2 matchups to pair ({selected.length}/2)</div>
+          <div className="space-y-1.5">
+            {available.map(m => (
+              <button
+                key={m.id}
+                onClick={() => toggle(m.id)}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] font-medium transition-colors text-left ${
+                  selected.includes(m.id) ? 'bg-forest text-white' : 'bg-gray-50 text-gray-600 border border-gray-100'
+                }`}
+              >
+                {m.is_pressure_bet && <Flame size={10} className={selected.includes(m.id) ? 'text-gold' : 'text-gold'} />}
+                <span>{getName(m.team_a_player_id)}</span>
+                <span className={selected.includes(m.id) ? 'text-white/50' : 'text-gray-300'}>vs</span>
+                <span>{getName(m.team_b_player_id)}</span>
+              </button>
+            ))}
+          </div>
+          {selected.length === 2 && (
+            <button
+              onClick={createFromSelected}
+              className="mt-2 flex items-center gap-1.5 px-4 py-1.5 bg-forest text-white rounded-full text-xs font-semibold"
+            >
+              <UserPlus size={12} /> Pair as Foursome
+            </button>
+          )}
+        </div>
+      )}
+      {available.length === 0 && foursomes.length > 0 && (
+        <div className="text-[10px] text-green-600 mt-1">All matchups paired into foursomes.</div>
+      )}
+      {matchups.length === 0 && (
+        <div className="text-[10px] text-gray-400 mt-1">Set up Day 1 matchups first.</div>
+      )}
+    </div>
+  )
+}
+
+// --- R2 Foursome Pairer: pair two 2v2 best-ball matchups ---
+function R2FoursomePairer({ pairings, foursomes, getName, onCreateFoursome, onDeleteFoursome }: {
+  pairings: BestBallPairing[]
+  foursomes: FoursomeType[]
+  getName: (id: string) => string
+  onCreateFoursome: (ids: [string, string, string, string]) => void
+  onDeleteFoursome: (id: string) => void
+}) {
+  const [selected, setSelected] = useState<string[]>([]) // pairing IDs
+
+  // For R2 best ball, each pairing already has 4 players — it IS a foursome
+  // So we just need to convert each pairing into a foursome directly
+  const assignedPairingIds = new Set<string>()
+  for (const fs of foursomes) {
+    for (const p of pairings) {
+      const pairingPlayers = [...p.team_a_player_ids, ...p.team_b_player_ids]
+      if (pairingPlayers.every(id => fs.player_ids.includes(id))) {
+        assignedPairingIds.add(p.id)
+      }
+    }
+  }
+
+  const available = pairings.filter(p => !assignedPairingIds.has(p.id))
+
+  return (
+    <div className="bg-white rounded-xl p-4 shadow-sm">
+      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <Users size={14} /> R2 Foursomes
+      </h3>
+      <p className="text-[10px] text-gray-400 mb-3">
+        Each 2v2 matchup is a foursome. Tap to create.
+      </p>
+
+      {/* Existing foursomes */}
+      {foursomes.map((fs, fi) => (
+        <div key={fs.id} className="mb-3 p-2.5 rounded-lg border border-gray-100">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-bold text-gray-400">Group {fi + 1}</span>
+            <button onClick={() => onDeleteFoursome(fs.id)} className="text-red-400 p-1">
+              <Trash2 size={12} />
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {fs.player_ids.map(id => (
+              <span key={id} className="px-2 py-0.5 bg-forest/10 text-forest text-[11px] font-medium rounded-full">
+                {getName(id)}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* Auto-create from available pairings */}
+      {available.map(p => (
         <button
-          onClick={() => { onAdd(selected); setSelected([]) }}
-          className="mt-2 flex items-center gap-1.5 px-4 py-1.5 bg-forest text-white rounded-full text-xs font-semibold"
+          key={p.id}
+          onClick={() => {
+            onCreateFoursome([...p.team_a_player_ids, ...p.team_b_player_ids] as [string, string, string, string])
+          }}
+          className="w-full mb-2 p-2.5 rounded-lg border border-dashed border-gray-200 text-left hover:border-forest transition-colors"
         >
-          <UserPlus size={12} /> Create Foursome
+          <div className="text-[10px] text-gray-400 mb-1">Tap to create foursome:</div>
+          <div className="text-[11px] text-gray-600">
+            {p.team_a_player_ids.map(id => getName(id)).join(' & ')}
+            <span className="text-gray-300"> vs </span>
+            {p.team_b_player_ids.map(id => getName(id)).join(' & ')}
+          </div>
         </button>
+      ))}
+      {available.length === 0 && foursomes.length > 0 && (
+        <div className="text-[10px] text-green-600 mt-1">All pairings set as foursomes.</div>
+      )}
+      {pairings.length === 0 && (
+        <div className="text-[10px] text-gray-400 mt-1">Set up Day 2 matchups first.</div>
       )}
     </div>
   )
