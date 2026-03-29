@@ -10,7 +10,7 @@ export default function Admin() {
     isAdmin, login, adminSettings, updateAdminSettings,
     players, teams, setTeams, strokePlayMatchups, bestBallPairings,
     setStrokePlayMatchups, setBestBallPairings, currentPlayerId,
-    foursomes, createFoursome, deleteFoursome, rounds,
+    foursomes, createFoursome, deleteFoursome,
   } = useTournament()
 
   const [pin, setPin] = useState('')
@@ -530,7 +530,6 @@ function R2FoursomePairer({ pairings, foursomes, getName, onCreateFoursome, onDe
   onCreateFoursome: (ids: [string, string, string, string]) => void
   onDeleteFoursome: (id: string) => void
 }) {
-  const [selected, setSelected] = useState<string[]>([]) // pairing IDs
 
   // For R2 best ball, each pairing already has 4 players — it IS a foursome
   // So we just need to convert each pairing into a foursome directly
