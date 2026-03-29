@@ -583,8 +583,7 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
                   {renderMatchupLabel(m)}
                 </button>
               )
-            }
-            ))}
+            })}
           </div>
           {firstPick && !secondPick && (
             <div className="mt-2 text-[10px] text-forest/70">
