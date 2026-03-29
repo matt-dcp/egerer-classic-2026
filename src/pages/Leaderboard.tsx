@@ -288,9 +288,6 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings }: { teamSt
             </div>
           </div>
         </div>
-        <div className="mt-3 text-[10px] text-cream/50">
-          $200 buy-in · Winning team profits $100/player
-        </div>
       </div>
 
       {/* Points Breakdown */}
