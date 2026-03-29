@@ -1,4 +1,4 @@
-import { Minus, Plus } from 'lucide-react'
+import { Minus, Plus, X } from 'lucide-react'
 import { getHoleScoreColor } from '../lib/scoring'
 
 interface Props {
@@ -8,11 +8,13 @@ interface Props {
   net: number
   receivesStroke: boolean
   onChange: (newGross: number) => void
+  onClear?: () => void
+  hasScore?: boolean
   compact?: boolean
 }
 
 export default function ScoreStepperCompact({
-  playerName, par, gross, net, receivesStroke, onChange, compact,
+  playerName, par, gross, net, receivesStroke, onChange, onClear, hasScore, compact,
 }: Props) {
   return (
     <div className={`flex items-center justify-between ${compact ? 'py-1.5' : 'py-2.5'} px-3 bg-white rounded-xl border border-gray-100`}>
@@ -23,6 +25,15 @@ export default function ScoreStepperCompact({
         )}
       </div>
       <div className="flex items-center gap-2">
+        {hasScore && onClear && (
+          <button
+            onClick={onClear}
+            className="w-6 h-6 flex items-center justify-center rounded-full text-red-400 active:bg-red-50"
+            title="Clear score"
+          >
+            <X size={14} />
+          </button>
+        )}
         <button
           onClick={() => onChange(Math.max(1, gross - 1))}
           className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 active:bg-gray-200"

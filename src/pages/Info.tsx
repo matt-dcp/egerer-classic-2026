@@ -95,8 +95,8 @@ export default function Info() {
               </div>
               <div className="bg-gray-100 rounded-lg p-2 text-center">
                 <div className="text-[10px] text-gray-500 font-semibold">2nd Place</div>
-                <div className="text-sm font-bold text-gray-700">$450</div>
-                <div className="text-[9px] text-gray-400">25%</div>
+                <div className="text-sm font-bold text-gray-700">$630</div>
+                <div className="text-[9px] text-gray-400">35%</div>
               </div>
               <div className="bg-gray-100 rounded-lg p-2 text-center">
                 <div className="text-[10px] text-gray-500 font-semibold">3rd Place</div>

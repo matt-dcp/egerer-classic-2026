@@ -170,7 +170,7 @@ export default function Leaderboard() {
             <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
               <DollarSign size={12} className="text-gold" />
               <span className="font-semibold">Individual Pool $1,800</span>
-              <span className="text-gray-400">· 1st $1,080 · 2nd $450 · 3rd $270</span>
+              <span className="text-gray-400">· 1st $1,080 · 2nd $630 · 3rd $270</span>
             </div>
           </div>
 

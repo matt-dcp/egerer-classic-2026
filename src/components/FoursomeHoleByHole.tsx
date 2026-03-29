@@ -11,10 +11,11 @@ interface Props {
   courseSlope: number
   roundId: string
   onSubmitScore: (playerId: string, holeNumber: number, gross: number) => void
+  onDeleteScore?: (playerId: string, holeNumber: number) => void
 }
 
 export default function FoursomeHoleByHole({
-  holes, players, scores, courseSlope, roundId, onSubmitScore,
+  holes, players, scores, courseSlope, roundId, onSubmitScore, onDeleteScore,
 }: Props) {
   const [currentHole, setCurrentHole] = useState(1)
   const hole = holes.find(h => h.hole_number === currentHole)
@@ -98,17 +99,22 @@ export default function FoursomeHoleByHole({
 
       {/* Player steppers */}
       <div className="flex flex-col gap-2 mb-4">
-        {playerData.map(({ player, gross, strokes, receivesStroke }) => (
-          <ScoreStepperCompact
-            key={player.id}
-            playerName={player.name}
-            par={hole.par}
-            gross={gross}
-            net={gross - strokes}
-            receivesStroke={receivesStroke}
-            onChange={(newGross) => onSubmitScore(player.id, currentHole, newGross)}
-          />
-        ))}
+        {playerData.map(({ player, gross, strokes, receivesStroke }) => {
+          const hasScore = scores.some(s => s.player_id === player.id && s.hole_number === currentHole)
+          return (
+            <ScoreStepperCompact
+              key={player.id}
+              playerName={player.name}
+              par={hole.par}
+              gross={gross}
+              net={gross - strokes}
+              receivesStroke={receivesStroke}
+              onChange={(newGross) => onSubmitScore(player.id, currentHole, newGross)}
+              hasScore={hasScore}
+              onClear={onDeleteScore ? () => onDeleteScore(player.id, currentHole) : undefined}
+            />
+          )
+        })}
       </div>
 
       {/* Save & Next */}

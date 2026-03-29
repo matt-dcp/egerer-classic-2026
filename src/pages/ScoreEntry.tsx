@@ -397,6 +397,9 @@ export default function ScoreEntry() {
                   onSubmitScore={(playerId, holeNum, gross) => {
                     if (!isRoundLocked(selectedRound)) submitScore(selectedRound, playerId, holeNum, gross)
                   }}
+                  onDeleteScore={(playerId, holeNum) => {
+                    if (!isRoundLocked(selectedRound)) deleteScore(selectedRound, playerId, holeNum)
+                  }}
                 />
                 {myFoursome && (
                   <SideGameScoreboard
