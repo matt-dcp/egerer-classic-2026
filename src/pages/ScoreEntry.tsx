@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Minus, Plus, X, Users, User, Flame, Trash2 } from 'lucide-react'
+import { Minus, Plus, X, Flame, Trash2 } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
 import { getHoleScoreColor, calculateCourseHandicap, getStrokesForHole } from '../lib/scoring'
 import { computeStrokePlayResult, computeBestBallResult } from '../lib/teamCompetition'
@@ -35,7 +35,6 @@ export default function ScoreEntry() {
   const [selectedRound, setSelectedRound] = useState(rounds[0]?.id || '')
   const [editingHole, setEditingHole] = useState<number | null>(null)
   const [editValue, setEditValue] = useState(4)
-  const [viewMode, setViewMode] = useState<'mine' | 'foursome'>('mine')
 
   useEffect(() => {
     if (!selectedRound && rounds.length > 0) {

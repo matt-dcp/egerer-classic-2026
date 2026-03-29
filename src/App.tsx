@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import { TournamentProvider, useTournament } from './lib/TournamentContext'
 import Layout from './components/Layout'
 import Onboarding from './components/Onboarding'
@@ -36,10 +36,10 @@ function AppShell() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <TournamentProvider>
         <AppShell />
       </TournamentProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }

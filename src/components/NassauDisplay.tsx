@@ -24,12 +24,6 @@ export default function NassauDisplay({ result, config, players }: Props) {
       </div>
 
       {bets.map((bet, i) => {
-        const status = bet.leader === 'team1'
-          ? `${bet.margin}UP`
-          : bet.leader === 'team2'
-          ? `${bet.margin}DN`
-          : 'AS'
-
         return (
           <div key={bet.bet} className="flex items-center px-2.5 py-2 border-t border-gray-50">
             <div className="w-16 text-[10px] font-semibold text-gray-500">{labels[i]}</div>

@@ -79,7 +79,7 @@ function getSixSixSixTeams(
 }
 
 export function calculateSixSixSix(
-  config: SixSixSixConfig,
+  _config: SixSixSixConfig,
   foursome: Foursome,
   scores: Score[],
   holes: Hole[],

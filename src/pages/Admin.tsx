@@ -127,8 +127,6 @@ export default function Admin() {
           <p className="text-[10px] text-gray-400 mb-3">Select captains and assign players to each team</p>
           <div className="space-y-4">
             {teams.map((team, ti) => {
-              const otherTeam = teams[ti === 0 ? 1 : 0]
-              const captain = players.find(p => p.id === team.captain_id)
               const roster = team.player_ids.map(id => players.find(p => p.id === id)).filter(Boolean)
               // Available to add: not on either team
               const allAssigned = new Set([...teams[0].player_ids, ...teams[1].player_ids])

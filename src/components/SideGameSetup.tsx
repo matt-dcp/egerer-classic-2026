@@ -26,10 +26,10 @@ export default function SideGameSetup({ foursome, players, activeGames, onAddGam
   const toggleNassauPlayer = (id: string) => {
     if (nassauTeam1.includes(id)) {
       if (nassauTeam1.length > 1) {
-        setNassauTeam1(nassauTeam1.filter(p => p !== id) as [string, string])
+        setNassauTeam1(nassauTeam1.filter(p => p !== id) as unknown as [string, string])
       }
     } else if (nassauTeam1.length < 2) {
-      setNassauTeam1([...nassauTeam1, id] as [string, string])
+      setNassauTeam1([...nassauTeam1, id] as unknown as [string, string])
     }
   }
 

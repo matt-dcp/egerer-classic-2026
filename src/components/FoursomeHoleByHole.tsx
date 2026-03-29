@@ -98,7 +98,7 @@ export default function FoursomeHoleByHole({
 
       {/* Player steppers */}
       <div className="flex flex-col gap-2 mb-4">
-        {playerData.map(({ player, gross, net, strokes, receivesStroke }) => (
+        {playerData.map(({ player, gross, strokes, receivesStroke }) => (
           <ScoreStepperCompact
             key={player.id}
             playerName={player.name}
