@@ -318,7 +318,7 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings, isAdmin }:
       </div>
 
       {/* Day 1: Stroke Play 1v1 */}
-      {(adminSettings.showDay1Matchups || isAdmin) && (
+      {adminSettings.showDay1Matchups && (
         <div className="px-4 mt-4">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
             Day 1 — Stroke Play (1v1) · 10 pts
@@ -338,7 +338,7 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings, isAdmin }:
       )}
 
       {/* Day 2: Best Ball 2v2 */}
-      {(adminSettings.showDay2Matchups || isAdmin) && (
+      {adminSettings.showDay2Matchups && (
         <div className="px-4 mt-4">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
             Day 2 — Best Ball (2v2) · 8 pts
