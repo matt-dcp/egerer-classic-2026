@@ -273,23 +273,10 @@ export default function Admin() {
           )}
         </div>
 
-        {/* Section: R1 Foursomes (pair matchups) */}
-        <R1FoursomePairer
-          matchups={strokePlayMatchups}
-          foursomes={foursomes.filter(f => f.round_id === 'r1')}
-          getName={getName}
-          onCreateFoursome={(ids) => createFoursome('r1', ids)}
-          onDeleteFoursome={deleteFoursome}
-        />
-
-        {/* Section: R2 Foursomes (pair best-ball matchups) */}
-        <R2FoursomePairer
-          pairings={bestBallPairings}
-          foursomes={foursomes.filter(f => f.round_id === 'r2')}
-          getName={getName}
-          onCreateFoursome={(ids) => createFoursome('r2', ids)}
-          onDeleteFoursome={deleteFoursome}
-        />
+        {/* ===== DAY 1 ===== */}
+        <div className="bg-forest/10 rounded-lg px-3 py-2 text-xs font-bold text-forest uppercase tracking-wider">
+          Day 1 — Round 1 · Troon North Monument
+        </div>
 
         {/* Section: Day 1 Matchups Editor */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -376,6 +363,20 @@ export default function Admin() {
           </div>
         </div>
 
+        {/* Section: R1 Foursomes (pair matchups) */}
+        <R1FoursomePairer
+          matchups={strokePlayMatchups}
+          foursomes={foursomes.filter(f => f.round_id === 'r1')}
+          getName={getName}
+          onCreateFoursome={(ids) => createFoursome('r1', ids)}
+          onDeleteFoursome={deleteFoursome}
+        />
+
+        {/* ===== DAY 2 ===== */}
+        <div className="bg-forest/10 rounded-lg px-3 py-2 text-xs font-bold text-forest uppercase tracking-wider">
+          Day 2 — Round 2 · We-Ko-Pa Saguaro
+        </div>
+
         {/* Section: Day 2 Matchups Editor */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -442,6 +443,15 @@ export default function Admin() {
             })}
           </div>
         </div>
+
+        {/* Section: R2 Foursomes (pair best-ball matchups) */}
+        <R2FoursomePairer
+          pairings={bestBallPairings}
+          foursomes={foursomes.filter(f => f.round_id === 'r2')}
+          getName={getName}
+          onCreateFoursome={(ids) => createFoursome('r2', ids)}
+          onDeleteFoursome={deleteFoursome}
+        />
 
       </div>
     </div>
