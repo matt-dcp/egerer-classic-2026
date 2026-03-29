@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Shield, Eye, EyeOff, Lock, Unlock, Megaphone, Users, ArrowLeftRight, Flame, Save, Trash2 } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
 import Header from '../components/Header'
@@ -440,6 +440,16 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
   onDeleteFoursome: (id: string) => void
 }) {
   const [firstPick, setFirstPick] = useState<string | null>(null)
+  const pickerRef = useRef<HTMLDivElement>(null)
+  const prevGroupCount = useRef(foursomes.length)
+
+  // Auto-scroll to the active picker when a new group is created
+  useEffect(() => {
+    if (foursomes.length > prevGroupCount.current && pickerRef.current) {
+      setTimeout(() => pickerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100)
+    }
+    prevGroupCount.current = foursomes.length
+  }, [foursomes.length])
 
   // Which matchups are already in a foursome?
   const assignedMatchupIds = new Set<string>()
@@ -524,7 +534,7 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
 
       {/* Active picker for next group */}
       {available.length >= 2 && (
-        <div className="mt-2 p-3 rounded-lg border-2 border-dashed border-forest/30 bg-forest/5">
+        <div ref={pickerRef} className="mt-2 p-3 rounded-lg border-2 border-dashed border-forest/30 bg-forest/5">
           <div className="text-[11px] font-bold text-forest mb-2">
             Building Group {nextGroupNum} — tap 2 matchups
           </div>
