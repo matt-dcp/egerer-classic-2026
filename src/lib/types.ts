@@ -55,6 +55,7 @@ export interface Champion {
   tournament_id: string
   year: number
   player_name: string
+  venue?: string
 }
 
 export interface LeaderboardEntry {

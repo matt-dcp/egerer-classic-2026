@@ -105,20 +105,22 @@ export const DEMO_ROUNDS: Round[] = [
 export const DEMO_SCORES: Score[] = []
 
 export const DEMO_CHAMPIONS: Champion[] = [
-  { id: 'c1', tournament_id: 'ec-2026', year: 2012, player_name: 'Justin Egerer' },
-  { id: 'c2', tournament_id: 'ec-2026', year: 2013, player_name: 'TBD' },
-  { id: 'c3', tournament_id: 'ec-2026', year: 2014, player_name: 'TBD' },
-  { id: 'c4', tournament_id: 'ec-2026', year: 2015, player_name: 'TBD' },
-  { id: 'c5', tournament_id: 'ec-2026', year: 2016, player_name: 'TBD' },
-  { id: 'c6', tournament_id: 'ec-2026', year: 2017, player_name: 'TBD' },
-  { id: 'c7', tournament_id: 'ec-2026', year: 2018, player_name: 'TBD' },
-  { id: 'c8', tournament_id: 'ec-2026', year: 2019, player_name: 'Justin Egerer' },
-  { id: 'c9', tournament_id: 'ec-2026', year: 2020, player_name: 'TBD' },
-  { id: 'c10', tournament_id: 'ec-2026', year: 2021, player_name: 'TBD' },
-  { id: 'c11', tournament_id: 'ec-2026', year: 2022, player_name: 'TBD' },
-  { id: 'c12', tournament_id: 'ec-2026', year: 2023, player_name: 'Justin Egerer' },
-  { id: 'c13', tournament_id: 'ec-2026', year: 2024, player_name: 'Brad White & Christos Celmayster' },
-  { id: 'c14', tournament_id: 'ec-2026', year: 2025, player_name: 'TBD' },
+  { id: 'c1',  tournament_id: 'ec-2026', year: 2010, player_name: 'Matt Cook',          venue: 'JW Marriott' },
+  { id: 'c2',  tournament_id: 'ec-2026', year: 2011, player_name: 'Cameron Baker',      venue: 'Del Mar Grand' },
+  { id: 'c3',  tournament_id: 'ec-2026', year: 2012, player_name: 'Justin Egerer',      venue: 'JW Marriott' },
+  { id: 'c4',  tournament_id: 'ec-2026', year: 2013, player_name: 'Adrian Phillips',    venue: 'Carmel Valley Ranch' },
+  { id: 'c5',  tournament_id: 'ec-2026', year: 2014, player_name: 'Matt Cook',          venue: 'PGA West Stadium' },
+  { id: 'c6',  tournament_id: 'ec-2026', year: 2015, player_name: 'Sean Downing',       venue: 'TPC Scottsdale' },
+  { id: 'c7',  tournament_id: 'ec-2026', year: 2016, player_name: 'Sean Downing',       venue: 'Poppy Hills' },
+  { id: 'c8',  tournament_id: 'ec-2026', year: 2017, player_name: 'Tim Morton-Smith',   venue: 'PGA West Nicklaus' },
+  { id: 'c9',  tournament_id: 'ec-2026', year: 2018, player_name: 'Dusty Stutsman',     venue: 'TPC Dallas' },
+  { id: 'c10', tournament_id: 'ec-2026', year: 2019, player_name: 'Justin Egerer',      venue: 'Silver Rock' },
+  { id: 'c11', tournament_id: 'ec-2026', year: 2020, player_name: 'Matt Delesalle',     venue: 'Ojai Valley Inn' },
+  { id: 'c12', tournament_id: 'ec-2026', year: 2021, player_name: 'Matt Delesalle',     venue: 'PGA West Stadium' },
+  { id: 'c13', tournament_id: 'ec-2026', year: 2022, player_name: 'Justin Anderson',    venue: 'Cascata' },
+  { id: 'c14', tournament_id: 'ec-2026', year: 2023, player_name: 'Justin Egerer',      venue: 'Poppy Hills' },
+  { id: 'c15', tournament_id: 'ec-2026', year: 2024, player_name: 'Dan Kennedy',        venue: "Fred's Ranch" },
+  { id: 'c16', tournament_id: 'ec-2026', year: 2025, player_name: 'Dave Flaherty',      venue: 'Grayhawk' },
 ]
 
 // --- Team Competition ---

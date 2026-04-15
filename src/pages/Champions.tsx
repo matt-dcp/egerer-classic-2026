@@ -38,13 +38,18 @@ export default function Champions() {
                 {champ.player_name !== 'TBD' && (
                   <Trophy size={16} className="text-gold shrink-0" />
                 )}
-                <span className={`text-sm font-semibold ${
-                  champ.player_name === 'TBD' ? 'text-gray-300' : 'text-gray-900'
-                }`}>
-                  {champ.player_name}
-                </span>
+                <div>
+                  <span className={`text-sm font-semibold ${
+                    champ.player_name === 'TBD' ? 'text-gray-300' : 'text-gray-900'
+                  }`}>
+                    {champ.player_name}
+                  </span>
+                  {champ.venue && (
+                    <div className="text-xs text-gray-400">{champ.venue}</div>
+                  )}
+                </div>
               </div>
-              <span className={`text-sm font-bold tabular-nums ${
+              <span className={`text-sm font-bold tabular-nums shrink-0 ${
                 champ.player_name === 'TBD' ? 'text-gray-300' : 'text-forest'
               }`}>
                 {champ.year}
