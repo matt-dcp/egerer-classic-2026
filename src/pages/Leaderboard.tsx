@@ -10,7 +10,7 @@ import type { TeamStandings, Player } from '../lib/types'
 export default function Leaderboard() {
   const {
     leaderboard, champions, scores, players, rounds, courses, getHolesForCourse,
-    teamStandings, adminSettings, isAdmin,
+    teamStandings, adminSettings, isAdmin, currentPlayerId,
   } = useTournament()
   const [showGross, setShowGross] = useState(false)
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null)
@@ -19,12 +19,28 @@ export default function Leaderboard() {
 
   const latestChampion = champions.filter(c => c.player_name !== 'TBD').sort((a, b) => b.year - a.year)[0]
 
+  // Compute tied positions: group by totalNetVsPar, assign "T{n}" when >1 player shares same score
+  const positionMap = useMemo(() => {
+    const map = new Map<string, string>()
+    for (let i = 0; i < leaderboard.length; i++) {
+      const entry = leaderboard[i]
+      if (entry.holesPlayed === 0) { map.set(entry.player.id, '-'); continue }
+      // Find all players with same net vs par
+      const sameScore = leaderboard.filter(e => e.holesPlayed > 0 && e.totalNetVsPar === entry.totalNetVsPar)
+      // Position = first index among played entries with this score + 1
+      const rank = leaderboard.findIndex(e => e.holesPlayed > 0 && e.totalNetVsPar === entry.totalNetVsPar) + 1
+      map.set(entry.player.id, sameScore.length > 1 ? `T${rank}` : `${rank}`)
+    }
+    return map
+  }, [leaderboard])
+
   // Count birdies and eagles across all rounds
   const stats = useMemo(() => {
     let r1Birdies = 0, r1Eagles = 0, r2Birdies = 0, r2Eagles = 0
 
     for (const round of rounds) {
-      const course = courses.find(c => c.id === round.course_id)!
+      const course = courses.find(c => c.id === round.course_id)
+      if (!course) continue
       const courseHoles = getHolesForCourse(round.course_id)
       const roundScores = scores.filter(s => s.round_id === round.id)
 
@@ -51,40 +67,76 @@ export default function Leaderboard() {
     return { r1Birdies, r1Eagles, r2Birdies, r2Eagles, totalBirdies: r1Birdies + r2Birdies, totalEagles: r1Eagles + r2Eagles }
   }, [scores, rounds, courses, players, getHolesForCourse])
 
-  // Generate news ticker items from recent scores
+  // Generate news ticker items — active round only
   const tickerItems = useMemo(() => {
     const items: string[] = []
+    const activeRoundId = adminSettings.r1Locked ? 'r2' : 'r1'
+    const activeRound = rounds.find(r => r.id === activeRoundId)
+    if (!activeRound) return ["⛳ Welcome to the Egerer Classic '26 — an event like no other..."]
 
-    for (const round of rounds) {
-      const course = courses.find(c => c.id === round.course_id)!
-      const courseHoles = getHolesForCourse(round.course_id)
-      const roundScores = scores.filter(s => s.round_id === round.id)
+    const course = courses.find(c => c.id === activeRound.course_id)
+    if (!course) return ["Welcome to the Egerer Classic '26"]
+    const courseHoles = getHolesForCourse(activeRound.course_id)
+    const roundScores = scores.filter(s => s.round_id === activeRoundId)
+    const rNum = activeRound.round_number
 
-      for (const score of roundScores) {
-        const hole = courseHoles.find(h => h.hole_number === score.hole_number)
-        if (!hole) continue
-        const player = players.find(p => p.id === score.player_id)
-        if (!player) continue
-        const courseHcp = calculateCourseHandicap(player.handicap_index, course.slope)
-        const strokes = getStrokesForHole(courseHcp, hole.stroke_index)
-        const net = score.gross_score - strokes
-        const diff = net - hole.par
-        const lastName = player.name.split(' ')[1] || player.name
-        const rNum = round.round_number
+    // Birdie/eagle/blowup alerts (active round only)
+    for (const score of roundScores) {
+      const hole = courseHoles.find(h => h.hole_number === score.hole_number)
+      if (!hole) continue
+      const player = players.find(p => p.id === score.player_id)
+      if (!player) continue
+      const courseHcp = calculateCourseHandicap(player.handicap_index, course.slope)
+      const strokes = getStrokesForHole(courseHcp, hole.stroke_index)
+      const net = score.gross_score - strokes
+      const diff = net - hole.par
+      const lastName = player.name.split(' ').pop() || player.name
 
-        if (diff <= -2) {
-          items.push(`🦅 EAGLE! ${lastName} nets ${net} on R${rNum} Hole ${score.hole_number} (par ${hole.par})`)
-        } else if (diff === -1) {
-          items.push(`🐦 Birdie! ${lastName} nets ${net} on R${rNum} #${score.hole_number}`)
-        } else if (diff >= 3) {
-          items.push(`💥 ${lastName} takes a net ${net} on R${rNum} #${score.hole_number} (par ${hole.par})`)
-        }
+      if (diff <= -2) {
+        items.push(`🦅 EAGLE! ${lastName} nets ${net} on R${rNum} #${score.hole_number} (par ${hole.par})`)
+      } else if (diff === -1) {
+        items.push(`🐦 Birdie! ${lastName} nets ${net} on R${rNum} #${score.hole_number}`)
       }
     }
 
+    // Matchup lead updates (active round's competition)
+    if (activeRoundId === 'r1' && teamStandings) {
+      for (const r of teamStandings.strokePlayResults) {
+        if (r.playerAThru === 0 && r.playerBThru === 0) continue
+        const aName = players.find(p => p.id === r.matchup.team_a_player_id)?.name.split(' ').pop() ?? '?'
+        const bName = players.find(p => p.id === r.matchup.team_b_player_id)?.name.split(' ').pop() ?? '?'
+        if (r.result === 'team_a_wins') items.push(`✅ ${aName} defeats ${bName} by ${Math.abs((r.playerANetTotal ?? 0) - (r.playerBNetTotal ?? 0))}`)
+        else if (r.result === 'team_b_wins') items.push(`✅ ${bName} defeats ${aName} by ${Math.abs((r.playerANetTotal ?? 0) - (r.playerBNetTotal ?? 0))}`)
+      }
+    } else if (activeRoundId === 'r2' && teamStandings) {
+      for (const r of teamStandings.bestBallResults) {
+        if (r.teamAThru === 0 && r.teamBThru === 0) continue
+        const aNames = r.pairing.team_a_player_ids.map(id => players.find(p => p.id === id)?.name.split(' ').pop() ?? '?').join(' & ')
+        const bNames = r.pairing.team_b_player_ids.map(id => players.find(p => p.id === id)?.name.split(' ').pop() ?? '?').join(' & ')
+        if (r.result === 'team_a_wins') items.push(`✅ ${aNames} win best ball by ${Math.abs((r.teamABestBallTotal ?? 0) - (r.teamBBestBallTotal ?? 0))}`)
+        else if (r.result === 'team_b_wins') items.push(`✅ ${bNames} win best ball by ${Math.abs((r.teamABestBallTotal ?? 0) - (r.teamBBestBallTotal ?? 0))}`)
+      }
+    }
+
+    // Overall tournament leader
     if (leaderboard.length > 0 && leaderboard[0].holesPlayed > 0) {
       const leader = leaderboard[0]
-      items.unshift(`🏆 ${leader.player.name.split(' ')[1]} leads at ${formatVsPar(leader.totalNetVsPar)} through ${leader.holesPlayed} holes`)
+      const lastName = leader.player.name.split(' ').pop()
+      items.unshift(`🏆 ${lastName} leads at ${formatVsPar(leader.totalNetVsPar)} through ${leader.holesPlayed} holes`)
+    }
+
+    // Team competition standing
+    if (teamStandings) {
+      const { teamA, teamB } = teamStandings
+      if (teamA.totalPoints > 0 || teamB.totalPoints > 0) {
+        if (teamA.totalPoints > teamB.totalPoints) {
+          items.push(`⚔️ ${teamA.team.name} leads ${teamA.totalPoints}-${teamB.totalPoints}`)
+        } else if (teamB.totalPoints > teamA.totalPoints) {
+          items.push(`⚔️ ${teamB.team.name} leads ${teamB.totalPoints}-${teamA.totalPoints}`)
+        } else {
+          items.push(`⚔️ Teams tied ${teamA.totalPoints}-${teamB.totalPoints}`)
+        }
+      }
     }
 
     if (items.length === 0) {
@@ -92,13 +144,15 @@ export default function Leaderboard() {
     }
 
     return items
-  }, [scores, rounds, courses, players, leaderboard, getHolesForCourse])
+  }, [scores, rounds, courses, players, leaderboard, teamStandings, adminSettings.r1Locked, getHolesForCourse])
 
   // Prepend admin announcement if set
   const allTickerItems = adminSettings.announcement
     ? [`📢 ${adminSettings.announcement}`, ...tickerItems]
     : tickerItems
   const tickerText = allTickerItems.join('     ●     ')
+  // ~6px per character at 11px font; scroll at ~50px/s for readable pace
+  const tickerDuration = Math.max(15, (tickerText.length * 6) / 50)
 
   return (
     <div>
@@ -106,7 +160,10 @@ export default function Leaderboard() {
 
       {/* News Ticker */}
       <div className="bg-forest text-cream overflow-hidden whitespace-nowrap border-b border-forest-light">
-        <div className="inline-block animate-ticker py-1.5 text-[11px]">
+        <div
+          className="inline-block animate-ticker py-1.5 text-[11px]"
+          style={{ animationDuration: `${tickerDuration}s` }}
+        >
           <span>{tickerText}     ●     {tickerText}</span>
         </div>
       </div>
@@ -140,25 +197,27 @@ export default function Leaderboard() {
             <div className="flex items-center gap-1.5">
               <Bird size={14} className="text-birdie" />
               <span className="text-[11px] font-semibold text-gray-700">{stats.totalBirdies}</span>
-              <span className="text-[9px] text-gray-400">birdies</span>
-              {stats.r1Birdies > 0 && <span className="text-[9px] text-gray-300">(R1:{stats.r1Birdies} R2:{stats.r2Birdies})</span>}
+              <span className="text-[11px] text-gray-400">birdies</span>
+              {stats.r1Birdies > 0 && <span className="text-[11px] text-gray-300">(R1:{stats.r1Birdies} R2:{stats.r2Birdies})</span>}
             </div>
             <div className="w-px h-4 bg-gray-200" />
             <div className="flex items-center gap-1.5">
               <Zap size={14} className="text-eagle" />
               <span className="text-[11px] font-semibold text-gray-700">{stats.totalEagles}</span>
-              <span className="text-[9px] text-gray-400">eagles</span>
-              {stats.r1Eagles > 0 && <span className="text-[9px] text-gray-300">(R1:{stats.r1Eagles} R2:{stats.r2Eagles})</span>}
+              <span className="text-[11px] text-gray-400">eagles</span>
+              {stats.r1Eagles > 0 && <span className="text-[11px] text-gray-300">(R1:{stats.r1Eagles} R2:{stats.r2Eagles})</span>}
             </div>
             <div className="flex-1" />
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                <Trophy size={12} className="text-gold" />
-                <span>{latestChampion?.player_name?.split(' ')[1]} '{String(latestChampion?.year).slice(2)}</span>
-              </div>
+              {latestChampion && (
+                <div className="flex items-center gap-1 text-[11px] text-gray-400">
+                  <Trophy size={12} className="text-gold" />
+                  <span>{latestChampion.player_name.split(' ')[1] ?? latestChampion.player_name} '{String(latestChampion.year).slice(2)}</span>
+                </div>
+              )}
               <button
                 onClick={() => setShowGross(!showGross)}
-                className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600"
+                className="text-[11px] font-medium px-2 py-1.5 rounded-full bg-gray-100 text-gray-600"
               >
                 {showGross ? 'Gross' : 'Net'}
               </button>
@@ -167,16 +226,30 @@ export default function Leaderboard() {
 
           {/* Payout info */}
           <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-            <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+            <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
               <DollarSign size={12} className="text-gold" />
               <span className="font-semibold">Individual Pool $1,800</span>
               <span className="text-gray-400">· 1st $1,080 · 2nd $450 · 3rd $270</span>
             </div>
           </div>
 
+          {/* My Position sticky bar */}
+          {(() => {
+            const myEntry = leaderboard.find(e => e.player.id === currentPlayerId)
+            if (!myEntry || myEntry.holesPlayed === 0) return null
+            const myPos = positionMap.get(myEntry.player.id) ?? '-'
+            const myTotal = showGross ? myEntry.totalGross : formatVsPar(myEntry.totalNetVsPar)
+            const myThru = myEntry.holesPlayed >= 36 ? 'F' : myEntry.holesPlayed
+            return (
+              <div className="sticky top-0 z-10 bg-forest text-white px-4 py-2 flex items-center justify-between text-xs font-semibold shadow-sm">
+                <span>You: {myPos} · {myTotal} · Thru {myThru}</span>
+              </div>
+            )
+          })()}
+
           {/* Leaderboard table */}
           <div className="bg-white">
-            <div className="grid grid-cols-[1.8rem_1fr_2.5rem_3rem_2.5rem_2.5rem] px-3 py-2 text-[10px] font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+            <div className="grid grid-cols-[1.8rem_1fr_2.5rem_3rem_2.5rem_2.5rem] px-3 py-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-100">
               <span></span>
               <span>Player</span>
               <span className="text-center">Thru</span>
@@ -187,7 +260,7 @@ export default function Leaderboard() {
 
             {leaderboard.map((entry, idx) => {
               const isExpanded = expandedPlayer === entry.player.id
-              const pos = entry.holesPlayed === 0 ? '-' : idx + 1
+              const pos = positionMap.get(entry.player.id) ?? (idx + 1)
               const total = showGross
                 ? (entry.holesPlayed > 0 ? entry.totalGross : '-')
                 : (entry.holesPlayed > 0 ? formatVsPar(entry.totalNetVsPar) : '-')
@@ -211,9 +284,9 @@ export default function Leaderboard() {
                     <span className="text-xs font-bold text-gray-400">{pos}</span>
                     <div className="flex items-center gap-1 min-w-0">
                       <span className="text-[13px] font-semibold text-gray-900 truncate">
-                        {entry.player.name.split(' ')[1] || entry.player.name}
+                        {entry.player.name.split(' ').pop() ?? entry.player.name}
                       </span>
-                      <span className="text-[9px] text-gray-400 shrink-0">({entry.player.handicap_index})</span>
+                      <span className="text-[11px] text-gray-400 shrink-0">({entry.player.handicap_index})</span>
                       {isExpanded ? <ChevronUp size={12} className="text-gray-400 shrink-0" /> : <ChevronDown size={12} className="text-gray-400 shrink-0" />}
                     </div>
                     <span className="text-xs text-center text-gray-500">
@@ -244,7 +317,7 @@ export default function Leaderboard() {
         </>
       ) : (
         /* Teams View */
-        <TeamLeaderboardView teamStandings={teamStandings} players={players} adminSettings={adminSettings} />
+        <TeamLeaderboardView teamStandings={teamStandings} players={players} adminSettings={adminSettings} scores={scores} rounds={rounds} courses={courses} getHolesForCourse={getHolesForCourse} />
       )}
     </div>
   )
@@ -254,7 +327,12 @@ export default function Leaderboard() {
 
 import type { AdminSettings } from '../lib/TournamentContext'
 
-function TeamLeaderboardView({ teamStandings, players, adminSettings }: { teamStandings: TeamStandings | null; players: Player[]; adminSettings: AdminSettings }) {
+import type { Score, Round, Course, Hole } from '../lib/types'
+
+function TeamLeaderboardView({ teamStandings, players, adminSettings, scores, rounds, courses, getHolesForCourse }: {
+  teamStandings: TeamStandings | null; players: Player[]; adminSettings: AdminSettings
+  scores: Score[]; rounds: Round[]; courses: Course[]; getHolesForCourse: (courseId: string) => Hole[]
+}) {
   if (!teamStandings) {
     return (
       <div className="px-4 py-8 text-center text-gray-400 text-sm">
@@ -268,6 +346,16 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings }: { teamSt
   const bLeading = teamB.totalPoints > teamA.totalPoints
 
   const formatPts = (n: number) => n % 1 === 0 ? String(n) : n.toFixed(1)
+
+  // Compute round-specific data for scorecards
+  const r1 = rounds.find(r => r.round_number === 1)
+  const r2 = rounds.find(r => r.round_number === 2)
+  const r1Course = r1 ? courses.find(c => c.id === r1.course_id) : null
+  const r2Course = r2 ? courses.find(c => c.id === r2.course_id) : null
+  const r1Holes = r1 ? getHolesForCourse(r1.course_id) : []
+  const r2Holes = r2 ? getHolesForCourse(r2.course_id) : []
+  const r1Scores = scores.filter(s => s.round_id === 'r1')
+  const r2Scores = scores.filter(s => s.round_id === 'r2')
 
   return (
     <div className="pb-4">
@@ -292,27 +380,50 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings }: { teamSt
 
       {/* Points Breakdown */}
       <div className="mx-4 mt-3 bg-white rounded-xl p-3 shadow-sm">
-        <div className="grid grid-cols-3 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <div className="grid grid-cols-3 text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
           <span>{teamA.team.name.split(' ').pop()}</span>
           <span></span>
           <span>{teamB.team.name.split(' ').pop()}</span>
         </div>
         <div className="grid grid-cols-3 text-center text-sm items-center border-t border-gray-100 py-1.5">
           <span className="font-bold text-gray-900">{formatPts(teamA.strokePlayPoints)}</span>
-          <span className="text-[10px] text-gray-400">Day 1 · Stroke Play</span>
+          <span className="text-[11px] text-gray-400">Day 1 · Stroke Play</span>
           <span className="font-bold text-gray-900">{formatPts(teamB.strokePlayPoints)}</span>
         </div>
         <div className="grid grid-cols-3 text-center text-sm items-center border-t border-gray-100 py-1.5">
           <span className="font-bold text-gray-900">{formatPts(teamA.bestBallPoints)}</span>
-          <span className="text-[10px] text-gray-400">Day 2 · Best Ball</span>
+          <span className="text-[11px] text-gray-400">Day 2 · Best Ball</span>
           <span className="font-bold text-gray-900">{formatPts(teamB.bestBallPoints)}</span>
         </div>
         <div className="grid grid-cols-3 text-center text-sm items-center border-t-2 border-forest/20 py-1.5">
           <span className={`font-bold text-lg ${aLeading ? 'text-forest' : 'text-gray-900'}`}>{formatPts(teamA.totalPoints)}</span>
-          <span className="text-[10px] font-bold text-gray-500">TOTAL (18 pts max)</span>
+          <span className="text-[11px] font-bold text-gray-500">TOTAL (18 pts max)</span>
           <span className={`font-bold text-lg ${bLeading ? 'text-forest' : 'text-gray-900'}`}>{formatPts(teamB.totalPoints)}</span>
         </div>
       </div>
+
+      {/* When R1 is locked, show Day 2 first (active round on top) */}
+      {(adminSettings.showDay2Matchups || adminSettings.r1Locked) && adminSettings.r1Locked && (
+        <div className="px-4 mt-4">
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+            Day 2 — Best Ball (2v2) · 8 pts
+          </h3>
+          <div className="space-y-1.5">
+            {bestBallResults.map(r => (
+              <BestBallCard
+                key={r.pairing.id}
+                result={r}
+                players={players}
+                teamAName={teamA.team.name}
+                teamBName={teamB.team.name}
+                scores={r2Scores}
+                holes={r2Holes}
+                slope={r2Course?.slope}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Day 1: Stroke Play 1v1 */}
       {adminSettings.showDay1Matchups && (
@@ -328,14 +439,17 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings }: { teamSt
                 players={players}
                 teamAName={teamA.team.name}
                 teamBName={teamB.team.name}
+                scores={r1Scores}
+                holes={r1Holes}
+                slope={r1Course?.slope}
               />
             ))}
           </div>
         </div>
       )}
 
-      {/* Day 2: Best Ball 2v2 */}
-      {adminSettings.showDay2Matchups && (
+      {/* Day 2: show below Day 1 when R1 is NOT yet locked */}
+      {(adminSettings.showDay2Matchups) && !adminSettings.r1Locked && (
         <div className="px-4 mt-4">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
             Day 2 — Best Ball (2v2) · 8 pts
@@ -348,6 +462,9 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings }: { teamSt
                 players={players}
                 teamAName={teamA.team.name}
                 teamBName={teamB.team.name}
+                scores={r2Scores}
+                holes={r2Holes}
+                slope={r2Course?.slope}
               />
             ))}
           </div>
@@ -360,18 +477,18 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings }: { teamSt
           const captain = players.find(p => p.id === t.team.captain_id)
           const roster = t.team.player_ids
             .map(id => players.find(p => p.id === id))
-            .filter(Boolean)
+            .filter((p): p is Player => !!p)
           return (
             <div key={t.team.id} className="bg-white rounded-xl p-3 shadow-sm">
-              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t.team.name}</div>
+              <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{t.team.name}</div>
               <div className="space-y-1">
                 {roster.map(p => (
-                  <div key={p!.id} className="text-xs text-gray-700 flex items-center gap-1">
-                    {p!.id === captain?.id && <span className="text-gold text-[9px] font-bold">C</span>}
-                    <span className={p!.id === captain?.id ? 'font-semibold' : ''}>
-                      {p!.name.split(' ').pop()}
+                  <div key={p.id} className="text-xs text-gray-700 flex items-center gap-1">
+                    {p.id === captain?.id && <span className="text-gold text-[11px] font-bold">C</span>}
+                    <span className={p.id === captain?.id ? 'font-semibold' : ''}>
+                      {p.name.split(' ').pop()}
                     </span>
-                    <span className="text-[9px] text-gray-400">({p!.handicap_index})</span>
+                    <span className="text-[11px] text-gray-400">({p.handicap_index})</span>
                   </div>
                 ))}
               </div>

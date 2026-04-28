@@ -91,9 +91,9 @@ export default function PlayerDetail() {
                     <td className="px-2 py-1.5 text-center font-bold text-forest">{count > 0 ? netTotal : '-'}</td>
                   </tr>
                   <tr>
-                    <td className="px-2 py-1 text-[10px] text-gray-400">Strk</td>
+                    <td className="px-2 py-1 text-[11px] text-gray-400">Strk</td>
                     {rows.map(r => (
-                      <td key={r.hole.hole_number} className="px-1 py-1 text-center text-[10px] text-gray-400">
+                      <td key={r.hole.hole_number} className="px-1 py-1 text-center text-[11px] text-gray-400">
                         {r.strokes > 0 ? `+${r.strokes}` : ''}
                       </td>
                     ))}
@@ -110,7 +110,7 @@ export default function PlayerDetail() {
             <div className="px-3 py-2.5 bg-forest/10 flex items-center justify-between">
               <div>
                 <div className="text-sm font-semibold text-forest">R{round.round_number}: {course.name}</div>
-                <div className="text-[10px] text-gray-500">Course HCP: {courseHcp} · Slope: {course.slope} · Rating: {course.rating}</div>
+                <div className="text-[11px] text-gray-500">Course HCP: {courseHcp} · Slope: {course.slope} · Rating: {course.rating}</div>
               </div>
             </div>
             <div className="overflow-x-auto">

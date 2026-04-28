@@ -6,7 +6,7 @@ import { useTournament } from '../lib/TournamentContext'
 const ADMIN_PLAYER_ID = 'p2'
 
 export default function BottomNav() {
-  const { isAdmin, currentPlayerId } = useTournament()
+  const { isAdmin, currentPlayerId, adminSettings } = useTournament()
   const isSuperAdmin = isAdmin && currentPlayerId === ADMIN_PLAYER_ID
 
   const navItems = [
@@ -33,7 +33,7 @@ export default function BottomNav() {
               <>
                 <div className="relative">
                   <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
-                  {to === '/scores' && !isAdmin && (
+                  {to === '/scores' && !isAdmin && (adminSettings.r1Locked && adminSettings.r2Locked) && (
                     <Lock size={10} className="absolute -top-1 -right-2 text-gold" />
                   )}
                 </div>

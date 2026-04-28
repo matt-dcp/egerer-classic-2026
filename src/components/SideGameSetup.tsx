@@ -47,7 +47,7 @@ export default function SideGameSetup({ foursome, players, activeGames, onAddGam
           <div className="flex items-center justify-between">
             <div>
               <div className="font-semibold text-sm">Sixes</div>
-              <div className="text-[10px] text-gray-400">Each player partners with every other for 6 holes</div>
+              <div className="text-[11px] text-gray-400">Each player partners with every other for 6 holes</div>
             </div>
             <button
               onClick={() => has666
@@ -62,7 +62,7 @@ export default function SideGameSetup({ foursome, players, activeGames, onAddGam
             </button>
           </div>
           {has666 && (
-            <div className="mt-2 text-[10px] text-gray-500 space-y-0.5">
+            <div className="mt-2 text-[11px] text-gray-500 space-y-0.5">
               <div>H1-6: {getName(pIds[0])}+{getName(pIds[1])} vs {getName(pIds[2])}+{getName(pIds[3])}</div>
               <div>H7-12: {getName(pIds[0])}+{getName(pIds[2])} vs {getName(pIds[1])}+{getName(pIds[3])}</div>
               <div>H13-18: {getName(pIds[0])}+{getName(pIds[3])} vs {getName(pIds[1])}+{getName(pIds[2])}</div>
@@ -75,7 +75,7 @@ export default function SideGameSetup({ foursome, players, activeGames, onAddGam
           <div className="flex items-center justify-between">
             <div>
               <div className="font-semibold text-sm">Nassau (2v2)</div>
-              <div className="text-[10px] text-gray-400">Front 9, Back 9, and Overall bets</div>
+              <div className="text-[11px] text-gray-400">Front 9, Back 9, and Overall bets</div>
             </div>
             <button
               onClick={() => {
@@ -94,13 +94,13 @@ export default function SideGameSetup({ foursome, players, activeGames, onAddGam
           </div>
           {!nassauConfig && (
             <div className="mt-3">
-              <div className="text-[10px] text-gray-400 mb-1">Tap to assign Team 1 (2 players):</div>
+              <div className="text-[11px] text-gray-400 mb-1">Tap to assign Team 1 (2 players):</div>
               <div className="flex gap-1.5">
                 {pIds.map(id => (
                   <button
                     key={id}
                     onClick={() => toggleNassauPlayer(id)}
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-medium ${
+                    className={`px-2.5 py-1.5 rounded-full text-[11px] font-medium ${
                       nassauTeam1.includes(id) ? 'bg-forest text-white' : 'bg-gray-100 text-gray-500'
                     }`}
                   >
@@ -109,14 +109,14 @@ export default function SideGameSetup({ foursome, players, activeGames, onAddGam
                 ))}
               </div>
               {nassauTeam1.length === 2 && (
-                <div className="mt-1.5 text-[10px] text-gray-400">
+                <div className="mt-1.5 text-[11px] text-gray-400">
                   Team 1: {nassauTeam1.map(getName).join(' + ')} vs Team 2: {nassauTeam2.map(getName).join(' + ')}
                 </div>
               )}
             </div>
           )}
           {nassauConfig && (
-            <div className="mt-2 text-[10px] text-gray-500">
+            <div className="mt-2 text-[11px] text-gray-500">
               Team 1: {nassauConfig.team1.map(getName).join(' + ')} vs Team 2: {nassauConfig.team2.map(getName).join(' + ')}
             </div>
           )}

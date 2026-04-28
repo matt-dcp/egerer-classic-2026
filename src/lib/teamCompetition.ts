@@ -217,8 +217,8 @@ export function computeTeamStandings(
 ): TeamStandings | null {
   if (teams.length < 2) return null
 
-  const teamA = teams.find(t => t.id === 'team-a')!
-  const teamB = teams.find(t => t.id === 'team-b')!
+  const teamA = teams.find(t => t.id === 'team-a')
+  const teamB = teams.find(t => t.id === 'team-b')
   if (!teamA || !teamB) return null
 
   // Stroke play results (Day 1)

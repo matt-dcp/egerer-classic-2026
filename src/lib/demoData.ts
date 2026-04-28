@@ -95,6 +95,10 @@ export const DEMO_PLAYERS: Player[] = [
   { id: 'p14', tournament_id: 'ec-2026', name: 'Jess Parker', handicap_index: 6.7 },
   { id: 'p15', tournament_id: 'ec-2026', name: 'Andrew Fitzgerald', handicap_index: 8.1 },
   { id: 'p16', tournament_id: 'ec-2026', name: 'Trey Evans', handicap_index: 0 },
+  { id: 'p17', tournament_id: 'ec-2026', name: 'TBD Player 17', handicap_index: 0 },
+  { id: 'p18', tournament_id: 'ec-2026', name: 'TBD Player 18', handicap_index: 0 },
+  { id: 'p19', tournament_id: 'ec-2026', name: 'TBD Player 19', handicap_index: 0 },
+  { id: 'p20', tournament_id: 'ec-2026', name: 'TBD Player 20', handicap_index: 0 },
 ]
 
 export const DEMO_ROUNDS: Round[] = [

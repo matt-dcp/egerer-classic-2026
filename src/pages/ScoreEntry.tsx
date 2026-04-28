@@ -30,9 +30,14 @@ export default function ScoreEntry() {
   const [editingHole, setEditingHole] = useState<number | null>(null)
   const [editValue, setEditValue] = useState(4)
 
+  // Admin foursome override — lets admin enter scores for any foursome
+  const [adminFoursomeId, setAdminFoursomeId] = useState<string | null>(null)
+  const roundFoursomes = foursomes.filter(f => f.round_id === selectedRound)
+
   // Auto-switch when R1 gets locked
   useEffect(() => {
     setSelectedRound(activeRoundId)
+    setAdminFoursomeId(null)
   }, [activeRoundId])
 
   const round = rounds.find(r => r.id === selectedRound)
@@ -94,10 +99,6 @@ export default function ScoreEntry() {
 
   const frontTotals = calcNineTotals(front9)
   const backTotals = calcNineTotals(back9)
-  const roundGross = frontTotals.grossTotal + backTotals.grossTotal
-  const roundNet = frontTotals.netTotal + backTotals.netTotal
-  const roundPar = frontTotals.parTotal + backTotals.parTotal
-  const roundComplete = frontTotals.count + backTotals.count
 
   const handleHoleTap = (holeNum: number, par: number) => {
     if (isRoundLocked(selectedRound)) return
@@ -106,7 +107,7 @@ export default function ScoreEntry() {
   }
 
   const handleSaveHole = () => {
-    if (editingHole === null) return
+    if (editingHole === null || !myPlayerId) return
     submitScore(selectedRound, myPlayerId, editingHole, editValue)
     const nextHole = editingHole < 18 ? editingHole + 1 : null
     if (nextHole) {
@@ -121,9 +122,9 @@ export default function ScoreEntry() {
   const renderHoleGrid = (holes: Hole[], label: string, totals: ReturnType<typeof calcNineTotals>) => (
     <div className="mb-3">
       <div className="flex items-center justify-between px-1 mb-1">
-        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{label}</div>
+        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{label}</div>
         {totals.count > 0 && (
-          <span className="text-[10px] font-bold text-gray-500">
+          <span className="text-[11px] font-bold text-gray-500">
             {totals.grossTotal}<span className="text-gray-300">/</span><span className="text-forest">{totals.netTotal}</span>
           </span>
         )}
@@ -149,7 +150,7 @@ export default function ScoreEntry() {
                   isEditing ? 'bg-white/70' : strokesOnHole > 1 ? 'bg-forest' : 'bg-forest/50'
                 }`} />
               )}
-              <span className={`text-[9px] leading-tight ${isEditing ? 'text-white/60' : 'text-gray-400'}`}>
+              <span className={`text-[11px] leading-tight ${isEditing ? 'text-white/60' : 'text-gray-400'}`}>
                 {hole.hole_number}
               </span>
               {gross !== null ? (
@@ -157,12 +158,12 @@ export default function ScoreEntry() {
                   <span className={`text-[13px] font-bold ${isEditing ? 'text-white' : getHoleScoreColor(gross, hole.par)}`}>
                     {gross}
                   </span>
-                  <span className={`text-[9px] ${isEditing ? 'text-white/50' : 'text-forest/60'}`}>/{net}</span>
+                  <span className={`text-[11px] ${isEditing ? 'text-white/50' : 'text-forest/60'}`}>/{net}</span>
                 </div>
               ) : (
                 <span className="text-[13px] font-bold text-gray-300">-</span>
               )}
-              <span className={`text-[8px] leading-tight ${isEditing ? 'text-white/50' : 'text-gray-300'}`}>
+              <span className={`text-[11px] leading-tight ${isEditing ? 'text-white/50' : 'text-gray-300'}`}>
                 P{hole.par}
               </span>
             </button>
@@ -184,30 +185,43 @@ export default function ScoreEntry() {
           </div>
           <div>
             <div className="text-sm font-semibold text-gray-900">{myPlayer?.name}</div>
-            <div className="text-[10px] text-gray-400">HCP {myPlayer?.handicap_index} · Course HCP {courseHcp}</div>
+            <div className="text-[11px] text-gray-400">HCP {myPlayer?.handicap_index} · Course HCP {courseHcp}</div>
           </div>
         </div>
       </div>
 
-      {/* Admin: round switcher for reviewing both rounds */}
-      {isAdmin && (
-        <div className="px-4 py-2 bg-white border-b border-gray-100 flex gap-2">
-          {rounds.map(r => {
-            const c = courses.find(c => c.id === r.course_id)
-            return (
-              <button
-                key={r.id}
-                onClick={() => { setSelectedRound(r.id); setEditingHole(null) }}
-                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                  selectedRound === r.id ? 'bg-forest text-white' : 'bg-gray-100 text-gray-600'
-                }`}
-              >
-                R{r.round_number}: {c?.name.split('–')[1]?.trim() || c?.name}
-              </button>
-            )
-          })}
+      {/* Admin foursome picker */}
+      {isAdmin && roundFoursomes.length > 0 && (
+        <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
+          <div className="flex items-center gap-2 overflow-x-auto">
+            <span className="text-[11px] text-gray-400 font-semibold shrink-0">Foursome:</span>
+            <button
+              onClick={() => setAdminFoursomeId(null)}
+              className={`px-2.5 py-1.5 rounded-full text-[11px] font-semibold shrink-0 transition-colors ${
+                !adminFoursomeId ? 'bg-forest text-white' : 'bg-white text-gray-500 border border-gray-200'
+              }`}
+            >
+              My Group
+            </button>
+            {roundFoursomes.map((fs, i) => {
+              const names = fs.player_ids.map(id => players.find(p => p.id === id)?.name.split(' ').pop() ?? '?')
+              return (
+                <button
+                  key={fs.id}
+                  onClick={() => setAdminFoursomeId(fs.id)}
+                  className={`px-2.5 py-1.5 rounded-full text-[11px] font-semibold shrink-0 transition-colors ${
+                    adminFoursomeId === fs.id ? 'bg-forest text-white' : 'bg-white text-gray-500 border border-gray-200'
+                  }`}
+                >
+                  G{i + 1}: {names.slice(0, 2).join('/')}
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
+
+      {/* Admin round tab — only shows the active round (R1 until locked, then R2 only) */}
 
       {/* Round locked banner */}
       {isRoundLocked(selectedRound) && (
@@ -231,10 +245,12 @@ export default function ScoreEntry() {
           return diff === 0 ? 'E' : (diff > 0 ? `+${diff}` : `${diff}`)
         }
 
-        // Find the foursome for this round
-        const myFoursome = foursomes.find(f => f.round_id === selectedRound && f.player_ids.includes(myPlayerId))
+        // Find the foursome for this round — admin can override to any foursome
+        const myFoursome = (isAdmin && adminFoursomeId)
+          ? foursomes.find(f => f.id === adminFoursomeId)
+          : foursomes.find(f => f.round_id === selectedRound && f.player_ids.includes(myPlayerId))
         const foursomePlayers = myFoursome
-          ? myFoursome.player_ids.map(id => players.find(p => p.id === id)!).filter(Boolean)
+          ? (myFoursome.player_ids.map(id => players.find(p => p.id === id)).filter(Boolean) as typeof players)
           : []
         const foursomeGameConfigs = myFoursome
           ? sideGameConfigs.filter(g => g.foursome_id === myFoursome.id)
@@ -273,13 +289,13 @@ export default function ScoreEntry() {
               {matchup.is_pressure_bet && (
                 <div className="flex items-center gap-1 mb-1.5">
                   <Flame size={12} className="text-gold" />
-                  <span className="text-[9px] font-bold text-gold uppercase tracking-wider">Pressure Bet (2x)</span>
+                  <span className="text-[11px] font-bold text-gold uppercase tracking-wider">Pressure Bet (2x)</span>
                 </div>
               )}
               <div className="flex items-center justify-between mb-1">
-                <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">{label}</div>
+                <div className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">{label}</div>
                 {bothHave && (
-                  <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                  <span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                     aWinning ? 'bg-green-100 text-green-700' : bWinning ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
                   }`}>
                     {aWinning ? `${getName(matchup.team_a_player_id)} leads by ${bVsPar - aVsPar}` : bWinning ? `${getName(matchup.team_b_player_id)} leads by ${aVsPar - bVsPar}` : 'Tied'}
@@ -290,13 +306,13 @@ export default function ScoreEntry() {
                 <div className="text-center flex-1">
                   <div className={`text-xs font-bold ${isMyMatch && matchup.team_a_player_id === myPlayerId ? 'text-forest' : 'text-gray-700'}`}>{getName(matchup.team_a_player_id)}</div>
                   <div className={`text-lg font-bold ${aWinning ? 'text-green-700' : bWinning ? 'text-red-600' : 'text-gray-900'}`}>{fmtVsPar(aNet, aThru)}</div>
-                  <div className="text-[9px] text-gray-400">thru {aThru}</div>
+                  <div className="text-[11px] text-gray-400">thru {aThru}</div>
                 </div>
                 <div className="text-xs text-gray-400 px-2">vs</div>
                 <div className="text-center flex-1">
                   <div className={`text-xs font-bold ${isMyMatch && matchup.team_b_player_id === myPlayerId ? 'text-forest' : 'text-gray-700'}`}>{getName(matchup.team_b_player_id)}</div>
                   <div className={`text-lg font-bold ${bWinning ? 'text-green-700' : aWinning ? 'text-red-600' : 'text-gray-900'}`}>{fmtVsPar(bNet, bThru)}</div>
-                  <div className="text-[9px] text-gray-400">thru {bThru}</div>
+                  <div className="text-[11px] text-gray-400">thru {bThru}</div>
                 </div>
               </div>
             </div>
@@ -323,9 +339,9 @@ export default function ScoreEntry() {
           return (
             <div key={pairing.id} className="bg-forest/5 rounded-xl p-3">
               <div className="flex items-center justify-between mb-1">
-                <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Your Match · Best Ball</div>
+                <div className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Your Match · Best Ball</div>
                 {bothHave && (
-                  <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                  <span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                     weWin ? 'bg-green-100 text-green-700' : theyWin ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'
                   }`}>
                     {weWin ? 'Leading' : theyWin ? 'Trailing' : 'Tied'}
@@ -336,13 +352,13 @@ export default function ScoreEntry() {
                 <div className="text-center flex-1">
                   <div className="text-xs font-bold text-forest">{myTeamIds.map(getName).join(' & ')}</div>
                   <div className={`text-lg font-bold ${weWin ? 'text-green-700' : theyWin ? 'text-red-600' : 'text-gray-900'}`}>{fmtVsPar(myTotal, myThru)}</div>
-                  <div className="text-[9px] text-gray-400">thru {myThru}</div>
+                  <div className="text-[11px] text-gray-400">thru {myThru}</div>
                 </div>
                 <div className="text-xs text-gray-400 px-2">vs</div>
                 <div className="text-center flex-1">
                   <div className="text-xs font-bold text-gray-600">{oppTeamIds.map(getName).join(' & ')}</div>
                   <div className={`text-lg font-bold ${theyWin ? 'text-green-700' : weWin ? 'text-red-600' : 'text-gray-900'}`}>{fmtVsPar(oppTotal, oppThru)}</div>
-                  <div className="text-[9px] text-gray-400">thru {oppThru}</div>
+                  <div className="text-[11px] text-gray-400">thru {oppThru}</div>
                 </div>
               </div>
             </div>
@@ -367,13 +383,7 @@ export default function ScoreEntry() {
 
         return (
           <>
-            {/* Match cards */}
-            <div className="mx-4 mt-2 space-y-2">
-              {relevantMatchups.map(renderStrokePlayCard)}
-              {relevantPairings.map(renderBestBallCard)}
-            </div>
-
-            {/* Score entry for all foursome players */}
+            {/* Score entry for all foursome players (above match cards for quick access) */}
             {entryPlayers.length > 1 && course ? (
               <div className="px-4 py-3">
                 <FoursomeHoleByHole
@@ -413,32 +423,174 @@ export default function ScoreEntry() {
                   {renderHoleGrid(front9, 'Front 9', frontTotals)}
                   {renderHoleGrid(back9, 'Back 9', backTotals)}
                 </div>
-                {roundComplete > 0 && (() => {
-                  const roundVsPar = roundNet - roundPar
-                  const fullRound = roundComplete === 18
-                  const reaction = fullRound ? getScoreReaction(roundVsPar) : null
-                  return (
-                    <div className="mx-4 mb-3 bg-forest/5 rounded-xl p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs font-semibold text-forest">Round Total</div>
-                        <div className="flex items-center gap-3 text-sm">
-                          <div><span className="text-[10px] text-gray-400 mr-1">Gross</span><span className="font-bold text-gray-700">{roundGross}</span></div>
-                          <div><span className="text-[10px] text-gray-400 mr-1">Net</span><span className="font-bold text-forest">{roundNet}</span><span className="text-[10px] text-gray-400 ml-1">({roundVsPar >= 0 ? '+' : ''}{roundVsPar})</span></div>
-                          <div className="text-[10px] text-gray-400">{roundComplete}/18</div>
-                        </div>
-                      </div>
-                      {reaction && (
-                        <div className="mt-2 pt-2 border-t border-forest/10 text-center">
-                          <span className="text-2xl">{reaction.emoji}</span>
-                          <span className="text-xs font-semibold text-gray-600 ml-2">{reaction.text}</span>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })()}
               </>
             )}
+
+            {/* Match cards */}
+            <div className="mx-4 mt-2 space-y-2">
+              {relevantMatchups.map(renderStrokePlayCard)}
+              {relevantPairings.map(renderBestBallCard)}
+            </div>
           </>
+        )
+      })()}
+
+      {/* Combined scorecard — all foursome players on one card, like a paper scorecard */}
+      {(() => {
+        const activeFoursome = foursomes.find(f =>
+          (isAdmin && adminFoursomeId) ? f.id === adminFoursomeId : f.round_id === selectedRound && f.player_ids.includes(myPlayerId),
+        )
+        const cardPlayers = (activeFoursome
+          ? activeFoursome.player_ids.map(id => players.find(p => p.id === id)).filter(Boolean)
+          : myPlayer ? [myPlayer] : []) as typeof players
+
+        if (!cardPlayers.length || !course) return null
+
+        const roundScores = scores.filter(s => s.round_id === selectedRound)
+        const slope = course.slope
+
+        // Pre-compute per-player data
+        const playerData = cardPlayers.map(p => {
+          const cHcp = calculateCourseHandicap(p.handicap_index, slope)
+          const pScores = roundScores.filter(s => s.player_id === p.id)
+          return {
+            player: p,
+            courseHcp: cHcp,
+            lastName: p.name.split(' ').pop() ?? '?',
+            isMe: p.id === myPlayerId,
+            getGross: (hn: number) => pScores.find(s => s.hole_number === hn)?.gross_score ?? null,
+            getsStroke: (si: number) => getStrokesForHole(cHcp, si) > 0,
+            getNet: (hn: number, g: number | null) => {
+              if (g === null) return null
+              const h = courseHoles.find(h => h.hole_number === hn)
+              return h ? g - getStrokesForHole(cHcp, h.stroke_index) : g
+            },
+          }
+        })
+
+        const renderNine = (nineHoles: Hole[], label: string) => {
+          const ninePar = nineHoles.reduce((s, h) => s + h.par, 0)
+          return (
+            <div className="overflow-x-auto">
+              <table className="w-full text-[11px] text-center border-collapse">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-1 py-0.5 text-gray-400 font-medium text-left w-14 text-[11px] sticky left-0 bg-gray-50">{label}</th>
+                    {nineHoles.map(h => <th key={h.hole_number} className="px-0 py-0.5 text-gray-400 font-medium min-w-[36px] text-[11px]">{h.hole_number}</th>)}
+                    <th className="px-1 py-0.5 text-gray-600 font-bold text-[11px] min-w-[36px]">{label === 'Front 9' ? 'OUT' : 'IN'}</th>
+                    {label === 'Back 9' && <th className="px-1 py-0.5 text-gray-600 font-bold text-[11px] min-w-[36px]">TOT</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-t border-gray-200 bg-gray-50/50">
+                    <td className="px-1 py-0.5 text-gray-400 text-left text-[11px] font-medium sticky left-0 bg-gray-50/50">Par</td>
+                    {nineHoles.map(h => <td key={h.hole_number} className="px-0 py-0.5 text-gray-400 text-[11px]">{h.par}</td>)}
+                    <td className="px-1 py-0.5 text-gray-500 font-bold text-[11px]">{ninePar}</td>
+                    {label === 'Back 9' && <td className="px-1 py-0.5 text-gray-500 font-bold text-[11px]">{ninePar + front9.reduce((s, h) => s + h.par, 0)}</td>}
+                  </tr>
+                  {playerData.map(pd => {
+                    let nineGross = 0, nineNet = 0, nineCount = 0
+                    for (const h of nineHoles) {
+                      const g = pd.getGross(h.hole_number)
+                      if (g !== null) { nineGross += g; nineNet += pd.getNet(h.hole_number, g)!; nineCount++ }
+                    }
+                    // For total column on back 9
+                    let frontGross = 0, frontNet = 0
+                    if (label === 'Back 9') {
+                      for (const h of front9) {
+                        const g = pd.getGross(h.hole_number)
+                        if (g !== null) { frontGross += g; frontNet += pd.getNet(h.hole_number, g)! }
+                      }
+                    }
+                    const totalGross = frontGross + nineGross
+                    const totalNet = frontNet + nineNet
+                    const allCount = label === 'Back 9' ? (front9.reduce((c, h) => c + (pd.getGross(h.hole_number) !== null ? 1 : 0), 0) + nineCount) : nineCount
+
+                    return (
+                      <tr key={pd.player.id} className={`border-t ${pd.isMe ? 'bg-forest/5' : ''}`}>
+                        <td className={`px-1 py-1 text-left text-[11px] font-bold sticky left-0 ${pd.isMe ? 'text-forest bg-forest/5' : 'text-gray-600 bg-white'}`}>
+                          {pd.lastName}
+                        </td>
+                        {nineHoles.map(h => {
+                          const g = pd.getGross(h.hole_number)
+                          const n = pd.getNet(h.hole_number, g)
+                          const stroke = pd.getsStroke(h.stroke_index)
+                          return (
+                            <td key={h.hole_number} className="px-0 py-1 relative">
+                              {stroke && (
+                                <span className="absolute top-0 right-0.5 text-[5px] text-forest leading-none">●</span>
+                              )}
+                              {g !== null ? (
+                                <span className={`text-[11px] font-bold ${getHoleScoreColor(n!, h.par)}`}>
+                                  {g}{stroke && <span className="text-gray-400 font-normal">/{n}</span>}
+                                </span>
+                              ) : (
+                                <span className="text-[11px] text-gray-300">-</span>
+                              )}
+                            </td>
+                          )
+                        })}
+                        <td className="px-1 py-1 text-[11px] font-bold">
+                          {nineCount > 0 ? (
+                            <span className="text-gray-700">{nineGross}<span className="text-forest font-normal">/{nineNet}</span></span>
+                          ) : '-'}
+                        </td>
+                        {label === 'Back 9' && (
+                          <td className="px-1 py-1 text-[11px] font-bold">
+                            {allCount > 0 ? (
+                              <span className="text-gray-700">{totalGross}<span className="text-forest font-normal">/{totalNet}</span></span>
+                            ) : '-'}
+                          </td>
+                        )}
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
+        }
+
+        // Compute reactions for full-round players
+        const reactions = playerData.map(pd => {
+          let totalNet = 0, totalPar = 0, count = 0
+          for (const h of courseHoles) {
+            totalPar += h.par
+            const g = pd.getGross(h.hole_number)
+            if (g !== null) { totalNet += pd.getNet(h.hole_number, g)!; count++ }
+          }
+          return count === 18 ? { name: pd.lastName, ...getScoreReaction(totalNet - totalPar) } : null
+        }).filter(Boolean)
+
+        return (
+          <div className="mx-4 mb-3 bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="bg-forest/10 px-3 py-2 flex items-center justify-between">
+              <div className="text-[11px] font-bold text-forest uppercase tracking-wider">Scorecard</div>
+              <div className="text-[11px] text-gray-400">{course.name} · {course.tee_name} Tees</div>
+            </div>
+            {renderNine(front9, 'Front 9')}
+            <div className="border-t-2 border-gray-200" />
+            {renderNine(back9, 'Back 9')}
+            {/* Player legend with handicaps */}
+            <div className="border-t border-gray-200 px-3 py-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
+              {playerData.map(pd => (
+                <span key={pd.player.id} className={`text-[11px] ${pd.isMe ? 'text-forest font-bold' : 'text-gray-500'}`}>
+                  {pd.lastName} <span className="text-gray-400 font-normal">C{pd.courseHcp}</span>
+                </span>
+              ))}
+              <span className="text-[11px] text-gray-400 ml-auto">● = stroke</span>
+            </div>
+            {reactions.length > 0 && (
+              <div className="border-t border-forest/10 px-3 py-1.5 bg-forest/5 flex flex-wrap gap-3 justify-center">
+                {reactions.map((r, i) => (
+                  <span key={i} className="text-[11px]">
+                    <span className="text-sm">{r!.emoji}</span>
+                    <span className="font-semibold text-gray-600 ml-1">{r!.name}: {r!.text}</span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         )
       })()}
 
@@ -464,10 +616,10 @@ export default function ScoreEntry() {
                 {getExistingScore(editingHole) !== null && (
                   <button
                     onClick={() => {
-                      deleteScore(selectedRound, myPlayerId, editingHole!)
+                      if (editingHole !== null) deleteScore(selectedRound, myPlayerId, editingHole)
                       setEditingHole(null)
                     }}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-500 text-[10px] font-semibold"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-500 text-[11px] font-semibold"
                   >
                     <Trash2 size={12} /> Clear
                   </button>
@@ -497,7 +649,7 @@ export default function ScoreEntry() {
                 <Plus size={24} className="text-gray-700" />
               </button>
             </div>
-            <div className="text-center text-[10px] text-gray-400 mt-1">gross / net</div>
+            <div className="text-center text-[11px] text-gray-400 mt-1">gross / net</div>
             <button
               onClick={handleSaveHole}
               className="w-full mt-4 py-3.5 bg-forest text-white rounded-xl font-semibold text-sm active:bg-forest-light"

@@ -59,10 +59,10 @@ export default function SideGameScoreboard({
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-gray-600">Side Games</span>
           {!expanded && hasGames && summaryParts.length > 0 && (
-            <span className="text-[10px] text-gray-400">{summaryParts.join(' · ')}</span>
+            <span className="text-[11px] text-gray-400">{summaryParts.join(' · ')}</span>
           )}
           {!hasGames && (
-            <span className="text-[10px] text-gray-400">None active</span>
+            <span className="text-[11px] text-gray-400">None active</span>
           )}
         </div>
         <div className="flex items-center gap-1">
@@ -81,13 +81,13 @@ export default function SideGameScoreboard({
         <div className="mt-2 space-y-3">
           {sixResult && (
             <div>
-              <div className="text-[10px] font-bold text-gray-400 mb-1 px-1">SIXES</div>
+              <div className="text-[11px] font-bold text-gray-400 mb-1 px-1">SIXES</div>
               <SixSixSixDisplay result={sixResult} players={players} />
             </div>
           )}
           {nassauResult && nassauConfig && (
             <div>
-              <div className="text-[10px] font-bold text-gray-400 mb-1 px-1">NASSAU</div>
+              <div className="text-[11px] font-bold text-gray-400 mb-1 px-1">NASSAU</div>
               <NassauDisplay result={nassauResult} config={nassauConfig} players={players} />
             </div>
           )}

@@ -53,7 +53,7 @@ export default function FoursomeGridView({
 
     return (
       <div className="mb-3">
-        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1 mb-1">{label}</div>
+        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1 mb-1">{label}</div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
@@ -71,7 +71,7 @@ export default function FoursomeGridView({
                 <tr key={hole.hole_number} className="border-t border-gray-50">
                   <td className="py-1 px-1 text-gray-400 font-medium">
                     {hole.hole_number}
-                    <span className="text-[9px] text-gray-300 ml-0.5">P{hole.par}</span>
+                    <span className="text-[11px] text-gray-300 ml-0.5">P{hole.par}</span>
                   </td>
                   {players.map(p => {
                     const s = getScore(p.id, hole.hole_number)
@@ -99,7 +99,7 @@ export default function FoursomeGridView({
               ))}
               {/* Totals row */}
               <tr className="border-t-2 border-gray-200 font-bold">
-                <td className="py-1 px-1 text-gray-400 text-[10px]">TOT</td>
+                <td className="py-1 px-1 text-gray-400 text-[11px]">TOT</td>
                 {totals.map((t, i) => (
                   <td key={i} className="text-center py-1 px-0.5 text-[11px]">
                     {t.count > 0 ? (

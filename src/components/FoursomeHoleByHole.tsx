@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { ChevronLeft, ChevronRight, Undo2 } from 'lucide-react'
 import type { Hole, Player, Score } from '../lib/types'
 import { calculateCourseHandicap, getStrokesForHole } from '../lib/scoring'
 import ScoreStepperCompact from './ScoreStepperCompact'
@@ -19,6 +19,30 @@ export default function FoursomeHoleByHole({
 }: Props) {
   const [currentHole, setCurrentHole] = useState(1)
   const [showComplete, setShowComplete] = useState(false)
+
+  // Undo toast state
+  const [undoData, setUndoData] = useState<{ hole: number; scores: { playerId: string; gross: number }[] } | null>(null)
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleUndo = useCallback(() => {
+    if (!undoData || !onDeleteScore) return
+    // Delete the scores that were just saved and go back to that hole
+    for (const s of undoData.scores) {
+      onDeleteScore(s.playerId, undoData.hole)
+    }
+    setCurrentHole(undoData.hole)
+    setUndoData(null)
+    if (undoTimerRef.current) { clearTimeout(undoTimerRef.current); undoTimerRef.current = null }
+  }, [undoData, onDeleteScore])
+
+  // Auto-dismiss undo toast after 5 seconds
+  useEffect(() => {
+    if (undoData) {
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
+      undoTimerRef.current = setTimeout(() => { setUndoData(null); undoTimerRef.current = null }, 5000)
+      return () => { if (undoTimerRef.current) { clearTimeout(undoTimerRef.current); undoTimerRef.current = null } }
+    }
+  }, [undoData?.hole])
   const hole = holes.find(h => h.hole_number === currentHole)
 
   // Track working values for current hole (before save)
@@ -53,6 +77,27 @@ export default function FoursomeHoleByHole({
     return completed
   }, [holes, players, scores, roundId])
 
+  // Swipe gesture handling
+  const touchStartX = useRef<number | null>(null)
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }, [])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null) return
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    touchStartX.current = null
+    if (Math.abs(deltaX) < 50) return
+    if (deltaX < 0 && currentHole < 18) {
+      // Swipe left = next hole
+      setCurrentHole(currentHole + 1)
+    } else if (deltaX > 0 && currentHole > 1) {
+      // Swipe right = previous hole
+      setCurrentHole(currentHole - 1)
+    }
+  }, [currentHole])
+
   if (!hole) return null
 
   return (
@@ -74,57 +119,61 @@ export default function FoursomeHoleByHole({
         ))}
       </div>
 
-      {/* Hole header */}
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() => setCurrentHole(Math.max(1, currentHole - 1))}
-          disabled={currentHole === 1}
-          className="p-2 rounded-full bg-gray-100 disabled:opacity-30"
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-gray-800">Hole {currentHole}</div>
-          <div className="text-sm text-gray-400">
-            Par {hole.par} · {hole.yardage} yds · SI {hole.stroke_index}
+      {/* Swipeable content area */}
+      <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        {/* Hole header */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => setCurrentHole(Math.max(1, currentHole - 1))}
+            disabled={currentHole === 1}
+            className="p-2 rounded-full bg-gray-100 disabled:opacity-30"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-gray-800">Hole {currentHole}</div>
+            <div className="text-sm text-gray-400">
+              Par {hole.par} · {hole.yardage} yds · SI {hole.stroke_index}
+            </div>
           </div>
+          <button
+            onClick={() => setCurrentHole(Math.min(18, currentHole + 1))}
+            disabled={currentHole === 18}
+            className="p-2 rounded-full bg-gray-100 disabled:opacity-30"
+          >
+            <ChevronRight size={20} />
+          </button>
         </div>
-        <button
-          onClick={() => setCurrentHole(Math.min(18, currentHole + 1))}
-          disabled={currentHole === 18}
-          className="p-2 rounded-full bg-gray-100 disabled:opacity-30"
-        >
-          <ChevronRight size={20} />
-        </button>
-      </div>
 
-      {/* Player steppers */}
-      <div className="flex flex-col gap-2 mb-4">
-        {playerData.map(({ player, gross, strokes, receivesStroke }) => {
-          const hasScore = scores.some(s => s.player_id === player.id && s.hole_number === currentHole)
-          return (
-            <ScoreStepperCompact
-              key={player.id}
-              playerName={player.name}
-              par={hole.par}
-              gross={gross}
-              net={gross - strokes}
-              receivesStroke={receivesStroke}
-              onChange={(newGross) => onSubmitScore(player.id, currentHole, newGross)}
-              hasScore={hasScore}
-              onClear={onDeleteScore ? () => onDeleteScore(player.id, currentHole) : undefined}
-            />
-          )
-        })}
+        {/* Player steppers */}
+        <div className="flex flex-col gap-2 mb-4">
+          {playerData.map(({ player, gross, strokes, receivesStroke }) => {
+            const hasScore = scores.some(s => s.player_id === player.id && s.hole_number === currentHole)
+            return (
+              <ScoreStepperCompact
+                key={player.id}
+                playerName={player.name}
+                par={hole.par}
+                gross={gross}
+                net={gross - strokes}
+                receivesStroke={receivesStroke}
+                onChange={(newGross) => onSubmitScore(player.id, currentHole, newGross)}
+                hasScore={hasScore}
+                onClear={onDeleteScore ? () => onDeleteScore(player.id, currentHole) : undefined}
+              />
+            )
+          })}
+        </div>
       </div>
 
       {/* Save & Next */}
       <button
         onClick={() => {
-          // Save all current values
+          const savedScores = playerData.map(pd => ({ playerId: pd.player.id, gross: pd.gross }))
           for (const pd of playerData) {
             onSubmitScore(pd.player.id, currentHole, pd.gross)
           }
+          setUndoData({ hole: currentHole, scores: savedScores })
           if (currentHole < 18) {
             setCurrentHole(currentHole + 1)
           } else {
@@ -135,6 +184,19 @@ export default function FoursomeHoleByHole({
       >
         {currentHole < 18 ? 'Save & Next →' : 'Finish Round →'}
       </button>
+
+      {/* Undo toast */}
+      {undoData && (
+        <div className="fixed bottom-20 left-4 right-4 z-40 flex justify-center">
+          <button
+            onClick={handleUndo}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-full shadow-lg text-sm font-medium"
+          >
+            <Undo2 size={14} />
+            Hole {undoData.hole} saved — tap to undo
+          </button>
+        </div>
+      )}
 
       {/* Round complete overlay */}
       {showComplete && (

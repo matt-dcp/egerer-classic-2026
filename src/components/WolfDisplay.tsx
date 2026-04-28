@@ -24,13 +24,13 @@ export default function WolfDisplay({ result, config, players, onSelectPartner }
     <div className="space-y-2">
       {/* Points leaderboard */}
       <div className="bg-white rounded-lg border border-gray-100 p-2.5">
-        <div className="text-[10px] font-bold text-gray-400 mb-1">POINTS</div>
+        <div className="text-[11px] font-bold text-gray-400 mb-1">POINTS</div>
         <div className="flex gap-2">
           {sorted.map((id, i) => (
             <div key={id} className={`flex-1 text-center py-1.5 rounded ${
               i === 0 ? 'bg-forest/10' : 'bg-gray-50'
             }`}>
-              <div className="text-[10px] text-gray-500">{getName(id)}</div>
+              <div className="text-[11px] text-gray-500">{getName(id)}</div>
               <div className={`text-lg font-bold ${i === 0 ? 'text-forest' : 'text-gray-600'}`}>
                 {result.totalPoints[id] ?? 0}
               </div>
@@ -42,7 +42,7 @@ export default function WolfDisplay({ result, config, players, onSelectPartner }
       {/* Pending partner selections */}
       {pendingHoles.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5">
-          <div className="text-[10px] font-bold text-amber-700 mb-1.5">
+          <div className="text-[11px] font-bold text-amber-700 mb-1.5">
             WOLF PARTNER NEEDED
           </div>
           {pendingHoles.slice(0, 1).map(h => {
@@ -78,7 +78,7 @@ export default function WolfDisplay({ result, config, players, onSelectPartner }
       {/* Recent hole results */}
       {result.holes.filter(h => h.wolfWon !== null).length > 0 && (
         <div className="bg-white rounded-lg border border-gray-100 p-2.5">
-          <div className="text-[10px] font-bold text-gray-400 mb-1">RECENT HOLES</div>
+          <div className="text-[11px] font-bold text-gray-400 mb-1">RECENT HOLES</div>
           <div className="space-y-1">
             {result.holes
               .filter(h => h.wolfWon !== null)

@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
-import { Shield, Eye, EyeOff, Lock, Unlock, Megaphone, Users, ArrowLeftRight, Flame, Save, Trash2 } from 'lucide-react'
+import { useState, useRef, useEffect, useMemo } from 'react'
+import { Shield, Eye, EyeOff, Lock, Unlock, Megaphone, Users, ArrowLeftRight, Flame, Save, Trash2, ClipboardList } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
 import Header from '../components/Header'
 
@@ -11,6 +11,7 @@ export default function Admin() {
     players, teams, setTeams, strokePlayMatchups, bestBallPairings,
     setStrokePlayMatchups, setBestBallPairings, currentPlayerId,
     foursomes, createFoursome, deleteFoursome,
+    scores, rounds,
   } = useTournament()
 
   const [pin, setPin] = useState('')
@@ -60,14 +61,34 @@ export default function Admin() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm font-bold text-amber-600">DEMO MODE</div>
-              <div className="text-[10px] text-gray-400">Local data only — safe to test freely</div>
+              <div className="text-[11px] text-gray-400">Local data only — safe to test freely</div>
             </div>
             <button
-              onClick={() => {
-                if (confirm('Reset all scores and side games? This cannot be undone.')) {
+              onClick={async () => {
+                if (confirm('Reset all scores, matchups, foursomes, and side games? This cannot be undone.')) {
+                  // Clear all app localStorage keys (including identity/admin state)
                   localStorage.removeItem('ec-scores')
                   localStorage.removeItem('ec-foursomes')
-                  localStorage.removeItem('ec-side-games')
+                  localStorage.removeItem('ec-sidegames')
+                  localStorage.removeItem('ec-stroke-matchups')
+                  localStorage.removeItem('ec-bestball-pairings')
+                  localStorage.removeItem('ec-teams')
+                  localStorage.removeItem('ec-admin-settings')
+                  localStorage.removeItem('ec-sync-queue')
+                  localStorage.removeItem('ec-my-player-id')
+                  localStorage.removeItem('ec-admin')
+                  // Clear Supabase tables
+                  try {
+                    const { supabase, isSupabaseConfigured } = await import('../lib/supabase')
+                    if (isSupabaseConfigured) {
+                      await supabase.from('app_scores').delete().gte('id', '')
+                      await supabase.from('foursomes').delete().gte('id', '')
+                      await supabase.from('stroke_play_matchups').delete().gte('id', '')
+                      await supabase.from('best_ball_pairings').delete().gte('id', '')
+                      await supabase.from('teams').delete().gte('id', '')
+                      await supabase.from('admin_settings').delete().gte('id', '')
+                    }
+                  } catch { /* ignore if Supabase unreachable */ }
                   window.location.reload()
                 }
               }}
@@ -76,7 +97,7 @@ export default function Admin() {
               Reset Demo Data
             </button>
           </div>
-          <div className="mt-2 px-2 py-1 bg-amber-50 border border-amber-200 rounded-lg text-[10px] text-amber-700">
+          <div className="mt-2 px-2 py-1 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-700">
             Live mode (Supabase) will be enabled before tournament day. All demo data will be replaced with real-time data.
           </div>
         </div>
@@ -86,7 +107,7 @@ export default function Admin() {
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
             <Eye size={14} /> Visibility Controls
           </h3>
-          <p className="text-[10px] text-gray-400 mb-3">Toggle what players can see in the app</p>
+          <p className="text-[11px] text-gray-400 mb-3">Toggle what players can see in the app</p>
           <div className="space-y-2">
             {([
               { key: 'showLeaderboard' as const, label: 'Leaderboard', desc: 'Individual standings' },
@@ -98,7 +119,7 @@ export default function Admin() {
               <div key={item.key} className="flex items-center justify-between py-1.5">
                 <div>
                   <div className="text-sm font-medium text-gray-900">{item.label}</div>
-                  <div className="text-[10px] text-gray-400">{item.desc}</div>
+                  <div className="text-[11px] text-gray-400">{item.desc}</div>
                 </div>
                 <button
                   onClick={() => updateAdminSettings({ [item.key]: !adminSettings[item.key] })}
@@ -121,7 +142,7 @@ export default function Admin() {
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
             <Lock size={14} /> Round Lock/Unlock
           </h3>
-          <p className="text-[10px] text-gray-400 mb-3">Lock a round to prevent further score changes</p>
+          <p className="text-[11px] text-gray-400 mb-3">Lock a round to prevent further score changes</p>
           <div className="space-y-2">
             {[
               { key: 'r1Locked' as const, label: 'Round 1', desc: 'Troon North – Monument' },
@@ -130,7 +151,7 @@ export default function Admin() {
               <div key={item.key} className="flex items-center justify-between py-1.5">
                 <div>
                   <div className="text-sm font-medium text-gray-900">{item.label}</div>
-                  <div className="text-[10px] text-gray-400">{item.desc}</div>
+                  <div className="text-[11px] text-gray-400">{item.desc}</div>
                 </div>
                 <button
                   onClick={() => updateAdminSettings({ [item.key]: !adminSettings[item.key] })}
@@ -148,28 +169,31 @@ export default function Admin() {
           </div>
         </div>
 
+        {/* Section: Score Completion */}
+        <ScoreCompletionGrid players={players} scores={scores} rounds={rounds} />
+
         {/* Section: Team Management */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
             <Users size={14} /> Team Management
           </h3>
-          <p className="text-[10px] text-gray-400 mb-3">Select captains and assign players to each team</p>
+          <p className="text-[11px] text-gray-400 mb-3">Select captains and assign players to each team</p>
           <div className="space-y-4">
             {teams.map((team, ti) => {
               const roster = team.player_ids.map(id => players.find(p => p.id === id)).filter(Boolean)
               // Available to add: not on either team
-              const allAssigned = new Set([...teams[0].player_ids, ...teams[1].player_ids])
+              const allAssigned = new Set(teams.flatMap(t => t.player_ids))
               const available = players.filter(p => !allAssigned.has(p.id))
 
               return (
                 <div key={team.id} className="border border-gray-100 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-sm font-bold text-gray-900">{team.name}</div>
-                    <span className="text-[10px] text-gray-400">{team.player_ids.length} players</span>
+                    <span className="text-[11px] text-gray-400">{team.player_ids.length} players</span>
                   </div>
                   {/* Captain selector */}
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] text-gray-500 font-semibold">Captain:</span>
+                    <span className="text-[11px] text-gray-500 font-semibold">Captain:</span>
                     <select
                       value={team.captain_id}
                       onChange={e => {
@@ -237,7 +261,7 @@ export default function Admin() {
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
             <Megaphone size={14} /> Announcement
           </h3>
-          <p className="text-[10px] text-gray-400 mb-3">Custom message pinned to the news ticker</p>
+          <p className="text-[11px] text-gray-400 mb-3">Custom message pinned to the news ticker</p>
           <textarea
             value={announcement}
             onChange={e => setAnnouncement(e.target.value)}
@@ -267,7 +291,7 @@ export default function Admin() {
             )}
           </div>
           {adminSettings.announcement && (
-            <div className="mt-2 text-[10px] text-gray-500 bg-gray-50 rounded-lg p-2">
+            <div className="mt-2 text-[11px] text-gray-500 bg-gray-50 rounded-lg p-2">
               Active: "{adminSettings.announcement}"
             </div>
           )}
@@ -299,7 +323,7 @@ export default function Admin() {
                 <div key={m.id} className={`p-2.5 rounded-lg border ${m.is_pressure_bet ? 'border-gold bg-gold/5' : isEmpty ? 'border-dashed border-gray-200' : 'border-gray-100'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-gray-400 w-4">#{m.order}</span>
+                      <span className="text-[11px] text-gray-400 w-4">#{m.order}</span>
                       <select
                         value={m.team_a_player_id}
                         onChange={e => {
@@ -314,7 +338,7 @@ export default function Admin() {
                           <option key={id} value={id}>{getName(id)}</option>
                         ))}
                       </select>
-                      <span className="text-[10px] text-gray-400">vs</span>
+                      <span className="text-[11px] text-gray-400">vs</span>
                       <select
                         value={m.team_b_player_id}
                         onChange={e => {
@@ -377,10 +401,10 @@ export default function Admin() {
           Day 2 — Round 2 · We-Ko-Pa Saguaro
         </div>
 
-        {/* Section: Day 2 Matchups Editor */}
+        {/* Section: Day 2 Matchups Editor — same pattern as Day 1 */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Users size={14} /> Day 2 Matchups (2v2)
+            <ArrowLeftRight size={14} /> Day 2 Matchups (2v2 Best Ball)
           </h3>
           <div className="space-y-2">
             {bestBallPairings.map((p, idx) => {
@@ -392,9 +416,26 @@ export default function Admin() {
               const teamBPool = (teams.find(t => t.id === 'team-b')?.player_ids ?? [])
                 .filter(id => !usedTeamB.has(id) || p.team_b_player_ids.includes(id))
 
+              const isEmpty = !p.team_a_player_ids[0] && !p.team_b_player_ids[0]
+
               return (
-                <div key={p.id} className="p-2.5 rounded-lg border border-gray-100">
-                  <div className="text-[10px] text-gray-400 mb-1">Match #{p.order}</div>
+                <div key={p.id} className={`p-2.5 rounded-lg border ${isEmpty ? 'border-dashed border-gray-200' : 'border-gray-100'}`}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] text-gray-400">Match #{p.order}</span>
+                    {!isEmpty && (
+                      <button
+                        onClick={() => {
+                          const updated = [...bestBallPairings]
+                          updated[idx] = { ...p, team_a_player_ids: ['', ''], team_b_player_ids: ['', ''] }
+                          setBestBallPairings(updated)
+                        }}
+                        className="p-1.5 rounded-full text-red-400 active:bg-red-50"
+                        title="Clear matchup"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
+                  </div>
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                     <div className="space-y-1">
                       {[0, 1].map(slot => (
@@ -408,15 +449,16 @@ export default function Admin() {
                             updated[idx] = { ...p, team_a_player_ids: newIds }
                             setBestBallPairings(updated)
                           }}
-                          className="text-xs border border-gray-200 rounded px-1.5 py-1 w-full"
+                          className={`text-xs border border-gray-200 rounded px-1.5 py-1 w-full ${!p.team_a_player_ids[slot] ? 'text-gray-400' : ''}`}
                         >
-                          {teamAPool.map(id => (
+                          <option value="">— Select —</option>
+                          {teamAPool.filter(id => id).map(id => (
                             <option key={id} value={id}>{getName(id)}</option>
                           ))}
                         </select>
                       ))}
                     </div>
-                    <span className="text-[10px] text-gray-400">vs</span>
+                    <span className="text-[11px] text-gray-400">vs</span>
                     <div className="space-y-1">
                       {[0, 1].map(slot => (
                         <select
@@ -429,9 +471,10 @@ export default function Admin() {
                             updated[idx] = { ...p, team_b_player_ids: newIds }
                             setBestBallPairings(updated)
                           }}
-                          className="text-xs border border-gray-200 rounded px-1.5 py-1 w-full"
+                          className={`text-xs border border-gray-200 rounded px-1.5 py-1 w-full ${!p.team_b_player_ids[slot] ? 'text-gray-400' : ''}`}
                         >
-                          {teamBPool.map(id => (
+                          <option value="">— Select —</option>
+                          {teamBPool.filter(id => id).map(id => (
                             <option key={id} value={id}>{getName(id)}</option>
                           ))}
                         </select>
@@ -458,8 +501,96 @@ export default function Admin() {
   )
 }
 
+// --- Score Completion Grid ---
+import type { Player as PlayerType, Score as ScoreType, Round as RoundType, StrokePlayMatchup, BestBallPairing, Foursome as FoursomeType } from '../lib/types'
+
+function ScoreCompletionGrid({ players, scores, rounds }: {
+  players: PlayerType[]
+  scores: ScoreType[]
+  rounds: RoundType[]
+}) {
+  const roundData = useMemo(() => {
+    return rounds.map(round => {
+      const playerHoles = players.map(player => {
+        const count = scores.filter(
+          s => s.round_id === round.id && s.player_id === player.id,
+        ).length
+        return { player, holesCompleted: count }
+      })
+      const maxHoles = Math.max(...playerHoles.map(ph => ph.holesCompleted), 0)
+      const playersThrough9Plus = playerHoles.filter(ph => ph.holesCompleted >= 9).length
+      return { round, playerHoles, maxHoles, playersThrough9Plus }
+    })
+  }, [players, scores, rounds])
+
+  return (
+    <div className="bg-white rounded-xl p-4 shadow-sm">
+      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <ClipboardList size={14} /> Score Completion
+      </h3>
+
+      {/* Summary row */}
+      <div className="flex gap-2 mb-3">
+        {roundData.map(rd => (
+          <div key={rd.round.id} className="flex-1 bg-gray-50 rounded-lg px-2.5 py-1.5 text-center">
+            <div className="text-[11px] font-bold text-forest">R{rd.round.round_number}</div>
+            <div className="text-[11px] text-gray-500">
+              {rd.playersThrough9Plus}/{players.length} through 9+
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Player grid */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-[11px]">
+          <thead>
+            <tr className="border-b border-gray-100">
+              <th className="text-left py-1.5 pr-2 text-gray-400 font-semibold">Player</th>
+              {roundData.map(rd => (
+                <th key={rd.round.id} className="text-center py-1.5 px-2 text-gray-400 font-semibold">
+                  R{rd.round.round_number}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {players.map(player => (
+              <tr key={player.id} className="border-b border-gray-50">
+                <td className="py-1.5 pr-2 font-medium text-gray-700 whitespace-nowrap">
+                  {player.name.split(' ').pop()}
+                </td>
+                {roundData.map(rd => {
+                  const ph = rd.playerHoles.find(p => p.player.id === player.id)
+                  const holes = ph?.holesCompleted ?? 0
+                  const isBehind = holes < rd.maxHoles && rd.maxHoles > 0
+                  const isComplete = holes === 18
+                  return (
+                    <td key={rd.round.id} className="text-center py-1.5 px-2">
+                      <span className={`inline-block px-1.5 py-0.5 rounded ${
+                        isComplete
+                          ? 'bg-green-50 text-green-700 font-bold'
+                          : isBehind
+                            ? 'bg-amber-50 text-amber-700 font-bold'
+                            : holes === 0
+                              ? 'text-gray-300'
+                              : 'text-gray-600'
+                      }`}>
+                        {holes}/18
+                      </span>
+                    </td>
+                  )
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 // --- R1 Foursome Pairer: pair two 1v1 matchups ---
-import type { StrokePlayMatchup, BestBallPairing, Foursome as FoursomeType } from '../lib/types'
 
 function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDeleteFoursome }: {
   matchups: StrokePlayMatchup[]
@@ -545,7 +676,7 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
               className={`flex-1 h-1.5 rounded-full ${i < foursomes.length ? 'bg-forest' : 'bg-gray-200'}`}
             />
           ))}
-          <span className="text-[10px] text-gray-400">{foursomes.length}/{totalGroups}</span>
+          <span className="text-[11px] text-gray-400">{foursomes.length}/{totalGroups}</span>
         </div>
       )}
 
@@ -557,7 +688,7 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
         return (
           <div key={fs.id} className="mb-2 p-2.5 rounded-lg border border-green-100 bg-green-50/30">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-bold text-green-700">Group {fi + 1} ✓</span>
+              <span className="text-[11px] font-bold text-green-700">Group {fi + 1} ✓</span>
               <button onClick={() => onDeleteFoursome(fs.id)} className="text-red-400 p-1">
                 <Trash2 size={12} />
               </button>
@@ -596,7 +727,7 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
             })}
           </div>
           {firstPick && !secondPick && (
-            <div className="mt-2 text-[10px] text-forest/70">
+            <div className="mt-2 text-[11px] text-forest/70">
               First matchup selected — tap another to complete Group {nextGroupNum}
             </div>
           )}
@@ -615,12 +746,12 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
       {allDone && (
         <div className="mt-3 p-3 rounded-lg bg-green-50 border border-green-200 text-center">
           <div className="text-sm font-bold text-green-700">All {totalGroups} foursomes set ✓</div>
-          <div className="text-[10px] text-green-600 mt-0.5">Tap the trash icon on any group to edit</div>
+          <div className="text-[11px] text-green-600 mt-0.5">Tap the trash icon on any group to edit</div>
         </div>
       )}
 
       {matchups.length === 0 && (
-        <div className="text-[10px] text-gray-400 mt-1">Set up Day 1 matchups first.</div>
+        <div className="text-[11px] text-gray-400 mt-1">Set up Day 1 matchups first.</div>
       )}
     </div>
   )
@@ -654,7 +785,7 @@ function R2FoursomePairer({ pairings, foursomes, getName, onCreateFoursome, onDe
       <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
         <Users size={14} /> R2 Foursomes
       </h3>
-      <p className="text-[10px] text-gray-400 mb-3">
+      <p className="text-[11px] text-gray-400 mb-3">
         Each 2v2 matchup is a foursome. Tap to create.
       </p>
 
@@ -662,7 +793,7 @@ function R2FoursomePairer({ pairings, foursomes, getName, onCreateFoursome, onDe
       {foursomes.map((fs, fi) => (
         <div key={fs.id} className="mb-3 p-2.5 rounded-lg border border-gray-100">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] font-bold text-gray-400">Group {fi + 1}</span>
+            <span className="text-[11px] font-bold text-gray-400">Group {fi + 1}</span>
             <button onClick={() => onDeleteFoursome(fs.id)} className="text-red-400 p-1">
               <Trash2 size={12} />
             </button>
@@ -686,7 +817,7 @@ function R2FoursomePairer({ pairings, foursomes, getName, onCreateFoursome, onDe
           }}
           className="w-full mb-2 p-2.5 rounded-lg border border-dashed border-gray-200 text-left hover:border-forest transition-colors"
         >
-          <div className="text-[10px] text-gray-400 mb-1">Tap to create foursome:</div>
+          <div className="text-[11px] text-gray-400 mb-1">Tap to create foursome:</div>
           <div className="text-[11px] text-gray-600">
             {p.team_a_player_ids.map(id => getName(id)).join(' & ')}
             <span className="text-gray-300"> vs </span>
@@ -695,10 +826,10 @@ function R2FoursomePairer({ pairings, foursomes, getName, onCreateFoursome, onDe
         </button>
       ))}
       {available.length === 0 && foursomes.length > 0 && (
-        <div className="text-[10px] text-green-600 mt-1">All pairings set as foursomes.</div>
+        <div className="text-[11px] text-green-600 mt-1">All pairings set as foursomes.</div>
       )}
       {pairings.length === 0 && (
-        <div className="text-[10px] text-gray-400 mt-1">Set up Day 2 matchups first.</div>
+        <div className="text-[11px] text-gray-400 mt-1">Set up Day 2 matchups first.</div>
       )}
     </div>
   )

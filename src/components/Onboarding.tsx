@@ -27,7 +27,7 @@ export default function Onboarding() {
               {/* Tournament crest */}
               <div className="text-center mb-6">
                 <div className="text-5xl mb-3">⛳</div>
-                <div className="text-[10px] uppercase tracking-[0.3em] text-gold font-semibold mb-1">The 14th Annual</div>
+                <div className="text-[11px] uppercase tracking-[0.3em] text-gold font-semibold mb-1">The 20<span className="lowercase">th</span> Annual</div>
                 <h2 className="font-display text-3xl font-bold text-gray-900">Egerer Classic</h2>
                 <div className="w-16 h-0.5 bg-gold mx-auto mt-2 mb-3" />
                 <p className="text-xs text-gray-400">Scottsdale, Arizona · May 29–30, 2026</p>
@@ -38,7 +38,7 @@ export default function Onboarding() {
                 <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">🏌️</span>
-                    <span>16 players · 2 rounds · Net stroke play</span>
+                    <span>20 players · 2 rounds · Net stroke play</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-lg">🏨</span>
@@ -57,7 +57,7 @@ export default function Onboarding() {
               >
                 Enter Tournament <ChevronRight size={16} />
               </button>
-              <p className="text-[10px] text-gray-400 text-center mt-3 italic">"If it ain't broke, don't fix it!"</p>
+              <p className="text-[11px] text-gray-400 text-center mt-3 italic">"If it ain't broke, don't fix it!"</p>
             </div>
           </div>
         )}
@@ -66,7 +66,7 @@ export default function Onboarding() {
         {step === 'select-name' && (
           <div className="flex-1 px-4 py-6 pb-24">
             <div className="text-center mb-4">
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Step 1 of 2</div>
+              <div className="text-[11px] text-gray-400 uppercase tracking-wider mb-1">Step 1 of 2</div>
               <h2 className="text-lg font-bold text-gray-900">Select Your Name</h2>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -81,7 +81,7 @@ export default function Onboarding() {
                   }`}
                 >
                   <div className="text-sm font-semibold text-gray-900">{p.name}</div>
-                  <div className="text-[10px] text-gray-400">HCP {p.handicap_index}</div>
+                  <div className="text-[11px] text-gray-400">HCP {p.handicap_index}</div>
                 </button>
               ))}
             </div>
@@ -103,7 +103,7 @@ export default function Onboarding() {
         {step === 'confirm' && selectedPlayer && (
           <div className="flex-1 flex flex-col items-center justify-center px-6 gap-6">
             <div className="text-center">
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Step 2 of 2</div>
+              <div className="text-[11px] text-gray-400 uppercase tracking-wider mb-1">Step 2 of 2</div>
               <h2 className="text-lg font-bold text-gray-900">Is this you?</h2>
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-sm text-center w-full max-w-xs">

@@ -18,26 +18,26 @@ export default function SixSixSixDisplay({ result, players }: Props) {
         return (
           <div key={seg.segment} className="bg-white rounded-lg p-2.5 border border-gray-100">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-bold text-gray-400">{holeRange}</span>
-              <span className="text-[10px] text-gray-400">{seg.holesCompleted}/6 holes</span>
+              <span className="text-[11px] font-bold text-gray-400">{holeRange}</span>
+              <span className="text-[11px] text-gray-400">{seg.holesCompleted}/6 holes</span>
             </div>
             <div className="flex items-center gap-2">
               <div className={`flex-1 text-center py-1 rounded ${
                 seg.winner === 'team1' ? 'bg-forest/10 text-forest font-bold' : 'text-gray-600'
               }`}>
-                <div className="text-[10px]">{t1Names}</div>
+                <div className="text-[11px]">{t1Names}</div>
                 <div className="text-sm font-bold">{seg.team1Total || '-'}</div>
               </div>
               <div className="text-xs text-gray-300 font-bold">vs</div>
               <div className={`flex-1 text-center py-1 rounded ${
                 seg.winner === 'team2' ? 'bg-forest/10 text-forest font-bold' : 'text-gray-600'
               }`}>
-                <div className="text-[10px]">{t2Names}</div>
+                <div className="text-[11px]">{t2Names}</div>
                 <div className="text-sm font-bold">{seg.team2Total || '-'}</div>
               </div>
             </div>
             {seg.winner === 'tie' && (
-              <div className="text-center text-[10px] text-gray-400 mt-1">Halved</div>
+              <div className="text-center text-[11px] text-gray-400 mt-1">Halved</div>
             )}
           </div>
         )

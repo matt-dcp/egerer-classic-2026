@@ -175,7 +175,7 @@ export interface Team {
   id: string             // 'team-a' | 'team-b'
   name: string           // Captain's last name or team name
   captain_id: string
-  player_ids: string[]   // 8 player IDs including captain
+  player_ids: string[]   // 10 player IDs including captain
 }
 
 export interface StrokePlayMatchup {

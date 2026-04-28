@@ -24,12 +24,8 @@ function AppShell() {
         <Route path="/info" element={<Info />} />
         <Route path="/admin" element={<Admin />} />
       </Route>
-      <Route path="/champions" element={
-        <TournamentProvider><Champions /></TournamentProvider>
-      } />
-      <Route path="/player/:playerId" element={
-        <TournamentProvider><PlayerDetail /></TournamentProvider>
-      } />
+      <Route path="/champions" element={<Champions />} />
+      <Route path="/player/:playerId" element={<PlayerDetail />} />
     </Routes>
   )
 }
