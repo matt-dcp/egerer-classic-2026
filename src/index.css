@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-forest: #1a472a;
-  --color-forest-light: #2d6b45;
+  /* Navy palette derived from the 20th Annual logo */
+  --color-forest: #1a2f42;
+  --color-forest-light: #2a4561;
   --color-cream: #faf9f6;
   --color-gold: #8B7332;
   --color-gold-light: #c5a55a;

@@ -30,7 +30,7 @@ export default function Header({ title, subtitle }: { title?: string; subtitle?:
           <img
             src="/logo.png"
             alt="The 20th Egerer Classic"
-            className="w-10 h-10 rounded-full shadow-md ring-1 ring-white/20 shrink-0"
+            className="w-[60px] h-[60px] rounded-full shadow-md ring-1 ring-white/20 shrink-0"
           />
           {title && (
             <h1 className="font-display text-lg font-semibold tracking-tight text-cream/90">
