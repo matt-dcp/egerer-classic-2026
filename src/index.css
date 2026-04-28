@@ -1,13 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  /* Navy palette derived from the 20th Annual logo */
-  --color-forest: #1a2f42;
-  --color-forest-light: #2a4561;
-  --color-cream: #faf9f6;
-  --color-gold: #8B7332;
+  /* Brand palette — exact hex values sampled from the 20th Annual logo */
+  --color-forest: #343f4b;        /* Navy slate (silhouettes in logo) */
+  --color-forest-light: #4a5562;  /* Lifted variant for hover/secondary surfaces */
+  --color-cream: #faf9f6;         /* (logo uses #F2F1E8; we keep #faf9f6 for legibility) */
+  --color-gold: #8B7332;          /* Trophy gold — retained for winner/champion semantics */
   --color-gold-light: #c5a55a;
   --color-gold-bright: #c5a55a;
+  --color-sky: #01adee;           /* Logo cyan — new accent for desert/sky moments */
+  --color-sky-light: #4dc3f0;
   --color-birdie: #0d7a33;
   --color-bogey: #dc2626;
   --color-eagle: #2563eb;
