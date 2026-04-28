@@ -14,22 +14,22 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-cream flex flex-col">
       {/* Header */}
-      <div className="bg-forest text-white px-6 pt-12 pb-8 text-center">
-        <h1 className="font-display text-3xl font-bold">Egerer Classic</h1>
-        <p className="text-cream/60 text-sm mt-1">May 29–30, 2026 · Scottsdale, AZ</p>
+      <div className="bg-forest text-white px-6 pt-10 pb-6 text-center">
+        <p className="text-cream/60 text-sm">May 29–30, 2026 · Scottsdale, AZ</p>
       </div>
 
       <div className="flex-1 flex flex-col">
         {/* Step: Welcome */}
         {step === 'welcome' && (
-          <div className="flex-1 flex flex-col items-center justify-center px-8 -mt-4">
+          <div className="flex-1 flex flex-col items-center justify-center px-8 -mt-16">
             <div className="w-full max-w-sm">
-              {/* Tournament crest */}
+              {/* Tournament logo */}
               <div className="text-center mb-6">
-                <div className="text-5xl mb-3">⛳</div>
-                <div className="text-[11px] uppercase tracking-[0.3em] text-gold font-semibold mb-1">The 20<span className="lowercase">th</span> Annual</div>
-                <h2 className="font-display text-3xl font-bold text-gray-900">Egerer Classic</h2>
-                <div className="w-16 h-0.5 bg-gold mx-auto mt-2 mb-3" />
+                <img
+                  src="/logo.png"
+                  alt="The 20th Egerer Classic"
+                  className="w-44 h-44 mx-auto rounded-full shadow-xl ring-1 ring-black/5 mb-4"
+                />
                 <p className="text-xs text-gray-400">Scottsdale, Arizona · May 29–30, 2026</p>
               </div>
 

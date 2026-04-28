@@ -26,16 +26,17 @@ export default function Header({ title, subtitle }: { title?: string; subtitle?:
   return (
     <header className="bg-forest text-white px-4 pt-4 pb-5">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="font-display text-2xl font-bold tracking-tight">
-            {title || 'Egerer Classic'}
-          </h1>
-          <span
-            className="px-1.5 py-0.5 bg-gold/15 text-gold text-[10px] font-bold uppercase rounded tracking-[0.2em] border border-gold/40"
-            title="20th Annual Edition"
-          >
-            XX
-          </span>
+        <div className="flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="The 20th Egerer Classic"
+            className="w-10 h-10 rounded-full shadow-md ring-1 ring-white/20 shrink-0"
+          />
+          {title && (
+            <h1 className="font-display text-lg font-semibold tracking-tight text-cream/90">
+              {title}
+            </h1>
+          )}
           {isAdmin && (
             <span className="px-1.5 py-0.5 bg-amber-500 text-[11px] font-bold uppercase rounded tracking-wider">
               Demo
