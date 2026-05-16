@@ -116,7 +116,7 @@ function saveSyncQueue(q: QueuedOp[]) {
 
 /** Safely write to localStorage — silently ignores quota errors */
 function safeSetItem(key: string, value: string) {
-  try { safeSetItem(key, value) } catch { /* quota exceeded or unavailable */ }
+  try { localStorage.setItem(key, value) } catch { /* quota exceeded or unavailable */ }
 }
 
 // ---------------------------------------------------------------------------
