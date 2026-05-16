@@ -193,16 +193,21 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
     setSyncStatus('pending')
   }, [])
 
-  const flushQueue = useCallback(async () => {
+  const flushQueue = useCallback(async function flushQueue(): Promise<void> {
     if (!isSupabaseConfigured || flushingRef.current || syncQueueRef.current.length === 0) return
     flushingRef.current = true
 
-    const remaining: QueuedOp[] = []
-    for (const op of syncQueueRef.current) {
+    // Snapshot the ops to process. New ops may be enqueued (into
+    // syncQueueRef.current) while the awaits below are in flight — we must
+    // not clobber those, so we track which snapshot ops SUCCEEDED and only
+    // remove those, rather than overwriting the whole queue.
+    const batch = [...syncQueueRef.current]
+    const succeeded: QueuedOp[] = []
+    for (const op of batch) {
       try {
         if (op.type === 'upsert') {
           const { error } = await supabase.from(op.table).upsert(op.payload, { onConflict: 'id' })
-          if (error) { remaining.push(op); continue }
+          if (!error) succeeded.push(op)
         } else {
           // delete
           let query = supabase.from(op.table).delete()
@@ -210,17 +215,22 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
             query = query.eq(k, v as string)
           }
           const { error } = await query
-          if (error) { remaining.push(op); continue }
+          if (!error) succeeded.push(op)
         }
       } catch {
-        remaining.push(op)
+        /* leave op in the queue for the next flush */
       }
     }
 
-    syncQueueRef.current = remaining
-    saveSyncQueue(remaining)
-    setSyncStatus(remaining.length > 0 ? 'pending' : 'synced')
+    // Remove only the ops that synced successfully — preserves anything
+    // enqueued during the flush and any ops that failed.
+    syncQueueRef.current = syncQueueRef.current.filter(op => !succeeded.includes(op))
+    saveSyncQueue(syncQueueRef.current)
+    setSyncStatus(syncQueueRef.current.length > 0 ? 'pending' : 'synced')
     flushingRef.current = false
+
+    // Ops arrived while we were flushing — process them right away
+    if (syncQueueRef.current.length > 0) setTimeout(flushQueue, 0)
   }, [])
 
   // Periodic flush
