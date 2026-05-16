@@ -6,7 +6,7 @@ export const DEMO_TOURNAMENT: Tournament = {
   location: 'Scottsdale, AZ',
   start_date: '2026-05-28',
   end_date: '2026-05-31',
-  admin_pin: '1234',
+  admin_pin: '4244',
 }
 
 export const DEMO_COURSES: Course[] = [
