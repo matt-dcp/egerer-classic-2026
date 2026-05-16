@@ -187,9 +187,19 @@ export default function Admin() {
 
               return (
                 <div key={team.id} className="border border-gray-100 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-bold text-gray-900">{team.name}</div>
-                    <span className="text-[11px] text-gray-400">{team.player_ids.length} players</span>
+                  <div className="flex items-center justify-between mb-2 gap-2">
+                    <input
+                      type="text"
+                      value={team.name}
+                      onChange={e => {
+                        const updated = [...teams]
+                        updated[ti] = { ...team, name: e.target.value }
+                        setTeams(updated)
+                      }}
+                      placeholder="Team name"
+                      className="text-sm font-bold text-gray-900 bg-transparent border-b border-gray-200 focus:border-forest focus:outline-none flex-1 min-w-0"
+                    />
+                    <span className="text-[11px] text-gray-400 shrink-0">{team.player_ids.length} players</span>
                   </div>
                   {/* Captain selector */}
                   <div className="flex items-center gap-2 mb-2">
@@ -323,7 +333,7 @@ export default function Admin() {
                 <div key={m.id} className={`p-2.5 rounded-lg border ${m.is_pressure_bet ? 'border-gold bg-gold/5' : isEmpty ? 'border-dashed border-gray-200' : 'border-gray-100'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-gray-400 w-4">#{m.order}</span>
+                      <span className="text-[11px] text-gray-400 w-4">#{idx + 1}</span>
                       <select
                         value={m.team_a_player_id}
                         onChange={e => {
@@ -355,19 +365,6 @@ export default function Admin() {
                       </select>
                     </div>
                     <div className="flex items-center gap-1">
-                      {!isEmpty && (
-                        <button
-                          onClick={() => {
-                            const updated = [...strokePlayMatchups]
-                            updated[idx] = { ...m, team_a_player_id: '', team_b_player_id: '', is_pressure_bet: false }
-                            setStrokePlayMatchups(updated)
-                          }}
-                          className="p-1.5 rounded-full text-red-400 active:bg-red-50"
-                          title="Clear matchup"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      )}
                       <button
                         onClick={() => {
                           const updated = [...strokePlayMatchups]
@@ -379,12 +376,32 @@ export default function Admin() {
                       >
                         <Flame size={12} />
                       </button>
+                      <button
+                        onClick={() => setStrokePlayMatchups(strokePlayMatchups.filter((_, i) => i !== idx))}
+                        className="p-1.5 rounded-full text-red-400 active:bg-red-50"
+                        title="Remove matchup"
+                      >
+                        <Trash2 size={12} />
+                      </button>
                     </div>
                   </div>
                 </div>
               )
             })}
           </div>
+          <button
+            onClick={() => setStrokePlayMatchups([...strokePlayMatchups, {
+              id: `sp-${Date.now()}`,
+              round_id: 'r1',
+              team_a_player_id: '',
+              team_b_player_id: '',
+              order: strokePlayMatchups.length + 1,
+              is_pressure_bet: false,
+            }])}
+            className="mt-2 w-full py-2 rounded-lg border border-dashed border-forest/40 text-forest text-xs font-semibold active:bg-forest/5"
+          >
+            + Add Matchup
+          </button>
         </div>
 
         {/* Section: R1 Foursomes (pair matchups) */}
@@ -421,20 +438,14 @@ export default function Admin() {
               return (
                 <div key={p.id} className={`p-2.5 rounded-lg border ${isEmpty ? 'border-dashed border-gray-200' : 'border-gray-100'}`}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px] text-gray-400">Match #{p.order}</span>
-                    {!isEmpty && (
-                      <button
-                        onClick={() => {
-                          const updated = [...bestBallPairings]
-                          updated[idx] = { ...p, team_a_player_ids: ['', ''], team_b_player_ids: ['', ''] }
-                          setBestBallPairings(updated)
-                        }}
-                        className="p-1.5 rounded-full text-red-400 active:bg-red-50"
-                        title="Clear matchup"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    )}
+                    <span className="text-[11px] text-gray-400">Match #{idx + 1}</span>
+                    <button
+                      onClick={() => setBestBallPairings(bestBallPairings.filter((_, i) => i !== idx))}
+                      className="p-1.5 rounded-full text-red-400 active:bg-red-50"
+                      title="Remove matchup"
+                    >
+                      <Trash2 size={12} />
+                    </button>
                   </div>
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                     <div className="space-y-1">
@@ -485,6 +496,18 @@ export default function Admin() {
               )
             })}
           </div>
+          <button
+            onClick={() => setBestBallPairings([...bestBallPairings, {
+              id: `bb-${Date.now()}`,
+              round_id: 'r2',
+              team_a_player_ids: ['', ''],
+              team_b_player_ids: ['', ''],
+              order: bestBallPairings.length + 1,
+            }])}
+            className="mt-2 w-full py-2 rounded-lg border border-dashed border-forest/40 text-forest text-xs font-semibold active:bg-forest/5"
+          >
+            + Add Pairing
+          </button>
         </div>
 
         {/* Section: R2 Foursomes (pair best-ball matchups) */}

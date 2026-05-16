@@ -79,7 +79,7 @@ export default function Info() {
                 <Flame size={14} className="text-gold mt-0.5 shrink-0" />
                 <span>One <span className="font-semibold text-gold">pressure bet</span> per team = 2 points</span>
               </div>
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>10 total points available</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>12 total points available</div>
             </div>
           </div>
 
@@ -87,9 +87,9 @@ export default function Info() {
           <div className="bg-white rounded-xl p-3 shadow-sm">
             <div className="text-xs font-bold text-forest mb-1.5">Day 2 — Best Ball (2v2)</div>
             <div className="text-sm text-gray-700 space-y-1">
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Captains set 4 twosome matchups</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Captains set 5 twosome matchups</div>
               <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Lower 18-hole net best ball wins = 2 points</div>
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>8 total points available</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>10 total points available</div>
             </div>
           </div>
 

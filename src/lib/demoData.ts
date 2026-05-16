@@ -129,41 +129,30 @@ export const DEMO_CHAMPIONS: Champion[] = [
 
 // --- Team Competition ---
 
+// Teams are drafted live via the Admin panel the day before the tournament.
+// Start empty — captains + 10-player rosters get set on-site.
 export const DEMO_TEAMS: Team[] = [
-  {
-    id: 'team-a',
-    name: 'Team Egerer',
-    captain_id: 'p1',
-    player_ids: ['p1', 'p2', 'p7', 'p9', 'p11', 'p13', 'p15', 'p16'],
-    // Egerer, Shamus, Anderson, LaBarge, Flaherty, Haney, Fitzgerald, Evans
-  },
-  {
-    id: 'team-b',
-    name: 'Team Parker',
-    captain_id: 'p14',
-    player_ids: ['p14', 'p3', 'p4', 'p5', 'p6', 'p8', 'p10', 'p12'],
-    // Parker, Kennedy, Brand, White, Celmayster, Forouzandeh, Norman, Stutsman
-  },
+  { id: 'team-a', name: 'Team A', captain_id: '', player_ids: [] },
+  { id: 'team-b', name: 'Team B', captain_id: '', player_ids: [] },
 ]
 
-// Day 1: 8 stroke play matchups (1v1, ordered 1-8)
-// One pressure bet per team (matchups 1 and 5 here as placeholders)
-export const DEMO_STROKE_PLAY_MATCHUPS: StrokePlayMatchup[] = [
-  { id: 'sp1', round_id: 'r1', team_a_player_id: 'p1', team_b_player_id: 'p14', order: 1, is_pressure_bet: true },
-  { id: 'sp2', round_id: 'r1', team_a_player_id: 'p7', team_b_player_id: 'p5', order: 2, is_pressure_bet: false },
-  { id: 'sp3', round_id: 'r1', team_a_player_id: 'p9', team_b_player_id: 'p8', order: 3, is_pressure_bet: false },
-  { id: 'sp4', round_id: 'r1', team_a_player_id: 'p15', team_b_player_id: 'p4', order: 4, is_pressure_bet: false },
-  { id: 'sp5', round_id: 'r1', team_a_player_id: 'p2', team_b_player_id: 'p3', order: 5, is_pressure_bet: true },
-  { id: 'sp6', round_id: 'r1', team_a_player_id: 'p11', team_b_player_id: 'p12', order: 6, is_pressure_bet: false },
-  { id: 'sp7', round_id: 'r1', team_a_player_id: 'p13', team_b_player_id: 'p6', order: 7, is_pressure_bet: false },
-  { id: 'sp8', round_id: 'r1', team_a_player_id: 'p16', team_b_player_id: 'p10', order: 8, is_pressure_bet: false },
-]
+// Day 1: 10 stroke play matchups (1v1) — 20 players, set live via Admin panel.
+// Admin assigns players + designates one pressure bet per team.
+export const DEMO_STROKE_PLAY_MATCHUPS: StrokePlayMatchup[] = Array.from({ length: 10 }, (_, i) => ({
+  id: `sp${i + 1}`,
+  round_id: 'r1',
+  team_a_player_id: '',
+  team_b_player_id: '',
+  order: i + 1,
+  is_pressure_bet: false,
+}))
 
-// Day 2: 4 best-ball pairings (2v2, ordered 1-4)
-export const DEMO_BEST_BALL_PAIRINGS: BestBallPairing[] = [
-  { id: 'bb1', round_id: 'r2', team_a_player_ids: ['p1', 'p2'], team_b_player_ids: ['p14', 'p3'], order: 1 },
-  { id: 'bb2', round_id: 'r2', team_a_player_ids: ['p7', 'p9'], team_b_player_ids: ['p5', 'p8'], order: 2 },
-  { id: 'bb3', round_id: 'r2', team_a_player_ids: ['p11', 'p15'], team_b_player_ids: ['p4', 'p12'], order: 3 },
-  { id: 'bb4', round_id: 'r2', team_a_player_ids: ['p13', 'p16'], team_b_player_ids: ['p6', 'p10'], order: 4 },
-]
+// Day 2: 5 best-ball pairings (2v2) — 20 players, set live via Admin panel after Day 1.
+export const DEMO_BEST_BALL_PAIRINGS: BestBallPairing[] = Array.from({ length: 5 }, (_, i) => ({
+  id: `bb${i + 1}`,
+  round_id: 'r2',
+  team_a_player_ids: ['', ''],
+  team_b_player_ids: ['', ''],
+  order: i + 1,
+}))
 

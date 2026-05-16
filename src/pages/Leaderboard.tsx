@@ -347,6 +347,16 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings, scores, ro
 
   const formatPts = (n: number) => n % 1 === 0 ? String(n) : n.toFixed(1)
 
+  // Points available — computed from actual matchups/pairings (counts only filled ones)
+  const day1MaxPts = strokePlayResults.reduce((s, r) =>
+    (r.matchup.team_a_player_id && r.matchup.team_b_player_id)
+      ? s + (r.matchup.is_pressure_bet ? 2 : 1) : s, 0)
+  const day2MaxPts = bestBallResults.reduce((s, r) =>
+    (r.pairing.team_a_player_ids.filter(Boolean).length === 2 &&
+     r.pairing.team_b_player_ids.filter(Boolean).length === 2)
+      ? s + 2 : s, 0)
+  const totalMaxPts = day1MaxPts + day2MaxPts
+
   // Compute round-specific data for scorecards
   const r1 = rounds.find(r => r.round_number === 1)
   const r2 = rounds.find(r => r.round_number === 2)
@@ -397,7 +407,7 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings, scores, ro
         </div>
         <div className="grid grid-cols-3 text-center text-sm items-center border-t-2 border-forest/20 py-1.5">
           <span className={`font-bold text-lg ${aLeading ? 'text-forest' : 'text-gray-900'}`}>{formatPts(teamA.totalPoints)}</span>
-          <span className="text-[11px] font-bold text-gray-500">TOTAL (18 pts max)</span>
+          <span className="text-[11px] font-bold text-gray-500">TOTAL ({totalMaxPts} pts max)</span>
           <span className={`font-bold text-lg ${bLeading ? 'text-forest' : 'text-gray-900'}`}>{formatPts(teamB.totalPoints)}</span>
         </div>
       </div>
@@ -406,7 +416,7 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings, scores, ro
       {(adminSettings.showDay2Matchups || adminSettings.r1Locked) && adminSettings.r1Locked && (
         <div className="px-4 mt-4">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-            Day 2 — Best Ball (2v2) · 8 pts
+            Day 2 — Best Ball (2v2) · {day2MaxPts} pts
           </h3>
           <div className="space-y-1.5">
             {bestBallResults.map(r => (
@@ -429,7 +439,7 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings, scores, ro
       {adminSettings.showDay1Matchups && (
         <div className="px-4 mt-4">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-            Day 1 — Stroke Play (1v1) · 10 pts
+            Day 1 — Stroke Play (1v1) · {day1MaxPts} pts
           </h3>
           <div className="space-y-1.5">
             {strokePlayResults.map(r => (
@@ -452,7 +462,7 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings, scores, ro
       {(adminSettings.showDay2Matchups) && !adminSettings.r1Locked && (
         <div className="px-4 mt-4">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-            Day 2 — Best Ball (2v2) · 8 pts
+            Day 2 — Best Ball (2v2) · {day2MaxPts} pts
           </h3>
           <div className="space-y-1.5">
             {bestBallResults.map(r => (
