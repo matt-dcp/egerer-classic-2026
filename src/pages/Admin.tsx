@@ -723,11 +723,18 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
         </div>
       )}
 
-      {/* Completed groups */}
+      {/* Completed groups — render names straight from the foursome's stored
+          player_ids ([m1.a, m1.b, m2.a, m2.b]); don't reconstruct from the
+          matchups list, which can be incomplete or change after pairing. */}
       {foursomes.map((fs, fi) => {
-        const fsMatchups = matchups.filter(m =>
-          fs.player_ids.includes(m.team_a_player_id) && fs.player_ids.includes(m.team_b_player_id)
-        )
+        const groupPairs: [string, string][] = [
+          [fs.player_ids[0], fs.player_ids[1]],
+          [fs.player_ids[2], fs.player_ids[3]],
+        ]
+        const isPressure = (a: string, b: string) =>
+          matchups.some(m => m.is_pressure_bet &&
+            ((m.team_a_player_id === a && m.team_b_player_id === b) ||
+             (m.team_a_player_id === b && m.team_b_player_id === a)))
         return (
           <div key={fs.id} className="mb-2 p-2.5 rounded-lg border border-green-100 bg-green-50/30">
             <div className="flex items-center justify-between mb-1">
@@ -736,11 +743,17 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
                 <Trash2 size={12} />
               </button>
             </div>
-            {fsMatchups.map(m => (
-              <div key={m.id} className={`flex items-center gap-1.5 text-[11px] py-0.5 ${m.is_pressure_bet ? 'text-gold font-semibold' : 'text-gray-600'}`}>
-                {renderMatchupLabel(m)}
-              </div>
-            ))}
+            {groupPairs.map(([a, b], pi) => {
+              const pb = isPressure(a, b)
+              return (
+                <div key={pi} className={`flex items-center gap-1.5 text-[11px] py-0.5 ${pb ? 'text-gold font-semibold' : 'text-gray-600'}`}>
+                  {pb && <Flame size={10} className="text-gold" />}
+                  <span>{getName(a)}</span>
+                  <span className="text-gray-300">vs</span>
+                  <span>{getName(b)}</span>
+                </div>
+              )
+            })}
           </div>
         )
       })}
