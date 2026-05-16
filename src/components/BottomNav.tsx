@@ -7,7 +7,9 @@ const ADMIN_PLAYER_ID = 'p2'
 
 export default function BottomNav() {
   const { isAdmin, currentPlayerId, adminSettings } = useTournament()
-  const isSuperAdmin = isAdmin && currentPlayerId === ADMIN_PLAYER_ID
+  // The Admin tab is visible to Matt Shamus (p2); the PIN gate on the
+  // Admin page is what actually protects the controls.
+  const isSuperAdmin = currentPlayerId === ADMIN_PLAYER_ID
 
   const navItems = [
     { to: '/', icon: Trophy, label: 'Leaderboard' },

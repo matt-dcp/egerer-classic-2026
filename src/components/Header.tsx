@@ -39,7 +39,7 @@ export default function Header({ title, subtitle }: { title?: string; subtitle?:
           )}
           {isAdmin && (
             <span className="px-1.5 py-0.5 bg-amber-500 text-[11px] font-bold uppercase rounded tracking-wider">
-              Demo
+              Admin
             </span>
           )}
           <SyncDot status={syncStatus} />
