@@ -119,6 +119,15 @@ function safeSetItem(key: string, value: string) {
   try { localStorage.setItem(key, value) } catch { /* quota exceeded or unavailable */ }
 }
 
+/** Always returns the canonical set of teams (team-a, team-b).
+ *  `override` wins per id, `base` fills gaps, DEMO_TEAMS is the floor —
+ *  so a team can never vanish just because it isn't in Supabase yet. */
+function mergeTeams(base: Team[], override: Team[]): Team[] {
+  const overrideById = new Map((override ?? []).map(t => [t.id, t]))
+  const baseById = new Map((base ?? []).map(t => [t.id, t]))
+  return DEMO_TEAMS.map(d => overrideById.get(d.id) ?? baseById.get(d.id) ?? d)
+}
+
 // ---------------------------------------------------------------------------
 // Provider
 // ---------------------------------------------------------------------------
@@ -407,7 +416,10 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
 
   // ---- Team competition state ----
   const [teams, setTeamsState] = useState<Team[]>(() => {
-    try { return JSON.parse(localStorage.getItem('ec-teams') || 'null') ?? DEMO_TEAMS } catch { return DEMO_TEAMS }
+    try {
+      const stored = JSON.parse(localStorage.getItem('ec-teams') || 'null')
+      return mergeTeams(DEMO_TEAMS, stored ?? [])
+    } catch { return DEMO_TEAMS }
   })
 
   const setTeams = useCallback((t: Team[]) => {
@@ -596,7 +608,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
           })
         }
 
-        // Fetch teams
+        // Fetch teams — merge so a team never vanishes if Supabase lacks it
         const { data: remoteTeams } = await supabase.from('teams').select('*')
         if (remoteTeams && remoteTeams.length > 0) {
           const mapped: Team[] = remoteTeams.map((r: Record<string, unknown>) => ({
@@ -605,8 +617,11 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
             captain_id: r.captain_id as string,
             player_ids: r.player_ids as string[],
           }))
-          setTeamsState(mapped)
-          safeSetItem('ec-teams', JSON.stringify(mapped))
+          setTeamsState(prev => {
+            const merged = mergeTeams(prev, mapped)
+            safeSetItem('ec-teams', JSON.stringify(merged))
+            return merged
+          })
         }
 
         // Fetch stroke play matchups
@@ -717,7 +732,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
         schema: 'public',
         table: 'teams',
       }, () => {
-        // Refetch all teams on any change
+        // Refetch all teams on any change — merge so neither team vanishes
         supabase.from('teams').select('*').then(({ data }) => {
           if (data && data.length > 0) {
             const mapped: Team[] = data.map((r: Record<string, unknown>) => ({
@@ -726,8 +741,11 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
               captain_id: r.captain_id as string,
               player_ids: r.player_ids as string[],
             }))
-            setTeamsState(mapped)
-            safeSetItem('ec-teams', JSON.stringify(mapped))
+            setTeamsState(prev => {
+              const merged = mergeTeams(prev, mapped)
+              safeSetItem('ec-teams', JSON.stringify(merged))
+              return merged
+            })
           }
         })
       })

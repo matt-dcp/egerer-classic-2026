@@ -215,19 +215,23 @@ export default function Admin() {
                   {/* Captain selector */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-[11px] text-gray-500 font-semibold">Captain:</span>
-                    <select
-                      value={team.captain_id}
-                      onChange={e => {
-                        const updated = [...teams]
-                        updated[ti] = { ...team, captain_id: e.target.value }
-                        setTeams(updated)
-                      }}
-                      className="text-xs border border-gray-200 rounded px-2 py-1"
-                    >
-                      {team.player_ids.map(id => (
-                        <option key={id} value={id}>{getName(id)}</option>
-                      ))}
-                    </select>
+                    {team.player_ids.length === 0 ? (
+                      <span className="text-[11px] text-gray-400 italic">Add players — first becomes captain</span>
+                    ) : (
+                      <select
+                        value={team.captain_id}
+                        onChange={e => {
+                          const updated = [...teams]
+                          updated[ti] = { ...team, captain_id: e.target.value }
+                          setTeams(updated)
+                        }}
+                        className="text-xs border border-gray-200 rounded px-2 py-1"
+                      >
+                        {team.player_ids.map(id => (
+                          <option key={id} value={id}>{getName(id)}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                   {/* Roster */}
                   <div className="flex flex-wrap gap-1.5 mb-2">
@@ -260,7 +264,12 @@ export default function Admin() {
                       onChange={e => {
                         if (!e.target.value) return
                         const updated = [...teams]
-                        updated[ti] = { ...team, player_ids: [...team.player_ids, e.target.value] }
+                        updated[ti] = {
+                          ...team,
+                          player_ids: [...team.player_ids, e.target.value],
+                          // First player added becomes the captain by default
+                          captain_id: team.captain_id || e.target.value,
+                        }
                         setTeams(updated)
                       }}
                       className="text-xs border border-gray-200 rounded px-2 py-1 text-gray-400 w-full"
