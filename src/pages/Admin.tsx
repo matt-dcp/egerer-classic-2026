@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { Shield, Eye, EyeOff, Lock, Unlock, Megaphone, Users, ArrowLeftRight, Flame, Save, Trash2, ClipboardList } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import Header from '../components/Header'
 
 const ADMIN_PLAYER_ID = 'p2'
@@ -60,12 +61,21 @@ export default function Admin() {
           </h3>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm font-bold text-amber-600">DEMO MODE</div>
-              <div className="text-[11px] text-gray-400">Local data only — safe to test freely</div>
+              {isSupabaseConfigured ? (
+                <>
+                  <div className="text-sm font-bold text-green-600">LIVE MODE</div>
+                  <div className="text-[11px] text-gray-400">Synced to Supabase — real-time across all devices</div>
+                </>
+              ) : (
+                <>
+                  <div className="text-sm font-bold text-amber-600">DEMO MODE</div>
+                  <div className="text-[11px] text-gray-400">Local data only — safe to test freely</div>
+                </>
+              )}
             </div>
             <button
               onClick={async () => {
-                if (confirm('Reset all scores, matchups, foursomes, and side games? This cannot be undone.')) {
+                if (confirm('Reset all scores, matchups, foursomes, teams, and side games for everyone? This cannot be undone.')) {
                   // Clear all app localStorage keys (including identity/admin state)
                   localStorage.removeItem('ec-scores')
                   localStorage.removeItem('ec-foursomes')
@@ -79,7 +89,6 @@ export default function Admin() {
                   localStorage.removeItem('ec-admin')
                   // Clear Supabase tables
                   try {
-                    const { supabase, isSupabaseConfigured } = await import('../lib/supabase')
                     if (isSupabaseConfigured) {
                       await supabase.from('app_scores').delete().gte('id', '')
                       await supabase.from('foursomes').delete().gte('id', '')
@@ -94,12 +103,14 @@ export default function Admin() {
               }}
               className="px-3 py-1.5 bg-red-50 text-red-600 rounded-full text-xs font-semibold"
             >
-              Reset Demo Data
+              Reset {isSupabaseConfigured ? 'All Data' : 'Demo Data'}
             </button>
           </div>
-          <div className="mt-2 px-2 py-1 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-700">
-            Live mode (Supabase) will be enabled before tournament day. All demo data will be replaced with real-time data.
-          </div>
+          {!isSupabaseConfigured && (
+            <div className="mt-2 px-2 py-1 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-700">
+              Live mode (Supabase) will be enabled before tournament day. All demo data will be replaced with real-time data.
+            </div>
+          )}
         </div>
 
         {/* Section: Visibility Controls */}
