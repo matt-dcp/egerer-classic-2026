@@ -22,14 +22,14 @@ export default function Onboarding() {
       <div className="flex-1 flex flex-col">
         {/* Step: Welcome */}
         {step === 'welcome' && (
-          <div className="flex-1 flex flex-col items-center justify-center px-8 -mt-16">
+          <div className="flex-1 flex flex-col items-center px-8 py-8">
             <div className="w-full max-w-sm">
               {/* Tournament logo */}
               <div className="text-center mb-6">
                 <img
                   src="/logo.png"
                   alt="The 20th Egerer Classic"
-                  className="w-44 h-44 mx-auto rounded-full shadow-xl ring-1 ring-black/5 mb-4"
+                  className="w-40 h-40 mx-auto rounded-full shadow-xl ring-1 ring-black/5 mb-4"
                 />
                 <p className="text-xs text-gray-400">Scottsdale, Arizona · May 29–30, 2026</p>
               </div>
