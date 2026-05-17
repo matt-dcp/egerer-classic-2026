@@ -44,7 +44,7 @@ export default function Header({ title, subtitle }: { title?: string; subtitle?:
           )}
           <SyncDot status={syncStatus} />
         </div>
-        {isAdmin && currentPlayer && (
+        {currentPlayer && (
           <button
             onClick={logout}
             className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-[11px] text-white/70 active:bg-white/20"
