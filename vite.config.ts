@@ -19,8 +19,8 @@ export default defineConfig({
         description: 'Live scoring for the Egerer Classic golf tournament',
         start_url: '/',
         display: 'standalone',
-        background_color: '#1a472a',
-        theme_color: '#1a472a',
+        background_color: '#343f4b',
+        theme_color: '#343f4b',
         orientation: 'portrait',
         icons: [
           { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
