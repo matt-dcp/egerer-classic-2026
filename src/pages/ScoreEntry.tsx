@@ -280,6 +280,8 @@ export default function ScoreEntry() {
           const bVsPar = bNet !== null ? bNet - parThru(bThru) : 0
           const aWinning = bothHave && aVsPar < bVsPar
           const bWinning = bothHave && bVsPar < aVsPar
+          // result is only non-'in_progress' once both players finish all 18 holes
+          const isFinal = result.result !== 'in_progress'
 
           const isMyMatch = matchup.team_a_player_id === myPlayerId || matchup.team_b_player_id === myPlayerId
           const label = isMyMatch ? 'Your Match' : 'Foursome Match'
@@ -298,7 +300,7 @@ export default function ScoreEntry() {
                   <span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                     aWinning ? 'bg-green-100 text-green-700' : bWinning ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
                   }`}>
-                    {aWinning ? `${getName(matchup.team_a_player_id)} leads by ${bVsPar - aVsPar}` : bWinning ? `${getName(matchup.team_b_player_id)} leads by ${aVsPar - bVsPar}` : 'Tied'}
+                    {aWinning ? `${getName(matchup.team_a_player_id)} ${isFinal ? 'won' : 'leads'} by ${bVsPar - aVsPar}` : bWinning ? `${getName(matchup.team_b_player_id)} ${isFinal ? 'won' : 'leads'} by ${aVsPar - bVsPar}` : (isFinal ? 'Halved' : 'Tied')}
                   </span>
                 )}
               </div>
@@ -335,6 +337,7 @@ export default function ScoreEntry() {
           const oppVP = oppTotal !== null ? oppTotal - parThru(oppThru) : 0
           const weWin = bothHave && myVP < oppVP
           const theyWin = bothHave && oppVP < myVP
+          const isFinal = result.result !== 'in_progress'
 
           return (
             <div key={pairing.id} className="bg-forest/5 rounded-xl p-3">
@@ -344,7 +347,7 @@ export default function ScoreEntry() {
                   <span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                     weWin ? 'bg-green-100 text-green-700' : theyWin ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'
                   }`}>
-                    {weWin ? 'Leading' : theyWin ? 'Trailing' : 'Tied'}
+                    {weWin ? (isFinal ? 'Won' : 'Leading') : theyWin ? (isFinal ? 'Lost' : 'Trailing') : (isFinal ? 'Halved' : 'Tied')}
                   </span>
                 )}
               </div>
@@ -483,7 +486,7 @@ export default function ScoreEntry() {
                 </thead>
                 <tbody>
                   <tr className="border-t border-gray-200 bg-gray-50/50">
-                    <td className="px-1 py-0.5 text-gray-400 text-left text-[11px] font-medium sticky left-0 bg-gray-50/50">Par</td>
+                    <td className="px-1 py-0.5 text-gray-400 text-left text-[11px] font-medium sticky left-0 bg-[#fcfdfd]">Par</td>
                     {nineHoles.map(h => <td key={h.hole_number} className="px-0 py-0.5 text-gray-400 text-[11px]">{h.par}</td>)}
                     <td className="px-1 py-0.5 text-gray-500 font-bold text-[11px]">{ninePar}</td>
                     {label === 'Back 9' && <td className="px-1 py-0.5 text-gray-500 font-bold text-[11px]">{ninePar + front9.reduce((s, h) => s + h.par, 0)}</td>}
@@ -508,7 +511,7 @@ export default function ScoreEntry() {
 
                     return (
                       <tr key={pd.player.id} className={`border-t ${pd.isMe ? 'bg-forest/5' : ''}`}>
-                        <td className={`px-1 py-1 text-left text-[11px] font-bold sticky left-0 ${pd.isMe ? 'text-forest bg-forest/5' : 'text-gray-600 bg-white'}`}>
+                        <td className={`px-1 py-1 text-left text-[11px] font-bold sticky left-0 ${pd.isMe ? 'text-forest bg-[#f5f5f6]' : 'text-gray-600 bg-white'}`}>
                           {pd.lastName}
                         </td>
                         {nineHoles.map(h => {
