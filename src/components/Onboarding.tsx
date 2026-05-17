@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
+import AddToHomeScreen from './AddToHomeScreen'
 
 type Step = 'welcome' | 'select-name' | 'confirm'
 
@@ -50,6 +51,9 @@ export default function Onboarding() {
                   </div>
                 </div>
               </div>
+
+              {/* Install prompt — auto-hides once added to home screen */}
+              <AddToHomeScreen />
 
               <button
                 onClick={() => setStep('select-name')}
