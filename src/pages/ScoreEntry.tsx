@@ -478,7 +478,7 @@ export default function ScoreEntry() {
               <table className="w-full text-[11px] text-center border-collapse">
                 <thead>
                   <tr className="bg-gray-50">
-                    <th className="px-1 py-0.5 text-gray-400 font-medium text-left w-14 text-[11px] sticky left-0 bg-gray-50">{label}</th>
+                    <th className="px-1 py-0.5 text-gray-400 font-medium text-left w-14 text-[11px] sticky left-0 z-10 bg-gray-50">{label}</th>
                     {nineHoles.map(h => <th key={h.hole_number} className="px-0 py-0.5 text-gray-400 font-medium min-w-[36px] text-[11px]">{h.hole_number}</th>)}
                     <th className="px-1 py-0.5 text-gray-600 font-bold text-[11px] min-w-[36px]">{label === 'Front 9' ? 'OUT' : 'IN'}</th>
                     {label === 'Back 9' && <th className="px-1 py-0.5 text-gray-600 font-bold text-[11px] min-w-[36px]">TOT</th>}
@@ -486,7 +486,7 @@ export default function ScoreEntry() {
                 </thead>
                 <tbody>
                   <tr className="border-t border-gray-200 bg-gray-50/50">
-                    <td className="px-1 py-0.5 text-gray-400 text-left text-[11px] font-medium sticky left-0 bg-[#fcfdfd]">Par</td>
+                    <td className="px-1 py-0.5 text-gray-400 text-left text-[11px] font-medium sticky left-0 z-10 bg-[#fcfdfd]">Par</td>
                     {nineHoles.map(h => <td key={h.hole_number} className="px-0 py-0.5 text-gray-400 text-[11px]">{h.par}</td>)}
                     <td className="px-1 py-0.5 text-gray-500 font-bold text-[11px]">{ninePar}</td>
                     {label === 'Back 9' && <td className="px-1 py-0.5 text-gray-500 font-bold text-[11px]">{ninePar + front9.reduce((s, h) => s + h.par, 0)}</td>}
@@ -511,7 +511,7 @@ export default function ScoreEntry() {
 
                     return (
                       <tr key={pd.player.id} className={`border-t ${pd.isMe ? 'bg-forest/5' : ''}`}>
-                        <td className={`px-1 py-1 text-left text-[11px] font-bold sticky left-0 ${pd.isMe ? 'text-forest bg-[#f5f5f6]' : 'text-gray-600 bg-white'}`}>
+                        <td className={`px-1 py-1 text-left text-[11px] font-bold sticky left-0 z-10 ${pd.isMe ? 'text-forest bg-[#f5f5f6]' : 'text-gray-600 bg-white'}`}>
                           {pd.lastName}
                         </td>
                         {nineHoles.map(h => {
