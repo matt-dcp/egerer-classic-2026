@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react'
+import { LogOut, RefreshCw } from 'lucide-react'
 import { useTournament, type SyncStatus } from '../lib/TournamentContext'
 
 function SyncDot({ status }: { status: SyncStatus }) {
@@ -44,16 +44,25 @@ export default function Header({ title, subtitle }: { title?: string; subtitle?:
           )}
           <SyncDot status={syncStatus} />
         </div>
-        {currentPlayer && (
+        <div className="flex items-center gap-2">
           <button
-            onClick={logout}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-[11px] text-white/70 active:bg-white/20"
-            title="Switch player"
+            onClick={() => window.location.reload()}
+            className="flex items-center justify-center w-7 h-7 rounded-lg bg-white/10 text-white/70 active:bg-white/20"
+            title="Refresh"
           >
-            <LogOut size={12} />
-            {currentPlayer.name.split(' ')[0]}
+            <RefreshCw size={13} />
           </button>
-        )}
+          {currentPlayer && (
+            <button
+              onClick={logout}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-[11px] text-white/70 active:bg-white/20"
+              title="Switch player"
+            >
+              <LogOut size={12} />
+              {currentPlayer.name.split(' ')[0]}
+            </button>
+          )}
+        </div>
       </div>
       {subtitle && <p className="text-cream/70 text-sm mt-0.5">{subtitle}</p>}
     </header>

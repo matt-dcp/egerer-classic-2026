@@ -242,12 +242,19 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval)
   }, [flushQueue])
 
-  // Also flush on online event
+  // Flush on reconnect, and when the app returns to the foreground.
+  // A backgrounded PWA suspends timers, so pending scores sit unsynced
+  // until the user reopens it — flush immediately when that happens.
   useEffect(() => {
     if (!isSupabaseConfigured) return
-    const handler = () => { flushQueue() }
-    window.addEventListener('online', handler)
-    return () => window.removeEventListener('online', handler)
+    const onlineHandler = () => { flushQueue() }
+    const visHandler = () => { if (document.visibilityState === 'visible') flushQueue() }
+    window.addEventListener('online', onlineHandler)
+    document.addEventListener('visibilitychange', visHandler)
+    return () => {
+      window.removeEventListener('online', onlineHandler)
+      document.removeEventListener('visibilitychange', visHandler)
+    }
   }, [flushQueue])
 
   // ---- Supabase async write (fire-and-forget with queue fallback) ----
