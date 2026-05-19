@@ -102,7 +102,7 @@ export default function Info() {
             </div>
             <div className="text-sm text-gray-700 space-y-1">
               <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Buy-in: $200/player ($3,800 total)</div>
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Day 1: each match winner earns $100 ($1,000 total)</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Day 1: each match winner earns $100 — a halved match splits $50/$50 ($1,000 total)</div>
               <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Overall team winner: each player wins $100 ($1,000 total — if the 9-player team wins, its captain gets an extra $100)</div>
               <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Individual prizes — remaining $1,800:</div>
             </div>
