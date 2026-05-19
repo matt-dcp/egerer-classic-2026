@@ -340,7 +340,13 @@ export default function ScoreEntry() {
           const isFinal = result.result !== 'in_progress'
 
           return (
-            <div key={pairing.id} className="bg-forest/5 rounded-xl p-3">
+            <div key={pairing.id} className={`rounded-xl p-3 ${pairing.is_pressure_bet ? 'bg-gold/10 border border-gold/30' : 'bg-forest/5'}`}>
+              {pairing.is_pressure_bet && (
+                <div className="flex items-center gap-1 mb-1.5">
+                  <Flame size={12} className="text-gold" />
+                  <span className="text-[11px] font-bold text-gold uppercase tracking-wider">Pressure Match (4 pts)</span>
+                </div>
+              )}
               <div className="flex items-center justify-between mb-1">
                 <div className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Your Match · Best Ball</div>
                 {bothHave && (

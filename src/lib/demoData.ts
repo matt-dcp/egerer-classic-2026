@@ -155,5 +155,6 @@ export const DEMO_BEST_BALL_PAIRINGS: BestBallPairing[] = Array.from({ length: 5
   team_a_player_ids: ['', ''],
   team_b_player_ids: ['', ''],
   order: i + 1,
+  is_pressure_bet: false,
 }))
 

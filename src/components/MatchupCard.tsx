@@ -263,7 +263,15 @@ export function BestBallCard({ result, players, teamAName, teamBName, scores, ho
   const canExpand = !!scores && !!holes && thru > 0
 
   return (
-    <div className={`rounded-xl overflow-hidden shadow-sm ${decided ? 'bg-gray-50' : 'bg-white'}`}>
+    <div className={`rounded-xl overflow-hidden shadow-sm ${
+      result.pairing.is_pressure_bet ? 'ring-2 ring-gold/60' : ''
+    } ${decided ? 'bg-gray-50' : 'bg-white'}`}>
+      {result.pairing.is_pressure_bet && (
+        <div className="flex items-center gap-1 px-3 pt-2">
+          <Flame size={12} className="text-gold" />
+          <span className="text-[11px] font-bold text-gold uppercase tracking-wider">Pressure Match (4 pts)</span>
+        </div>
+      )}
       <div
         className="p-3 cursor-pointer"
         onClick={() => canExpand && setExpanded(!expanded)}

@@ -185,11 +185,12 @@ export function computeBestBallResult(
     description = `${aStr} vs ${bStr} (thru ${thru})`
   }
 
-  // Each best ball win = 2 points
+  // Best ball win = 2 points — or 4 for a pressure match (2x)
+  const pointMultiplier = pairing.is_pressure_bet ? 2 : 1
   let points = { teamA: 0, teamB: 0 }
-  if (result === 'team_a_wins') points = { teamA: 2, teamB: 0 }
-  else if (result === 'team_b_wins') points = { teamA: 0, teamB: 2 }
-  else if (result === 'halved') points = { teamA: 1, teamB: 1 }
+  if (result === 'team_a_wins') points = { teamA: 2 * pointMultiplier, teamB: 0 }
+  else if (result === 'team_b_wins') points = { teamA: 0, teamB: 2 * pointMultiplier }
+  else if (result === 'halved') points = { teamA: 1 * pointMultiplier, teamB: 1 * pointMultiplier }
 
   return {
     pairing,

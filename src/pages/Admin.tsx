@@ -456,16 +456,31 @@ export default function Admin() {
               const isEmpty = !p.team_a_player_ids[0] && !p.team_b_player_ids[0]
 
               return (
-                <div key={p.id} className={`p-2.5 rounded-lg border ${isEmpty ? 'border-dashed border-gray-200' : 'border-gray-100'}`}>
+                <div key={p.id} className={`p-2.5 rounded-lg border ${p.is_pressure_bet ? 'border-gold bg-gold/5' : isEmpty ? 'border-dashed border-gray-200' : 'border-gray-100'}`}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px] text-gray-400">Match #{idx + 1}</span>
-                    <button
-                      onClick={() => setBestBallPairings(bestBallPairings.filter((_, i) => i !== idx))}
-                      className="p-1.5 rounded-full text-red-400 active:bg-red-50"
-                      title="Remove matchup"
-                    >
-                      <Trash2 size={12} />
-                    </button>
+                    <span className="text-[11px] text-gray-400">
+                      Match #{idx + 1}{p.is_pressure_bet && <span className="text-gold font-bold ml-1.5">· Pressure (4 pts)</span>}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          const updated = [...bestBallPairings]
+                          updated[idx] = { ...p, is_pressure_bet: !p.is_pressure_bet }
+                          setBestBallPairings(updated)
+                        }}
+                        className={`p-1.5 rounded-full ${p.is_pressure_bet ? 'bg-gold text-white' : 'bg-gray-100 text-gray-400'}`}
+                        title="Toggle pressure match"
+                      >
+                        <Flame size={12} />
+                      </button>
+                      <button
+                        onClick={() => setBestBallPairings(bestBallPairings.filter((_, i) => i !== idx))}
+                        className="p-1.5 rounded-full text-red-400 active:bg-red-50"
+                        title="Remove matchup"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   </div>
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                     <div className="space-y-1">
@@ -523,6 +538,7 @@ export default function Admin() {
               team_a_player_ids: ['', ''],
               team_b_player_ids: ['', ''],
               order: bestBallPairings.length + 1,
+              is_pressure_bet: false,
             }])}
             className="mt-2 w-full py-2 rounded-lg border border-dashed border-forest/40 text-forest text-xs font-semibold active:bg-forest/5"
           >

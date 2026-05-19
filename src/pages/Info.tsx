@@ -89,7 +89,11 @@ export default function Info() {
             <div className="text-sm text-gray-700 space-y-1">
               <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Captains set 5 twosome matchups</div>
               <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Lower 18-hole net best ball wins = 2 points</div>
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>10 total points available</div>
+              <div className="flex items-start gap-2">
+                <Flame size={14} className="text-gold mt-0.5 shrink-0" />
+                <span>One <span className="font-semibold text-gold">pressure match</span> = 4 points</span>
+              </div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>12 total points available</div>
             </div>
           </div>
 
@@ -99,24 +103,24 @@ export default function Info() {
               <DollarSign size={14} className="text-gold" /> Payouts
             </div>
             <div className="text-sm text-gray-700 space-y-1">
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Buy-in: $200/player ($3,200 total)</div>
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Winning team: each player gets $200 back + $100 profit</div>
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Individual prizes ($1,800):</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Buy-in: $200/player ($4,000 total)</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Each player on the winning team wins $200</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Individual prizes ($2,000):</div>
             </div>
             <div className="mt-1.5 ml-5 grid grid-cols-3 gap-2">
               <div className="bg-gold/10 rounded-lg p-2 text-center">
                 <div className="text-[11px] text-gray-500 font-semibold">1st Place</div>
-                <div className="text-sm font-bold text-forest">$1,080</div>
+                <div className="text-sm font-bold text-forest">$1,200</div>
                 <div className="text-[11px] text-gray-400">60%</div>
               </div>
               <div className="bg-gray-100 rounded-lg p-2 text-center">
                 <div className="text-[11px] text-gray-500 font-semibold">2nd Place</div>
-                <div className="text-sm font-bold text-gray-700">$450</div>
+                <div className="text-sm font-bold text-gray-700">$500</div>
                 <div className="text-[11px] text-gray-400">25%</div>
               </div>
               <div className="bg-gray-100 rounded-lg p-2 text-center">
                 <div className="text-[11px] text-gray-500 font-semibold">3rd Place</div>
-                <div className="text-sm font-bold text-gray-700">$270</div>
+                <div className="text-sm font-bold text-gray-700">$300</div>
                 <div className="text-[11px] text-gray-400">15%</div>
               </div>
             </div>

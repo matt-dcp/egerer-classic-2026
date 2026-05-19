@@ -487,6 +487,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
         team_a_player_ids: p.team_a_player_ids,
         team_b_player_ids: p.team_b_player_ids,
         pairing_order: p.order,
+        is_pressure_bet: p.is_pressure_bet,
         updated_at: new Date().toISOString(),
       })
     }
@@ -665,6 +666,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
             team_a_player_ids: r.team_a_player_ids as [string, string],
             team_b_player_ids: r.team_b_player_ids as [string, string],
             order: r.pairing_order as number,
+            is_pressure_bet: !!r.is_pressure_bet,
           }))
           setBestBallPairingsRaw(mapped)
           safeSetItem('ec-bestball-pairings', JSON.stringify(mapped))

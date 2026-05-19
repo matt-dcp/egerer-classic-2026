@@ -59,6 +59,7 @@ create table if not exists best_ball_pairings (
   team_a_player_ids jsonb not null default '[]',
   team_b_player_ids jsonb not null default '[]',
   pairing_order int not null default 1,
+  is_pressure_bet boolean not null default false,
   updated_at timestamptz default now()
 );
 

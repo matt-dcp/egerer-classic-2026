@@ -192,7 +192,8 @@ export interface BestBallPairing {
   round_id: string
   team_a_player_ids: [string, string]
   team_b_player_ids: [string, string]
-  order: number          // 1-4
+  order: number             // 1-5
+  is_pressure_bet: boolean   // pressure match — worth 4 points instead of 2
 }
 
 export type MatchResult = 'in_progress' | 'team_a_wins' | 'team_b_wins' | 'halved'
