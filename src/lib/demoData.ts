@@ -13,18 +13,18 @@ export const DEMO_COURSES: Course[] = [
   {
     id: 'troon-monument',
     name: 'Troon North – Monument',
-    tee_name: 'Silver',
-    slope: 131,
-    rating: 69.3,
+    tee_name: 'Gold',
+    slope: 136,
+    rating: 71.7,
     total_par: 72,
   },
   {
     id: 'wekopa-saguaro',
     name: 'We-Ko-Pa – Saguaro',
-    tee_name: 'White',
+    tee_name: 'Purple',
     slope: 132,
-    rating: 69.6,
-    total_par: 72,
+    rating: 70.2,
+    total_par: 71,
   },
 ]
 
@@ -34,48 +34,49 @@ export const COURSE_IMAGES: Record<string, string> = {
   'wekopa-saguaro': 'https://wekopa.com/wp-content/uploads/2023/03/saguaro-course-hero.jpg',
 }
 
-// Troon North Monument — Silver tees (verified from Greenskeeper.org)
+// Troon North Monument — Gold tees · We-Ko-Pa Saguaro — Purple tees
+// (verified from Greenskeeper.org — confirm vs physical scorecard on arrival)
 export const DEMO_HOLES: Hole[] = [
-  // Troon North Monument - Front 9 (Silver tees)
-  { id: 'tm-1', course_id: 'troon-monument', hole_number: 1, par: 4, stroke_index: 5, yardage: 400 },
-  { id: 'tm-2', course_id: 'troon-monument', hole_number: 2, par: 3, stroke_index: 17, yardage: 154 },
-  { id: 'tm-3', course_id: 'troon-monument', hole_number: 3, par: 5, stroke_index: 3, yardage: 502 },
-  { id: 'tm-4', course_id: 'troon-monument', hole_number: 4, par: 4, stroke_index: 11, yardage: 340 },
-  { id: 'tm-5', course_id: 'troon-monument', hole_number: 5, par: 4, stroke_index: 1, yardage: 419 },
-  { id: 'tm-6', course_id: 'troon-monument', hole_number: 6, par: 4, stroke_index: 13, yardage: 285 },
-  { id: 'tm-7', course_id: 'troon-monument', hole_number: 7, par: 3, stroke_index: 15, yardage: 172 },
-  { id: 'tm-8', course_id: 'troon-monument', hole_number: 8, par: 4, stroke_index: 9, yardage: 352 },
-  { id: 'tm-9', course_id: 'troon-monument', hole_number: 9, par: 5, stroke_index: 7, yardage: 465 },
-  // Troon North Monument - Back 9 (Silver tees)
-  { id: 'tm-10', course_id: 'troon-monument', hole_number: 10, par: 4, stroke_index: 10, yardage: 375 },
-  { id: 'tm-11', course_id: 'troon-monument', hole_number: 11, par: 5, stroke_index: 6, yardage: 460 },
-  { id: 'tm-12', course_id: 'troon-monument', hole_number: 12, par: 4, stroke_index: 8, yardage: 338 },
-  { id: 'tm-13', course_id: 'troon-monument', hole_number: 13, par: 3, stroke_index: 18, yardage: 196 },
-  { id: 'tm-14', course_id: 'troon-monument', hole_number: 14, par: 5, stroke_index: 4, yardage: 495 },
-  { id: 'tm-15', course_id: 'troon-monument', hole_number: 15, par: 4, stroke_index: 14, yardage: 275 },
-  { id: 'tm-16', course_id: 'troon-monument', hole_number: 16, par: 3, stroke_index: 16, yardage: 222 },
-  { id: 'tm-17', course_id: 'troon-monument', hole_number: 17, par: 4, stroke_index: 2, yardage: 422 },
-  { id: 'tm-18', course_id: 'troon-monument', hole_number: 18, par: 4, stroke_index: 12, yardage: 348 },
-  // We-Ko-Pa Saguaro - Front 9 (White tees, verified from Greenskeeper.org)
-  { id: 'ws-1', course_id: 'wekopa-saguaro', hole_number: 1, par: 4, stroke_index: 5, yardage: 426 },
-  { id: 'ws-2', course_id: 'wekopa-saguaro', hole_number: 2, par: 4, stroke_index: 11, yardage: 288 },
-  { id: 'ws-3', course_id: 'wekopa-saguaro', hole_number: 3, par: 4, stroke_index: 9, yardage: 362 },
-  { id: 'ws-4', course_id: 'wekopa-saguaro', hole_number: 4, par: 5, stroke_index: 1, yardage: 595 },
-  { id: 'ws-5', course_id: 'wekopa-saguaro', hole_number: 5, par: 3, stroke_index: 15, yardage: 146 },
-  { id: 'ws-6', course_id: 'wekopa-saguaro', hole_number: 6, par: 4, stroke_index: 7, yardage: 380 },
-  { id: 'ws-7', course_id: 'wekopa-saguaro', hole_number: 7, par: 4, stroke_index: 13, yardage: 290 },
-  { id: 'ws-8', course_id: 'wekopa-saguaro', hole_number: 8, par: 5, stroke_index: 3, yardage: 482 },
-  { id: 'ws-9', course_id: 'wekopa-saguaro', hole_number: 9, par: 3, stroke_index: 17, yardage: 121 },
-  // We-Ko-Pa Saguaro - Back 9 (White tees, verified from Greenskeeper.org)
-  { id: 'ws-10', course_id: 'wekopa-saguaro', hole_number: 10, par: 4, stroke_index: 14, yardage: 305 },
-  { id: 'ws-11', course_id: 'wekopa-saguaro', hole_number: 11, par: 3, stroke_index: 18, yardage: 176 },
-  { id: 'ws-12', course_id: 'wekopa-saguaro', hole_number: 12, par: 4, stroke_index: 6, yardage: 423 },
-  { id: 'ws-13', course_id: 'wekopa-saguaro', hole_number: 13, par: 4, stroke_index: 8, yardage: 417 },
-  { id: 'ws-14', course_id: 'wekopa-saguaro', hole_number: 14, par: 5, stroke_index: 2, yardage: 513 },
-  { id: 'ws-15', course_id: 'wekopa-saguaro', hole_number: 15, par: 3, stroke_index: 16, yardage: 209 },
-  { id: 'ws-16', course_id: 'wekopa-saguaro', hole_number: 16, par: 4, stroke_index: 12, yardage: 290 },
-  { id: 'ws-17', course_id: 'wekopa-saguaro', hole_number: 17, par: 4, stroke_index: 10, yardage: 358 },
-  { id: 'ws-18', course_id: 'wekopa-saguaro', hole_number: 18, par: 4, stroke_index: 4, yardage: 470 },
+  // Troon North Monument - Front 9 (Gold tees)
+  { id: 'tm-1', course_id: 'troon-monument', hole_number: 1, par: 4, stroke_index: 5, yardage: 411 },
+  { id: 'tm-2', course_id: 'troon-monument', hole_number: 2, par: 3, stroke_index: 17, yardage: 165 },
+  { id: 'tm-3', course_id: 'troon-monument', hole_number: 3, par: 5, stroke_index: 3, yardage: 544 },
+  { id: 'tm-4', course_id: 'troon-monument', hole_number: 4, par: 4, stroke_index: 11, yardage: 370 },
+  { id: 'tm-5', course_id: 'troon-monument', hole_number: 5, par: 4, stroke_index: 1, yardage: 425 },
+  { id: 'tm-6', course_id: 'troon-monument', hole_number: 6, par: 4, stroke_index: 13, yardage: 295 },
+  { id: 'tm-7', course_id: 'troon-monument', hole_number: 7, par: 3, stroke_index: 15, yardage: 190 },
+  { id: 'tm-8', course_id: 'troon-monument', hole_number: 8, par: 4, stroke_index: 9, yardage: 403 },
+  { id: 'tm-9', course_id: 'troon-monument', hole_number: 9, par: 5, stroke_index: 7, yardage: 515 },
+  // Troon North Monument - Back 9 (Gold tees)
+  { id: 'tm-10', course_id: 'troon-monument', hole_number: 10, par: 4, stroke_index: 10, yardage: 384 },
+  { id: 'tm-11', course_id: 'troon-monument', hole_number: 11, par: 5, stroke_index: 6, yardage: 504 },
+  { id: 'tm-12', course_id: 'troon-monument', hole_number: 12, par: 4, stroke_index: 8, yardage: 411 },
+  { id: 'tm-13', course_id: 'troon-monument', hole_number: 13, par: 3, stroke_index: 18, yardage: 206 },
+  { id: 'tm-14', course_id: 'troon-monument', hole_number: 14, par: 5, stroke_index: 4, yardage: 556 },
+  { id: 'tm-15', course_id: 'troon-monument', hole_number: 15, par: 4, stroke_index: 14, yardage: 283 },
+  { id: 'tm-16', course_id: 'troon-monument', hole_number: 16, par: 3, stroke_index: 16, yardage: 234 },
+  { id: 'tm-17', course_id: 'troon-monument', hole_number: 17, par: 4, stroke_index: 2, yardage: 455 },
+  { id: 'tm-18', course_id: 'troon-monument', hole_number: 18, par: 4, stroke_index: 12, yardage: 365 },
+  // We-Ko-Pa Saguaro - Front 9 (Purple tees)
+  { id: 'ws-1', course_id: 'wekopa-saguaro', hole_number: 1, par: 4, stroke_index: 5, yardage: 443 },
+  { id: 'ws-2', course_id: 'wekopa-saguaro', hole_number: 2, par: 4, stroke_index: 11, yardage: 299 },
+  { id: 'ws-3', course_id: 'wekopa-saguaro', hole_number: 3, par: 4, stroke_index: 9, yardage: 383 },
+  { id: 'ws-4', course_id: 'wekopa-saguaro', hole_number: 4, par: 5, stroke_index: 1, yardage: 609 },
+  { id: 'ws-5', course_id: 'wekopa-saguaro', hole_number: 5, par: 3, stroke_index: 15, yardage: 159 },
+  { id: 'ws-6', course_id: 'wekopa-saguaro', hole_number: 6, par: 4, stroke_index: 7, yardage: 406 },
+  { id: 'ws-7', course_id: 'wekopa-saguaro', hole_number: 7, par: 4, stroke_index: 13, yardage: 305 },
+  { id: 'ws-8', course_id: 'wekopa-saguaro', hole_number: 8, par: 5, stroke_index: 3, yardage: 498 },
+  { id: 'ws-9', course_id: 'wekopa-saguaro', hole_number: 9, par: 3, stroke_index: 17, yardage: 130 },
+  // We-Ko-Pa Saguaro - Back 9 (Purple tees)
+  { id: 'ws-10', course_id: 'wekopa-saguaro', hole_number: 10, par: 4, stroke_index: 14, yardage: 322 },
+  { id: 'ws-11', course_id: 'wekopa-saguaro', hole_number: 11, par: 3, stroke_index: 18, yardage: 194 },
+  { id: 'ws-12', course_id: 'wekopa-saguaro', hole_number: 12, par: 4, stroke_index: 6, yardage: 461 },
+  { id: 'ws-13', course_id: 'wekopa-saguaro', hole_number: 13, par: 4, stroke_index: 8, yardage: 457 },
+  { id: 'ws-14', course_id: 'wekopa-saguaro', hole_number: 14, par: 5, stroke_index: 2, yardage: 527 },
+  { id: 'ws-15', course_id: 'wekopa-saguaro', hole_number: 15, par: 3, stroke_index: 16, yardage: 233 },
+  { id: 'ws-16', course_id: 'wekopa-saguaro', hole_number: 16, par: 4, stroke_index: 12, yardage: 315 },
+  { id: 'ws-17', course_id: 'wekopa-saguaro', hole_number: 17, par: 4, stroke_index: 10, yardage: 372 },
+  { id: 'ws-18', course_id: 'wekopa-saguaro', hole_number: 18, par: 4, stroke_index: 4, yardage: 490 },
 ]
 
 export const DEMO_PLAYERS: Player[] = [
