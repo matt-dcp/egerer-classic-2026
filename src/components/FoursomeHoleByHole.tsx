@@ -6,7 +6,7 @@ import ScoreStepperCompact from './ScoreStepperCompact'
 
 interface Props {
   holes: Hole[]
-  players: Player[]  // exactly 4
+  players: Player[]  // the players in this group (3 for a 1-vs-2 match, otherwise 4)
   scores: Score[]    // all scores for this round
   courseSlope: number
   roundId: string

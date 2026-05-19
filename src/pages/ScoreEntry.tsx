@@ -204,7 +204,7 @@ export default function ScoreEntry() {
               My Group
             </button>
             {roundFoursomes.map((fs, i) => {
-              const names = fs.player_ids.map(id => players.find(p => p.id === id)?.name.split(' ').pop() ?? '?')
+              const names = [...new Set(fs.player_ids)].map(id => players.find(p => p.id === id)?.name.split(' ').pop() ?? '?')
               return (
                 <button
                   key={fs.id}
@@ -249,8 +249,10 @@ export default function ScoreEntry() {
         const myFoursome = (isAdmin && adminFoursomeId)
           ? foursomes.find(f => f.id === adminFoursomeId)
           : foursomes.find(f => f.round_id === selectedRound && f.player_ids.includes(myPlayerId))
+        // Dedup player_ids — a 1-vs-2 match's foursome lists the solo player
+        // twice; we want a clean 3-player score-entry view, not 4 rows.
         const foursomePlayers = myFoursome
-          ? (myFoursome.player_ids.map(id => players.find(p => p.id === id)).filter(Boolean) as typeof players)
+          ? ([...new Set(myFoursome.player_ids)].map(id => players.find(p => p.id === id)).filter(Boolean) as typeof players)
           : []
         const foursomeGameConfigs = myFoursome
           ? sideGameConfigs.filter(g => g.foursome_id === myFoursome.id)
@@ -450,7 +452,7 @@ export default function ScoreEntry() {
           (isAdmin && adminFoursomeId) ? f.id === adminFoursomeId : f.round_id === selectedRound && f.player_ids.includes(myPlayerId),
         )
         const cardPlayers = (activeFoursome
-          ? activeFoursome.player_ids.map(id => players.find(p => p.id === id)).filter(Boolean)
+          ? [...new Set(activeFoursome.player_ids)].map(id => players.find(p => p.id === id)).filter(Boolean)
           : myPlayer ? [myPlayer] : []) as typeof players
 
         if (!cardPlayers.length || !course) return null

@@ -868,7 +868,7 @@ function R2FoursomePairer({ pairings, foursomes, getName, onCreateFoursome, onDe
             </button>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {fs.player_ids.map(id => (
+            {[...new Set(fs.player_ids)].map(id => (
               <span key={id} className="px-2 py-0.5 bg-forest/10 text-forest text-[11px] font-medium rounded-full">
                 {getName(id)}
               </span>
