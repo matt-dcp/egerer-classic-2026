@@ -228,8 +228,8 @@ export default function Leaderboard() {
           <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
             <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
               <DollarSign size={12} className="text-gold" />
-              <span className="font-semibold">Individual Pool $2,000</span>
-              <span className="text-gray-400">· 1st $1,200 · 2nd $500 · 3rd $300</span>
+              <span className="font-semibold">Individual Pool $1,800</span>
+              <span className="text-gray-400">· 1st $1,080 · 2nd $450 · 3rd $270</span>
             </div>
           </div>
 

@@ -359,13 +359,13 @@ export default function ScoreEntry() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="text-center flex-1">
-                  <div className="text-xs font-bold text-forest">{myTeamIds.map(getName).join(' & ')}</div>
+                  <div className="text-xs font-bold text-forest">{[...new Set(myTeamIds)].map(getName).join(' & ')}</div>
                   <div className={`text-lg font-bold ${weWin ? 'text-green-700' : theyWin ? 'text-red-600' : 'text-gray-900'}`}>{fmtVsPar(myTotal, myThru)}</div>
                   <div className="text-[11px] text-gray-400">thru {myThru}</div>
                 </div>
                 <div className="text-xs text-gray-400 px-2">vs</div>
                 <div className="text-center flex-1">
-                  <div className="text-xs font-bold text-gray-600">{oppTeamIds.map(getName).join(' & ')}</div>
+                  <div className="text-xs font-bold text-gray-600">{[...new Set(oppTeamIds)].map(getName).join(' & ')}</div>
                   <div className={`text-lg font-bold ${theyWin ? 'text-green-700' : weWin ? 'text-red-600' : 'text-gray-900'}`}>{fmtVsPar(oppTotal, oppThru)}</div>
                   <div className="text-[11px] text-gray-400">thru {oppThru}</div>
                 </div>

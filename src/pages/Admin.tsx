@@ -339,13 +339,10 @@ export default function Admin() {
           </h3>
           <div className="space-y-2">
             {strokePlayMatchups.map((m, idx) => {
-              // Players already used in OTHER matchups (not this one)
-              const usedTeamA = new Set(strokePlayMatchups.filter((_, i) => i !== idx).map(x => x.team_a_player_id))
-              const usedTeamB = new Set(strokePlayMatchups.filter((_, i) => i !== idx).map(x => x.team_b_player_id))
-              const teamAPlayers = (teams.find(t => t.id === 'team-a')?.player_ids ?? [])
-                .filter(id => !usedTeamA.has(id) || id === m.team_a_player_id)
-              const teamBPlayers = (teams.find(t => t.id === 'team-b')?.player_ids ?? [])
-                .filter(id => !usedTeamB.has(id) || id === m.team_b_player_id)
+              // Full rosters in every dropdown — a player may appear in more
+              // than one matchup (e.g. a solo player covering two matches).
+              const teamAPlayers = teams.find(t => t.id === 'team-a')?.player_ids ?? []
+              const teamBPlayers = teams.find(t => t.id === 'team-b')?.player_ids ?? []
 
               const isEmpty = !m.team_a_player_id && !m.team_b_player_id
 

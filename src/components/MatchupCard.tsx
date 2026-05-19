@@ -241,8 +241,10 @@ interface BestBallProps {
 export function BestBallCard({ result, players, teamAName, teamBName, scores, holes, slope }: BestBallProps) {
   const [expanded, setExpanded] = useState(false)
   const lastName = (id: string) => players.find(p => p.id === id)?.name.split(' ').pop() ?? '?'
-  const aNames = result.pairing.team_a_player_ids.map(lastName).join(' & ')
-  const bNames = result.pairing.team_b_player_ids.map(lastName).join(' & ')
+  // Dedup so a 1-vs-2 match (a player entered in both slots of one side)
+  // shows that player's name once instead of twice
+  const aNames = [...new Set(result.pairing.team_a_player_ids)].map(lastName).join(' & ')
+  const bNames = [...new Set(result.pairing.team_b_player_ids)].map(lastName).join(' & ')
 
   const decided = result.result !== 'in_progress'
   const netA = result.teamABestBallTotal
