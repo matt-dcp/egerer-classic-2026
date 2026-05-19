@@ -109,18 +109,15 @@ export default function Info() {
             <div className="mt-1.5 ml-5 grid grid-cols-3 gap-2">
               <div className="bg-gold/10 rounded-lg p-2 text-center">
                 <div className="text-[11px] text-gray-500 font-semibold">1st Place</div>
-                <div className="text-sm font-bold text-forest">$1,080</div>
-                <div className="text-[11px] text-gray-400">60%</div>
+                <div className="text-sm font-bold text-forest">$1,100</div>
               </div>
               <div className="bg-gray-100 rounded-lg p-2 text-center">
                 <div className="text-[11px] text-gray-500 font-semibold">2nd Place</div>
                 <div className="text-sm font-bold text-gray-700">$450</div>
-                <div className="text-[11px] text-gray-400">25%</div>
               </div>
               <div className="bg-gray-100 rounded-lg p-2 text-center">
                 <div className="text-[11px] text-gray-500 font-semibold">3rd Place</div>
-                <div className="text-sm font-bold text-gray-700">$270</div>
-                <div className="text-[11px] text-gray-400">15%</div>
+                <div className="text-sm font-bold text-gray-700">$250</div>
               </div>
             </div>
           </div>
