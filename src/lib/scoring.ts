@@ -2,9 +2,13 @@
  * Core scoring logic for individual net stroke play.
  */
 
-/** Calculate course handicap from handicap index and course slope */
-export function calculateCourseHandicap(handicapIndex: number, slope: number): number {
-  return Math.round(handicapIndex * (slope / 113))
+/**
+ * Returns a player's course handicap. In this tournament, handicaps are entered
+ * as final course handicaps (the strokes a player receives) and used as-is —
+ * no slope conversion. The slope arg is retained only for call-site compatibility.
+ */
+export function calculateCourseHandicap(courseHandicap: number, _slope?: number): number {
+  return Math.round(courseHandicap)
 }
 
 /** Get the number of handicap strokes a player receives on a specific hole */

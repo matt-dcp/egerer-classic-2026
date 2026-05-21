@@ -63,9 +63,9 @@ export default function Info() {
           <div className="bg-white rounded-xl p-3 shadow-sm">
             <div className="text-xs font-bold text-forest mb-1.5">Overview</div>
             <div className="text-sm text-gray-700 space-y-1">
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>20 players, 2 rounds of 18 holes</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>19 players, 2 rounds of 18 holes</div>
               <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Individual champion = lowest 36-hole net score</div>
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Team competition: captains draft 10-player teams on opening night</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Team competition: captains draft two teams (10 &amp; 9) on opening night</div>
             </div>
           </div>
 

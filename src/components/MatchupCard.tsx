@@ -10,7 +10,8 @@ function PlayerScorecard({ player, scores, holes, slope }: {
   holes: Hole[]
   slope: number
 }) {
-  const courseHcp = calculateCourseHandicap(player.handicap_index, slope)
+  // Matchup cards are team play — use the team handicap
+  const courseHcp = calculateCourseHandicap(player.team_handicap, slope)
   const sorted = [...holes].sort((a, b) => a.hole_number - b.hole_number)
   const front9 = sorted.filter(h => h.hole_number <= 9)
   const back9 = sorted.filter(h => h.hole_number > 9)

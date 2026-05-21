@@ -29,7 +29,8 @@ export interface Player {
   id: string
   tournament_id: string
   name: string
-  handicap_index: number
+  handicap_index: number   // individual course handicap — used as-is (no slope), for the individual net leaderboard
+  team_handicap: number    // course handicap for team play (Day 1 matchups + Day 2 best ball)
   photo_url?: string
 }
 

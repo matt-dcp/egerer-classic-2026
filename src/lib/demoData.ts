@@ -79,27 +79,29 @@ export const DEMO_HOLES: Hole[] = [
   { id: 'ws-18', course_id: 'wekopa-saguaro', hole_number: 18, par: 4, stroke_index: 4, yardage: 490 },
 ]
 
+// Official 2026 roster (19 players). handicap_index = individual course handicap
+// (individual net leaderboard); team_handicap = handicap for team play.
+// They differ only for the three highest players (18 individual / 21 team).
 export const DEMO_PLAYERS: Player[] = [
-  { id: 'p1', tournament_id: 'ec-2026', name: 'Justin Egerer', handicap_index: 7.2 },
-  { id: 'p2', tournament_id: 'ec-2026', name: 'Matt Shamus', handicap_index: 10.7 },
-  { id: 'p3', tournament_id: 'ec-2026', name: 'Dan Kennedy', handicap_index: 12.5 },
-  { id: 'p4', tournament_id: 'ec-2026', name: 'Bryan Brand', handicap_index: 10.1 },
-  { id: 'p5', tournament_id: 'ec-2026', name: 'Brad White', handicap_index: 0 },
-  { id: 'p6', tournament_id: 'ec-2026', name: 'Christos Celmayster', handicap_index: 20.6 },
-  { id: 'p7', tournament_id: 'ec-2026', name: 'Justin Anderson', handicap_index: 6.0 },
-  { id: 'p8', tournament_id: 'ec-2026', name: 'Darius Forouzandeh', handicap_index: 8.4 },
-  { id: 'p9', tournament_id: 'ec-2026', name: 'Pierre LaBarge', handicap_index: 5.7 },
-  { id: 'p10', tournament_id: 'ec-2026', name: 'Greg Norman', handicap_index: 20.5 },
-  { id: 'p11', tournament_id: 'ec-2026', name: 'Dave Flaherty', handicap_index: 9.5 },
-  { id: 'p12', tournament_id: 'ec-2026', name: 'Dusty Stutsman', handicap_index: 12.7 },
-  { id: 'p13', tournament_id: 'ec-2026', name: 'Erik Haney', handicap_index: 11.0 },
-  { id: 'p14', tournament_id: 'ec-2026', name: 'Jess Parker', handicap_index: 6.7 },
-  { id: 'p15', tournament_id: 'ec-2026', name: 'Andrew Fitzgerald', handicap_index: 8.1 },
-  { id: 'p16', tournament_id: 'ec-2026', name: 'Trey Evans', handicap_index: 0 },
-  { id: 'p17', tournament_id: 'ec-2026', name: 'Joel Baer', handicap_index: 0 },
-  { id: 'p18', tournament_id: 'ec-2026', name: 'Scott Schukart', handicap_index: 0 },
-  { id: 'p19', tournament_id: 'ec-2026', name: 'Tim Morton-Smith', handicap_index: 0 },
-  { id: 'p20', tournament_id: 'ec-2026', name: 'Sean Downing', handicap_index: 0 },
+  { id: 'p1', tournament_id: 'ec-2026', name: 'Justin Egerer', handicap_index: 6, team_handicap: 6 },
+  { id: 'p2', tournament_id: 'ec-2026', name: 'Matt Shamus', handicap_index: 11, team_handicap: 11 },
+  { id: 'p3', tournament_id: 'ec-2026', name: 'Dan Kennedy', handicap_index: 10, team_handicap: 10 },
+  { id: 'p4', tournament_id: 'ec-2026', name: 'Bryan Brand', handicap_index: 9, team_handicap: 9 },
+  { id: 'p5', tournament_id: 'ec-2026', name: 'Brad White', handicap_index: 15, team_handicap: 15 },
+  { id: 'p6', tournament_id: 'ec-2026', name: 'Christos Celmayster', handicap_index: 18, team_handicap: 21 },
+  { id: 'p7', tournament_id: 'ec-2026', name: 'Justin Anderson', handicap_index: 5, team_handicap: 5 },
+  { id: 'p8', tournament_id: 'ec-2026', name: 'Robert Forouzandeh', handicap_index: 7, team_handicap: 7 },
+  { id: 'p9', tournament_id: 'ec-2026', name: 'Pierre LaBarge', handicap_index: 5, team_handicap: 5 },
+  { id: 'p10', tournament_id: 'ec-2026', name: 'Peter Norman', handicap_index: 18, team_handicap: 21 },
+  { id: 'p11', tournament_id: 'ec-2026', name: 'Dave Flaherty', handicap_index: 10, team_handicap: 10 },
+  { id: 'p12', tournament_id: 'ec-2026', name: 'Dusty Stutsman', handicap_index: 13, team_handicap: 13 },
+  { id: 'p13', tournament_id: 'ec-2026', name: 'Erik Haney', handicap_index: 11, team_handicap: 11 },
+  { id: 'p14', tournament_id: 'ec-2026', name: 'Jess Parker', handicap_index: 6, team_handicap: 6 },
+  { id: 'p15', tournament_id: 'ec-2026', name: 'Andrew Fitzgerald', handicap_index: 8, team_handicap: 8 },
+  { id: 'p17', tournament_id: 'ec-2026', name: 'Joel Baer', handicap_index: 3, team_handicap: 3 },
+  { id: 'p18', tournament_id: 'ec-2026', name: 'Scott Schukart', handicap_index: 18, team_handicap: 21 },
+  { id: 'p19', tournament_id: 'ec-2026', name: 'Tim Morton-Smith', handicap_index: 4, team_handicap: 4 },
+  { id: 'p20', tournament_id: 'ec-2026', name: 'Sean Downing', handicap_index: 0, team_handicap: 0 },
 ]
 
 export const DEMO_ROUNDS: Round[] = [
@@ -137,7 +139,7 @@ export const DEMO_TEAMS: Team[] = [
   { id: 'team-b', name: 'Team B', captain_id: '', player_ids: [] },
 ]
 
-// Day 1: 10 stroke play matchups (1v1) — 20 players, set live via Admin panel.
+// Day 1: 10 stroke play matchups (1v1) — 19 players, set live via Admin panel.
 // Admin assigns players + designates one pressure bet per team.
 export const DEMO_STROKE_PLAY_MATCHUPS: StrokePlayMatchup[] = Array.from({ length: 10 }, (_, i) => ({
   id: `sp${i + 1}`,
@@ -148,7 +150,7 @@ export const DEMO_STROKE_PLAY_MATCHUPS: StrokePlayMatchup[] = Array.from({ lengt
   is_pressure_bet: false,
 }))
 
-// Day 2: 5 best-ball pairings (2v2) — 20 players, set live via Admin panel after Day 1.
+// Day 2: 5 best-ball pairings (2v2) — 19 players, set live via Admin panel after Day 1.
 export const DEMO_BEST_BALL_PAIRINGS: BestBallPairing[] = Array.from({ length: 5 }, (_, i) => ({
   id: `bb${i + 1}`,
   round_id: 'r2',

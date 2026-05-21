@@ -39,7 +39,7 @@ export default function Onboarding() {
                 <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">🏌️</span>
-                    <span>20 players · 2 rounds · Net stroke play</span>
+                    <span>19 players · 2 rounds · Net stroke play</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-lg">🏨</span>
