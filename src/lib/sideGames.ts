@@ -213,7 +213,10 @@ export function calculateWolf(
 
   for (let h = 1; h <= 18; h++) {
     const wolfId = getWolfForHole(config, h)
-    const partnerId = wolfPartnerSelections[h] ?? undefined
+    // Distinguish "no selection yet" (absent) from "lone wolf" (explicit null).
+    // `wolfPartnerSelections[h] ?? undefined` would wrongly collapse null to
+    // undefined, dropping every lone-wolf hole.
+    const partnerId = h in wolfPartnerSelections ? wolfPartnerSelections[h] : undefined
 
     // If no partner selection made yet, skip this hole
     if (partnerId === undefined) {

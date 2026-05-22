@@ -77,16 +77,23 @@ describe('calculateNassau', () => {
 describe('calculateWolf', () => {
   const cfg: WolfConfig = { type: 'wolf', foursome_id: 'f', player_order: ['A', 'B', 'C', 'D'] }
 
-  // BUG (P2-7): selecting "Lone Wolf" passes null, but calculateWolf does
-  // `wolfPartnerSelections[h] ?? undefined`, and `null ?? undefined` === undefined,
-  // so a lone-wolf hole is treated as "not selected", skipped, and never scores.
-  // This test documents the CURRENT (broken) behavior; fixed in Phase 2.
-  it('BUG: lone wolf (null selection) is dropped — wolf scores 0, hole never resolves', () => {
-    // hole 1 wolf = A. A=4, others=5 -> A should win alone for 4 pts, but...
+  // FIXED (P2-7): "Lone Wolf" (explicit null) now resolves and scores 4 points.
+  it('lone wolf win awards 4 points', () => {
+    // hole 1 wolf = A. A=4, others=5 -> A wins alone
     const scores = [...card('A', 4), ...card('B', 5), ...card('C', 5), ...card('D', 5)]
     const r = calculateWolf(cfg, { 1: null }, scores, HOLES, players, SLOPE, 'r1')
-    expect(r.totalPoints['A']).toBe(0)        // should be 4
-    expect(r.holes[0].wolfWon).toBeNull()     // should be true
+    expect(r.totalPoints['A']).toBe(4)
+    expect(r.holes[0].wolfWon).toBe(true)
+  })
+
+  it('lone wolf loss awards 3 points to each opponent', () => {
+    // hole 1 wolf A goes alone but is worst: A=6, others=4
+    const scores = [...card('A', 6), ...card('B', 4), ...card('C', 4), ...card('D', 4)]
+    const r = calculateWolf(cfg, { 1: null }, scores, HOLES, players, SLOPE, 'r1')
+    expect(r.totalPoints['A']).toBe(0)
+    expect(r.totalPoints['B']).toBe(3)
+    expect(r.totalPoints['C']).toBe(3)
+    expect(r.totalPoints['D']).toBe(3)
   })
 
   it('wolf + partner win awards 2 points each', () => {
