@@ -166,7 +166,65 @@ Initial mount does `select('*')` on each synced table; realtime SUBSCRIBE re-fet
 ---
 
 ## Pre-launch blockers (P0/P1)
-1. **P1-1** Score +/- buttons → 44px.
-2. **P1-2** Hole-jump dots → tappable hit area.
+1. ~~**P1-1** Score +/- buttons → 44px.~~ **FIXED**
+2. ~~**P1-2** Hole-jump dots → tappable hit area.~~ **FIXED**
 
-Everything else is P2/P3 — fix what's cheap, document the rest. Fix status appended in Phase 5.
+Everything else is P2/P3 — fix what's cheap, document the rest.
+
+---
+
+# Phase 5 — Final report
+
+## Test infrastructure (new)
+- **Vitest + fast-check + RTL** unit/component, **Playwright** e2e (WebKit, iPhone 14 Pro + iPhone SE).
+- Scripts: `npm run test` / `test:unit` / `test:watch` / `test:coverage` / `test:e2e`.
+- **53 unit/component tests** + **10 e2e** (5 × 2 viewports), all green.
+- Coverage on the pure-logic modules (the priority): **scoring.ts 100%, sideGames.ts 99%, teamCompetition.ts 98% — 98.5% statements / 100% functions overall.**
+- E2E builds with empty Supabase env (offline mode) so it never touches the live DB.
+- Chaos harness `scripts/chaos-test.ts` (Phase 4): namespaced `chaos-*`, cleaned up after.
+
+## Bundle size (before → after)
+| Asset | Before | After |
+|---|---|---|
+| main JS | 568.23 kB / **156.04 kB gz** | 569.38 kB / **156.33 kB gz** |
+| CSS | 34.21 kB / 6.85 kB gz | 34.66 kB / 6.94 kB gz |
+
+Fixes added ~0.3 kB gz. Single chunk, under the 200 kB target.
+
+## Fixed (commit)
+| ID | Fix | Commit |
+|----|-----|--------|
+| P1-1/2/3/4 | During-play tap targets → ≥44px (score +/-, clear, chevrons, hole dots) | `c21efd6` |
+| P1-5 | Header refresh/switch-player buttons enlarged | `3ce537d` |
+| P1-7 | 16px form-control font (no iOS focus-zoom); team-name + announcement → text-base | `084dbe9` |
+| P1-8 | Status bar `black-translucent` → `default` (readable glyphs) | `084dbe9` |
+| P1-9 | Onboarding `min-h-screen` → `100svh` | `084dbe9` |
+| P1-10 | Hole-swipe ignores mostly-vertical gestures | `084dbe9` |
+| P2-1/P2-2 | `showScoreEntry` / `showLeaderboard` admin toggles now actually gate their views (with `\|\| isAdmin` escape) | `da30902` |
+| P2-3 | Confirm dialogs on matchup/pairing/foursome deletes | `a5a0780` |
+| P2-6 | "Save & Next" no longer fabricates par for untouched players | `0456058` |
+| P2-7 | "Lone Wolf" (null selection) no longer dropped — scores correctly | `fd47bdc` |
+| P3-3/P3-6 | `submitScore` clamps gross to 1–20 (kills phantom-score retry loop) | `df19622` |
+| P3-7 | `window.__ec_submitScore` exposed only in dev/offline, not prod | `df19622` |
+
+Each fix landed with a regression test (or the `// BUG` test was flipped to assert correct behavior).
+
+## Open / accepted (with rationale)
+| ID | Status | Why / proposed fix |
+|----|--------|--------------------|
+| **P3-1** clock-skew conflict resolution | **OPEN — needs owner** | Correct fix is server-authoritative timestamps: a Postgres trigger `BEFORE UPDATE … SET updated_at = now()` on `app_scores`, then stop comparing client `updated_at`. That's a **schema change** (your call to run). Confirmed real by the chaos harness; impact is low (skewed phone must edit the *same* score offline as another phone). |
+| **P3-2** missing hole never finalizes a match | **By design, mitigated** | A net total can't be computed from an incomplete card. The Admin → Score Completion grid already flags any player under 18/18. No code change. |
+| P1-6 | Accepted | Admin-only icon buttons (~24px) in the dense team/matchup editor. One person (Matt), space-constrained. Can bump if desired. |
+| P1-11 | Accepted/optional | No iOS `apple-touch-startup-image` splash → brief white flash launching from home screen; single touch-icon size. Cosmetic. |
+| P4-1 | Not done | Single 156 kB-gz chunk is under the 200 kB target and the PWA precache makes repeat loads instant; route code-splitting adds Suspense complexity for a marginal first-load-only gain. |
+| P4-2 | Not done | Context value isn't memoized, but the expensive derivations already are (`useMemo`), so re-render churn is benign at 20 users. Wrapping the value risks a stale-dep regression for little gain. |
+| P3-4 | Accepted | `safeSetItem` swallows quota errors (no crash); clearing site data while offline drops queued writes (inherent to offline-first, mitigated by frequent flush). |
+| Cosmetic | Noted | "wins by" vs "WON by" wording; "birdies" stat counts net birdies; redundant `(showDay2Matchups \|\| r1Locked) && r1Locked` at `Leaderboard.tsx`. |
+
+## Verified PASS (no action needed)
+- Idempotent writes (deterministic id + upsert): 20 concurrent writers → 1 row; 360 concurrent writes all land (chaos 1–2).
+- Offline queue resilience: offline mid-batch → reconnect loses nothing (chaos 3).
+- Admin gating (`isAdmin && p2`), Admin tab hidden from non-admins, no service-role key in the bundle.
+
+## Pre-launch verdict
+**No remaining P0/P1 blockers** — both blockers (P1-1, P1-2) are fixed. The one item worth a decision before launch is **P3-1** (the `updated_at` trigger), since it's the only correctness gap under real multi-device offline editing — but it requires a manual schema change and its blast radius is small. Ship-ready otherwise.
