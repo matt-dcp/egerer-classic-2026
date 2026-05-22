@@ -119,6 +119,12 @@ function safeSetItem(key: string, value: string) {
   try { localStorage.setItem(key, value) } catch { /* quota exceeded or unavailable */ }
 }
 
+/** Clamp a gross score to the DB CHECK range (1–20) and round to an integer. */
+function clampGross(gross: number): number {
+  if (!Number.isFinite(gross)) return 1
+  return Math.max(1, Math.min(20, Math.round(gross)))
+}
+
 /** Always returns the canonical set of teams (team-a, team-b).
  *  `override` wins per id, `base` fills gaps, DEMO_TEAMS is the floor —
  *  so a team can never vanish just because it isn't in Supabase yet. */
@@ -293,12 +299,17 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
     (roundId: string, playerId: string, holeNumber: number, grossScore: number) => {
       const scoreId = `s-${roundId}-${playerId}-${holeNumber}`
       const now = new Date().toISOString()
+      // Clamp to the DB's CHECK range (1–20). Without this, an out-of-range
+      // value from a non-stepper path would be written optimistically but
+      // rejected by Postgres, leaving a phantom local score whose sync op
+      // retries forever. (audit P3-3/P3-6)
+      const gross = clampGross(grossScore)
       const newScore: Score = {
         id: scoreId,
         round_id: roundId,
         player_id: playerId,
         hole_number: holeNumber,
-        gross_score: grossScore,
+        gross_score: gross,
         updated_at: now,
       }
       // localStorage first (immediate)
@@ -319,7 +330,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
         round_id: roundId,
         player_id: playerId,
         hole_number: holeNumber,
-        gross_score: grossScore,
+        gross_score: gross,
         updated_at: now,
       })
     },
@@ -355,7 +366,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
             round_id: roundId,
             player_id: playerId,
             hole_number: hole,
-            gross_score: gross,
+            gross_score: clampGross(gross),
             updated_at: now,
           }
           if (idx >= 0) {
@@ -373,7 +384,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
           round_id: roundId,
           player_id: playerId,
           hole_number: hole,
-          gross_score: gross,
+          gross_score: clampGross(gross),
           updated_at: now,
         })
       }
@@ -824,8 +835,9 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Expose submitScore for simulation scripts in dev/demo mode
-  if (typeof window !== 'undefined') {
+  // Expose submitScore for simulation scripts — only in dev or offline/demo
+  // mode, never in the live production build (audit P3-7).
+  if (typeof window !== 'undefined' && (import.meta.env.DEV || !isSupabaseConfigured)) {
     (window as any).__ec_submitScore = submitScore
   }
 

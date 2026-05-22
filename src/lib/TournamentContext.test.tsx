@@ -19,6 +19,8 @@ function Harness() {
       <span data-testid="h5id">{h5 ? h5.id : ''}</span>
       <button onClick={() => submitScore('r1', 'p1', 5, 4)}>add</button>
       <button onClick={() => submitScore('r1', 'p1', 5, 6)}>update</button>
+      <button onClick={() => submitScore('r1', 'p1', 5, 99)}>over</button>
+      <button onClick={() => submitScore('r1', 'p1', 5, 0)}>under</button>
       <button onClick={() => deleteScore('r1', 'p1', 5)}>del</button>
     </div>
   )
@@ -44,6 +46,14 @@ describe('TournamentContext score writes (offline)', () => {
     await userEvent.click(screen.getByText('update')) // new value, same hole
     expect(screen.getByTestId('count').textContent).toBe('1') // single row, not three
     expect(screen.getByTestId('h5').textContent).toBe('6')
+  })
+
+  it('clamps out-of-range gross to the DB CHECK range (1–20)', async () => {
+    render(<TournamentProvider><Harness /></TournamentProvider>)
+    await userEvent.click(screen.getByText('over'))   // 99
+    expect(screen.getByTestId('h5').textContent).toBe('20')
+    await userEvent.click(screen.getByText('under'))  // 0
+    expect(screen.getByTestId('h5').textContent).toBe('1')
   })
 
   it('deleteScore removes the row', async () => {
