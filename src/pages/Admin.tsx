@@ -394,7 +394,7 @@ export default function Admin() {
                         <Flame size={12} />
                       </button>
                       <button
-                        onClick={() => setStrokePlayMatchups(strokePlayMatchups.filter((_, i) => i !== idx))}
+                        onClick={() => { if (confirm('Remove this matchup?')) setStrokePlayMatchups(strokePlayMatchups.filter((_, i) => i !== idx)) }}
                         className="p-1.5 rounded-full text-red-400 active:bg-red-50"
                         title="Remove matchup"
                       >
@@ -471,7 +471,7 @@ export default function Admin() {
                         <Flame size={12} />
                       </button>
                       <button
-                        onClick={() => setBestBallPairings(bestBallPairings.filter((_, i) => i !== idx))}
+                        onClick={() => { if (confirm('Remove this pairing?')) setBestBallPairings(bestBallPairings.filter((_, i) => i !== idx)) }}
                         className="p-1.5 rounded-full text-red-400 active:bg-red-50"
                         title="Remove matchup"
                       >
@@ -752,7 +752,7 @@ function R1FoursomePairer({ matchups, foursomes, getName, onCreateFoursome, onDe
           <div key={fs.id} className="mb-2 p-2.5 rounded-lg border border-green-100 bg-green-50/30">
             <div className="flex items-center justify-between mb-1">
               <span className="text-[11px] font-bold text-green-700">Group {fi + 1} ✓</span>
-              <button onClick={() => onDeleteFoursome(fs.id)} className="text-red-400 p-1">
+              <button onClick={() => { if (confirm('Delete this foursome?')) onDeleteFoursome(fs.id) }} className="text-red-400 p-1">
                 <Trash2 size={12} />
               </button>
             </div>
