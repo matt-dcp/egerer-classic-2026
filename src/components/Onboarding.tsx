@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
 import AddToHomeScreen from './AddToHomeScreen'
+import { formatHandicap } from '../lib/scoring'
 
 type Step = 'welcome' | 'select-name' | 'confirm'
 
@@ -85,7 +86,7 @@ export default function Onboarding() {
                   }`}
                 >
                   <div className="text-sm font-semibold text-gray-900">{p.name}</div>
-                  <div className="text-[11px] text-gray-400">HCP {p.handicap_index}</div>
+                  <div className="text-[11px] text-gray-400">HCP {formatHandicap(p)}</div>
                 </button>
               ))}
             </div>
@@ -115,7 +116,7 @@ export default function Onboarding() {
                 {selectedPlayer.name.charAt(0)}
               </div>
               <div className="text-lg font-bold text-gray-900">{selectedPlayer.name}</div>
-              <div className="text-sm text-gray-400 mt-0.5">HCP {selectedPlayer.handicap_index}</div>
+              <div className="text-sm text-gray-400 mt-0.5">HCP {formatHandicap(selectedPlayer)}</div>
             </div>
             <div className="flex gap-3">
               <button

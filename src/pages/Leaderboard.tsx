@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Trophy, ChevronDown, ChevronUp, Zap, Bird, Users, User, DollarSign } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
-import { formatVsPar, getScoreColor, calculateCourseHandicap, getStrokesForHole } from '../lib/scoring'
+import { formatVsPar, getScoreColor, calculateCourseHandicap, getStrokesForHole, formatHandicap } from '../lib/scoring'
 import { StrokePlayCard, BestBallCard } from '../components/MatchupCard'
 import Header from '../components/Header'
 import type { TeamStandings, Player } from '../lib/types'
@@ -286,7 +286,7 @@ export default function Leaderboard() {
                       <span className="text-[13px] font-semibold text-gray-900 truncate">
                         {entry.player.name.split(' ').pop() ?? entry.player.name}
                       </span>
-                      <span className="text-[11px] text-gray-400 shrink-0">({entry.player.handicap_index})</span>
+                      <span className="text-[11px] text-gray-400 shrink-0">({formatHandicap(entry.player)})</span>
                       {isExpanded ? <ChevronUp size={12} className="text-gray-400 shrink-0" /> : <ChevronDown size={12} className="text-gray-400 shrink-0" />}
                     </div>
                     <span className="text-xs text-center text-gray-500">
@@ -300,7 +300,7 @@ export default function Leaderboard() {
                   {isExpanded && (
                     <div className="px-4 pb-3 space-y-2">
                       <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>HCP Index: {entry.player.handicap_index}</span>
+                        <span>Handicap: {formatHandicap(entry.player)}</span>
                         <button
                           className="text-forest font-medium underline"
                           onClick={() => navigate(`/player/${entry.player.id}`)}
@@ -498,7 +498,7 @@ function TeamLeaderboardView({ teamStandings, players, adminSettings, scores, ro
                     <span className={p.id === captain?.id ? 'font-semibold' : ''}>
                       {p.name.split(' ').pop()}
                     </span>
-                    <span className="text-[11px] text-gray-400">({p.handicap_index})</span>
+                    <span className="text-[11px] text-gray-400">({formatHandicap(p)})</span>
                   </div>
                 ))}
               </div>

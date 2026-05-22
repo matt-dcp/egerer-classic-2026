@@ -11,6 +11,13 @@ export function calculateCourseHandicap(courseHandicap: number, _slope?: number)
   return Math.round(courseHandicap)
 }
 
+/** Display a player's handicap — "18/21" (individual/team) when they differ, else the single number. */
+export function formatHandicap(p: { handicap_index: number; team_handicap: number }): string {
+  return p.team_handicap !== p.handicap_index
+    ? `${p.handicap_index}/${p.team_handicap}`
+    : `${p.handicap_index}`
+}
+
 /** Get the number of handicap strokes a player receives on a specific hole */
 export function getStrokesForHole(courseHandicap: number, holeStrokeIndex: number): number {
   if (courseHandicap <= 0) return 0

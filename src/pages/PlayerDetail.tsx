@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
-import { calculateCourseHandicap, getStrokesForHole, getHoleScoreColor } from '../lib/scoring'
+import { calculateCourseHandicap, getStrokesForHole, getHoleScoreColor, formatHandicap } from '../lib/scoring'
 
 export default function PlayerDetail() {
   const { playerId } = useParams<{ playerId: string }>()
@@ -19,7 +19,7 @@ export default function PlayerDetail() {
           <ArrowLeft size={16} /> Back
         </button>
         <h1 className="font-display text-xl font-bold">{player.name}</h1>
-        <p className="text-cream/60 text-sm">HCP Index: {player.handicap_index}</p>
+        <p className="text-cream/60 text-sm">Handicap: {formatHandicap(player)}</p>
       </div>
 
       {/* Scorecards */}

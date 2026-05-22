@@ -48,7 +48,7 @@ export default function FoursomeHoleByHole({
   // Track working values for current hole (before save)
   const playerData = useMemo(() => {
     return players.map(player => {
-      const courseHcp = calculateCourseHandicap(player.handicap_index, courseSlope)
+      const courseHcp = calculateCourseHandicap(player.team_handicap, courseSlope)
       const strokes = hole ? getStrokesForHole(courseHcp, hole.stroke_index) : 0
       const existingScore = scores.find(
         s => s.player_id === player.id && s.hole_number === currentHole && s.round_id === roundId,

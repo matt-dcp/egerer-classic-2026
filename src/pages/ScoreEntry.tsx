@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Minus, Plus, X, Flame, Trash2 } from 'lucide-react'
 import { useTournament } from '../lib/TournamentContext'
-import { getHoleScoreColor, calculateCourseHandicap, getStrokesForHole } from '../lib/scoring'
+import { getHoleScoreColor, calculateCourseHandicap, getStrokesForHole, formatHandicap } from '../lib/scoring'
 import { computeStrokePlayResult, computeBestBallResult } from '../lib/teamCompetition'
 import type { Hole } from '../lib/types'
 import Header from '../components/Header'
@@ -48,9 +48,10 @@ export default function ScoreEntry() {
     : []
   const myPlayer = players.find(p => p.id === myPlayerId)
 
+  // Score entry uses each player's TEAM handicap (the tournament centers on team play)
   const courseHcp = useMemo(() => {
     if (!myPlayer || !course) return 0
-    return calculateCourseHandicap(myPlayer.handicap_index, course.slope)
+    return calculateCourseHandicap(myPlayer.team_handicap, course.slope)
   }, [myPlayer, course])
 
   // Onboarding handles PIN + name selection globally — no gates needed here
@@ -185,7 +186,7 @@ export default function ScoreEntry() {
           </div>
           <div>
             <div className="text-sm font-semibold text-gray-900">{myPlayer?.name}</div>
-            <div className="text-[11px] text-gray-400">HCP {myPlayer?.handicap_index} · Course HCP {courseHcp}</div>
+            <div className="text-[11px] text-gray-400">HCP {myPlayer ? formatHandicap(myPlayer) : '-'} · Course HCP {courseHcp}</div>
           </div>
         </div>
       </div>
@@ -462,7 +463,7 @@ export default function ScoreEntry() {
 
         // Pre-compute per-player data
         const playerData = cardPlayers.map(p => {
-          const cHcp = calculateCourseHandicap(p.handicap_index, slope)
+          const cHcp = calculateCourseHandicap(p.team_handicap, slope)
           const pScores = roundScores.filter(s => s.player_id === p.id)
           return {
             player: p,
