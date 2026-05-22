@@ -175,11 +175,18 @@ export default function FoursomeHoleByHole({
       {/* Save & Next */}
       <button
         onClick={() => {
-          const savedScores = playerData.map(pd => ({ playerId: pd.player.id, gross: pd.gross }))
-          for (const pd of playerData) {
+          // Only persist players who actually entered a score this hole (the
+          // stepper writes immediately on tap). Previously this committed the
+          // par default for every untouched player, silently fabricating
+          // scores for golfers the scorer hadn't entered yet (audit P2-6).
+          const entered = playerData.filter(pd =>
+            scores.some(s => s.player_id === pd.player.id && s.hole_number === currentHole && s.round_id === roundId),
+          )
+          const savedScores = entered.map(pd => ({ playerId: pd.player.id, gross: pd.gross }))
+          for (const pd of entered) {
             onSubmitScore(pd.player.id, currentHole, pd.gross)
           }
-          setUndoData({ hole: currentHole, scores: savedScores })
+          if (savedScores.length > 0) setUndoData({ hole: currentHole, scores: savedScores })
           if (currentHole < 18) {
             setCurrentHole(currentHole + 1)
           } else {
