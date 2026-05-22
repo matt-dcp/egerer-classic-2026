@@ -28,17 +28,18 @@ export default function ScoreStepperCompact({
         {hasScore && onClear && (
           <button
             onClick={onClear}
-            className="w-6 h-6 flex items-center justify-center rounded-full text-red-400 active:bg-red-50"
+            className="w-11 h-11 flex items-center justify-center rounded-full text-red-400 active:bg-red-50"
             title="Clear score"
           >
-            <X size={14} />
+            <X size={16} />
           </button>
         )}
         <button
           onClick={() => onChange(Math.max(1, gross - 1))}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 active:bg-gray-200"
+          className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 active:bg-gray-200"
+          aria-label="Decrease score"
         >
-          <Minus size={16} />
+          <Minus size={18} />
         </button>
         <div className="w-14 text-center">
           <span className={`text-xl font-bold ${getHoleScoreColor(gross, par)}`}>{gross}</span>
@@ -46,9 +47,10 @@ export default function ScoreStepperCompact({
         </div>
         <button
           onClick={() => onChange(Math.min(15, gross + 1))}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 active:bg-gray-200"
+          className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 active:bg-gray-200"
+          aria-label="Increase score"
         >
-          <Plus size={16} />
+          <Plus size={18} />
         </button>
       </div>
     </div>

@@ -102,20 +102,24 @@ export default function FoursomeHoleByHole({
 
   return (
     <div>
-      {/* Progress dots */}
-      <div className="flex justify-center gap-1 mb-3">
+      {/* Progress dots — small visual marker inside a tall, full-width tap area
+          (precise hole nav is also available via the chevrons and swipe). */}
+      <div className="flex justify-center mb-3">
         {holes.map(h => (
           <button
             key={h.hole_number}
             onClick={() => setCurrentHole(h.hole_number)}
-            className={`w-2.5 h-2.5 rounded-full transition-colors ${
+            aria-label={`Go to hole ${h.hole_number}`}
+            className="flex-1 min-w-0 h-11 flex items-center justify-center"
+          >
+            <span className={`w-2.5 h-2.5 rounded-full transition-colors ${
               h.hole_number === currentHole
                 ? 'bg-forest scale-125'
                 : completedHoles.has(h.hole_number)
                   ? 'bg-forest/40'
                   : 'bg-gray-200'
-            }`}
-          />
+            }`} />
+          </button>
         ))}
       </div>
 
@@ -126,7 +130,8 @@ export default function FoursomeHoleByHole({
           <button
             onClick={() => setCurrentHole(Math.max(1, currentHole - 1))}
             disabled={currentHole === 1}
-            className="p-2 rounded-full bg-gray-100 disabled:opacity-30"
+            aria-label="Previous hole"
+            className="p-3 rounded-full bg-gray-100 disabled:opacity-30"
           >
             <ChevronLeft size={20} />
           </button>
@@ -139,7 +144,8 @@ export default function FoursomeHoleByHole({
           <button
             onClick={() => setCurrentHole(Math.min(18, currentHole + 1))}
             disabled={currentHole === 18}
-            className="p-2 rounded-full bg-gray-100 disabled:opacity-30"
+            aria-label="Next hole"
+            className="p-3 rounded-full bg-gray-100 disabled:opacity-30"
           >
             <ChevronRight size={20} />
           </button>
