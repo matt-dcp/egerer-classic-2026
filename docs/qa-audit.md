@@ -95,6 +95,10 @@ Removing a team member, deleting a matchup/pairing, or deleting a foursome is on
 ### P2-6 [P2] "Save & Next" records par for untouched players — `src/components/FoursomeHoleByHole.tsx:56, 170-186`
 The stepper defaults to `hole.par` when a player has no score yet (line 56). "Save & Next" writes **every** player's currently-displayed value (line 172-175), so any player the scorer didn't explicitly adjust gets **par** silently committed. In live play a scorer who taps through holes will fabricate par scores. **Fix:** only persist players whose value was changed/entered this hole, or visually mark un-entered players and exclude them from the bulk save.
 
+### P2-7 [P2] "Lone Wolf" is silently broken — `src/lib/sideGames.ts:217`, `src/components/WolfDisplay.tsx:66`
+The Wolf side game's "Lone Wolf" button calls `onSelectPartner(hole, null)`. But `calculateWolf` reads `const partnerId = wolfPartnerSelections[h] ?? undefined`, and `null ?? undefined === undefined`, so a lone-wolf selection is indistinguishable from "no selection": the hole is skipped (line 219), the wolf never scores, and the hole stays in "WOLF PARTNER NEEDED" forever. (Found by a pinned unit test — `sideGames.test.ts`.)
+**Fix:** distinguish "absent" from "null" — e.g. `const partnerId = h in wolfPartnerSelections ? wolfPartnerSelections[h] : undefined`. Optional side game, but currently half-broken.
+
 ### PASS — idempotency, admin gating, secrets
 - **Idempotent writes:** scores use deterministic id `s-{round}-{player}-{hole}` and `upsert` (`TournamentContext.tsx:294, 317, 349`), so double-tap submit cannot create duplicate rows.
 - **Admin gating:** `/admin` requires `isAdmin && currentPlayerId==='p2'` (`Admin.tsx:22`); the Admin tab only renders for p2 (`BottomNav.tsx:12,18`). A curious user hitting `/admin` sees only the PIN gate.
