@@ -34,7 +34,8 @@ function getPlayerNetForHole(
   const player = players.find(p => p.id === playerId)
   if (!player) return null
 
-  const courseHcp = calculateCourseHandicap(player.handicap_index, courseSlope)
+  // Side games (Nassau / Sixes) compute on team handicap, matching the rest of the Scores tab
+  const courseHcp = calculateCourseHandicap(player.team_handicap, courseSlope)
   const strokes = getStrokesForHole(courseHcp, hole.stroke_index)
   return score.gross_score - strokes
 }
