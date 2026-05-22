@@ -212,7 +212,7 @@ Each fix landed with a regression test (or the `// BUG` test was flipped to asse
 ## Open / accepted (with rationale)
 | ID | Status | Why / proposed fix |
 |----|--------|--------------------|
-| **P3-1** clock-skew conflict resolution | **OPEN — needs owner** | Correct fix is server-authoritative timestamps: a Postgres trigger `BEFORE UPDATE … SET updated_at = now()` on `app_scores`, then stop comparing client `updated_at`. That's a **schema change** (your call to run). Confirmed real by the chaos harness; impact is low (skewed phone must edit the *same* score offline as another phone). |
+| **P3-1** clock-skew conflict resolution | **Accepted — won't fix (owner decision, 2026-05-21)** | Triggering scenario is narrow: two phones editing the *same* score, both offline at once, with meaningfully skewed clocks (modern phones are NTP-synced to seconds). Blast radius is a single score cell, correctable by re-entry. Not worth a schema change for a 20-person event. If ever revisited, the fix is a Postgres `BEFORE UPDATE … SET updated_at = now()` trigger on `app_scores` + dropping the client-timestamp comparison. |
 | **P3-2** missing hole never finalizes a match | **By design, mitigated** | A net total can't be computed from an incomplete card. The Admin → Score Completion grid already flags any player under 18/18. No code change. |
 | P1-6 | Accepted | Admin-only icon buttons (~24px) in the dense team/matchup editor. One person (Matt), space-constrained. Can bump if desired. |
 | P1-11 | Accepted/optional | No iOS `apple-touch-startup-image` splash → brief white flash launching from home screen; single touch-icon size. Cosmetic. |
@@ -227,4 +227,4 @@ Each fix landed with a regression test (or the `// BUG` test was flipped to asse
 - Admin gating (`isAdmin && p2`), Admin tab hidden from non-admins, no service-role key in the bundle.
 
 ## Pre-launch verdict
-**No remaining P0/P1 blockers** — both blockers (P1-1, P1-2) are fixed. The one item worth a decision before launch is **P3-1** (the `updated_at` trigger), since it's the only correctness gap under real multi-device offline editing — but it requires a manual schema change and its blast radius is small. Ship-ready otherwise.
+**No remaining P0/P1 blockers** — both blockers (P1-1, P1-2) are fixed. **P3-1** (client-clock conflict resolution) was reviewed and **accepted as won't-fix** by the owner: the triggering scenario is too narrow and low-impact to justify a schema change. **Ship-ready.**
