@@ -191,6 +191,7 @@ export default function Leaderboard() {
       </div>
 
       {view === 'individual' ? (
+        (adminSettings.showLeaderboard || isAdmin) ? (
         <>
           {/* Birdie / Eagle counters */}
           <div className="flex items-center gap-3 px-4 py-2 bg-white border-b border-gray-100">
@@ -315,6 +316,11 @@ export default function Leaderboard() {
             })}
           </div>
         </>
+        ) : (
+          <div className="px-6 py-12 text-center text-sm text-gray-500">
+            The individual leaderboard is hidden by the organizer.
+          </div>
+        )
       ) : (
         /* Teams View */
         <TeamLeaderboardView teamStandings={teamStandings} players={players} adminSettings={adminSettings} scores={scores} rounds={rounds} courses={courses} getHolesForCourse={getHolesForCourse} />

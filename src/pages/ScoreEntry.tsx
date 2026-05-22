@@ -101,6 +101,10 @@ export default function ScoreEntry() {
   const frontTotals = calcNineTotals(front9)
   const backTotals = calcNineTotals(back9)
 
+  // Honor the admin "Score Entry" visibility toggle (P2-1). Admin always keeps
+  // access so they can re-enable it; everyone else sees a closed notice.
+  const scoringClosed = !adminSettings.showScoreEntry && !isAdmin
+
   const handleHoleTap = (holeNum: number, par: number) => {
     if (isRoundLocked(selectedRound)) return
     setEditingHole(holeNum)
@@ -173,6 +177,17 @@ export default function ScoreEntry() {
       </div>
     </div>
   )
+
+  if (scoringClosed) {
+    return (
+      <div>
+        <Header title="Score Entry" subtitle={course?.name || 'Select a round'} />
+        <div className="px-6 py-12 text-center">
+          <p className="text-sm text-gray-500">Score entry is currently closed by the organizer.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
