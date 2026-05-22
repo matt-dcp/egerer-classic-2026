@@ -47,15 +47,16 @@ export default function Header({ title, subtitle }: { title?: string; subtitle?:
         <div className="flex items-center gap-2">
           <button
             onClick={() => window.location.reload()}
-            className="flex items-center justify-center w-7 h-7 rounded-lg bg-white/10 text-white/70 active:bg-white/20"
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 text-white/70 active:bg-white/20"
             title="Refresh"
+            aria-label="Refresh"
           >
-            <RefreshCw size={13} />
+            <RefreshCw size={15} />
           </button>
           {currentPlayer && (
             <button
               onClick={logout}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-[11px] text-white/70 active:bg-white/20"
+              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-white/10 text-[11px] text-white/70 active:bg-white/20"
               title="Switch player"
             >
               <LogOut size={12} />

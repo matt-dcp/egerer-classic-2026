@@ -86,10 +86,11 @@ describe('computeStrokePlayResult', () => {
     expect(r.result).toBe('team_a_wins')
   })
 
-  // BUG (P3-2): documents current behavior — a single missing hole keeps a
-  // match in_progress forever and awards ZERO points even though A is ahead.
-  // fix in Phase 2.
-  it('BUG: one missing hole => never finalizes, no points awarded', () => {
+  // P3-2 (by design): a net total can't be computed from an incomplete card,
+  // so a match with any missing hole stays in_progress and awards no points
+  // until all 18 are entered. Risk (a silently-missed hole) is mitigated by the
+  // Admin "Score Completion" grid, which flags any player under 18/18.
+  it('one missing hole => stays in_progress, no points until all 18 entered', () => {
     const scores = [...card('A', 4, 17), ...card('B', 5, 18)] // A clearly lower net but only 17 holes
     const r = computeStrokePlayResult(matchup('A', 'B'), scores, HOLES, players, SLOPE, PAR)
     expect(r.result).toBe('in_progress')
@@ -151,8 +152,8 @@ describe('computeBestBallResult', () => {
     expect(r.description).toBe('Not started')
   })
 
-  // BUG (P3-2): same missing-hole problem on the best-ball side.
-  it('BUG: a side missing one hole keeps the match in_progress, no points', () => {
+  // P3-2 (by design): same incomplete-card rule on the best-ball side.
+  it('a side missing one hole stays in_progress, no points', () => {
     const players = [player('A1', 0), player('A2', 0), player('B1', 0), player('B2', 0)]
     const scores = [...card('A1', 4, 17), ...card('A2', 4, 17), ...card('B1', 5), ...card('B2', 5)]
     const r = computeBestBallResult(pairing(['A1', 'A2'], ['B1', 'B2']), scores, HOLES, players, SLOPE, PAR)
