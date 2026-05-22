@@ -31,6 +31,12 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Baseline 16px on form controls so iOS Safari doesn't zoom in on focus
+   (audit P1-7). Components may still override with a larger size. */
+input, select, textarea {
+  font-size: 16px;
+}
+
 @keyframes ticker {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }

@@ -79,16 +79,22 @@ export default function FoursomeHoleByHole({
 
   // Swipe gesture handling
   const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
   }, [])
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (touchStartX.current === null) return
     const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    const deltaY = touchStartY.current === null ? 0 : e.changedTouches[0].clientY - touchStartY.current
     touchStartX.current = null
+    touchStartY.current = null
     if (Math.abs(deltaX) < 50) return
+    // Ignore mostly-vertical gestures so scrolling doesn't skip holes (P1-10).
+    if (Math.abs(deltaY) > Math.abs(deltaX)) return
     if (deltaX < 0 && currentHole < 18) {
       // Swipe left = next hole
       setCurrentHole(currentHole + 1)

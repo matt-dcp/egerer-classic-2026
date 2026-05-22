@@ -208,7 +208,7 @@ export default function Admin() {
                         setTeams(updated)
                       }}
                       placeholder="Team name"
-                      className="text-sm font-bold text-gray-900 bg-transparent border-b border-gray-200 focus:border-forest focus:outline-none flex-1 min-w-0"
+                      className="text-base font-bold text-gray-900 bg-transparent border-b border-gray-200 focus:border-forest focus:outline-none flex-1 min-w-0"
                     />
                     <span className="text-[11px] text-gray-400 shrink-0">{team.player_ids.length} players</span>
                   </div>
@@ -296,7 +296,7 @@ export default function Admin() {
             value={announcement}
             onChange={e => setAnnouncement(e.target.value)}
             placeholder="e.g. Dinner at 7pm at the hotel restaurant"
-            className="w-full border border-gray-200 rounded-lg p-2.5 text-sm text-gray-700 focus:border-forest focus:outline-none resize-none"
+            className="w-full border border-gray-200 rounded-lg p-2.5 text-base text-gray-700 focus:border-forest focus:outline-none resize-none"
             rows={2}
           />
           <div className="flex gap-2 mt-2">

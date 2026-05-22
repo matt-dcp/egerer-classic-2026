@@ -14,7 +14,7 @@ export default function Onboarding() {
   const selectedPlayer = players.find(p => p.id === selectedId)
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
+    <div className="min-h-[100svh] bg-cream flex flex-col">
       {/* Header */}
       <div className="bg-forest text-white px-6 pt-10 pb-6 text-center">
         <p className="text-cream/60 text-sm">May 29–30, 2026 · Scottsdale, AZ</p>
