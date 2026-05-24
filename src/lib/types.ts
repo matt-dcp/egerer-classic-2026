@@ -94,14 +94,7 @@ export interface Foursome {
 
 // --- Side Games ---
 
-export type SideGameType = 'six_six_six' | 'nassau' | 'wolf'
-
-// 6/6/6: round-robin best ball, teams rotate every 6 holes
-// Holes 1-6: A+B vs C+D, 7-12: A+C vs B+D, 13-18: A+D vs B+C
-export interface SixSixSixConfig {
-  type: 'six_six_six'
-  foursome_id: string
-}
+export type SideGameType = 'nassau' | 'wolf'
 
 // Nassau: fixed 2v2, three independent bets
 export interface NassauConfig {
@@ -118,26 +111,9 @@ export interface WolfConfig {
   player_order: [string, string, string, string]
 }
 
-export type SideGameConfig = SixSixSixConfig | NassauConfig | WolfConfig
+export type SideGameConfig = NassauConfig | WolfConfig
 
 // --- Computed Game Results ---
-
-export interface SixSixSixSegment {
-  segment: 1 | 2 | 3
-  holes: number[]             // e.g. [1,2,3,4,5,6]
-  team1Ids: [string, string]
-  team2Ids: [string, string]
-  team1BestBalls: (number | null)[]  // net per hole
-  team2BestBalls: (number | null)[]
-  team1Total: number
-  team2Total: number
-  holesCompleted: number
-  winner: 'team1' | 'team2' | 'tie' | null  // null if incomplete
-}
-
-export interface SixSixSixResult {
-  segments: [SixSixSixSegment, SixSixSixSegment, SixSixSixSegment]
-}
 
 export interface NassauBet {
   bet: 'front' | 'back' | 'overall'

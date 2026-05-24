@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { calculateSixSixSix, calculateNassau, calculateWolf, getWolfForHole } from './sideGames'
-import type { Hole, Player, Score, Foursome, SixSixSixConfig, NassauConfig, WolfConfig } from './types'
+import { calculateNassau, calculateWolf, getWolfForHole } from './sideGames'
+import type { Hole, Player, Score, NassauConfig, WolfConfig } from './types'
 
 const HOLES: Hole[] = Array.from({ length: 18 }, (_, i) => ({
   id: `h${i + 1}`, course_id: 'c', hole_number: i + 1, par: 4, stroke_index: i + 1, yardage: 400,
@@ -23,35 +23,6 @@ describe('getWolfForHole', () => {
     expect(getWolfForHole(cfg, 2)).toBe('B')
     expect(getWolfForHole(cfg, 4)).toBe('D')
     expect(getWolfForHole(cfg, 5)).toBe('A')
-  })
-})
-
-describe('calculateSixSixSix', () => {
-  const foursome: Foursome = { id: 'f', round_id: 'r1', player_ids: ['A', 'B', 'C', 'D'] }
-  const cfg: SixSixSixConfig = { type: 'six_six_six', foursome_id: 'f' }
-
-  it('rotates partnerships per segment and scores best ball', () => {
-    // A,B = 4 each; C,D = 5 each
-    const scores = [...card('A', 4), ...card('B', 4), ...card('C', 5), ...card('D', 5)]
-    const { segments } = calculateSixSixSix(cfg, foursome, scores, HOLES, players, SLOPE, 'r1')
-
-    // Segment 1: A+B vs C+D -> 24 vs 30, team1 wins
-    expect(segments[0].team1Ids).toEqual(['A', 'B'])
-    expect(segments[0].team1Total).toBe(24)
-    expect(segments[0].team2Total).toBe(30)
-    expect(segments[0].winner).toBe('team1')
-    expect(segments[0].holesCompleted).toBe(6)
-
-    // Segment 2: A+C vs B+D -> both best balls are 4*6=24 -> tie
-    expect(segments[1].team1Ids).toEqual(['A', 'C'])
-    expect(segments[1].winner).toBe('tie')
-  })
-
-  it('leaves a segment winner null until all 6 holes are in', () => {
-    const scores = [...card('A', 4, 3), ...card('B', 4, 3), ...card('C', 5, 3), ...card('D', 5, 3)]
-    const { segments } = calculateSixSixSix(cfg, foursome, scores, HOLES, players, SLOPE, 'r1')
-    expect(segments[0].holesCompleted).toBe(3)
-    expect(segments[0].winner).toBeNull()
   })
 })
 

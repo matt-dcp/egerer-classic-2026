@@ -4,8 +4,7 @@
  */
 
 import type {
-  Score, Hole, Player, Foursome,
-  SixSixSixConfig, SixSixSixResult, SixSixSixSegment,
+  Score, Hole, Player,
   NassauConfig, NassauResult, NassauBet,
   WolfConfig, WolfResult, WolfHoleResult,
 } from './types'
@@ -56,78 +55,6 @@ function bestBallNet(
   const valid = nets.filter((n): n is number => n !== null)
   if (valid.length === 0) return null
   return Math.min(...valid)
-}
-
-// --- 6/6/6 ---
-
-const SEGMENT_HOLES: [number[], number[], number[]] = [
-  [1, 2, 3, 4, 5, 6],
-  [7, 8, 9, 10, 11, 12],
-  [13, 14, 15, 16, 17, 18],
-]
-
-/** Get the team pairings for a 6/6/6 segment */
-function getSixSixSixTeams(
-  playerIds: [string, string, string, string],
-  segment: 1 | 2 | 3,
-): { team1: [string, string]; team2: [string, string] } {
-  const [a, b, c, d] = playerIds
-  switch (segment) {
-    case 1: return { team1: [a, b], team2: [c, d] }
-    case 2: return { team1: [a, c], team2: [b, d] }
-    case 3: return { team1: [a, d], team2: [b, c] }
-  }
-}
-
-export function calculateSixSixSix(
-  _config: SixSixSixConfig,
-  foursome: Foursome,
-  scores: Score[],
-  holes: Hole[],
-  players: Player[],
-  courseSlope: number,
-  roundId: string,
-): SixSixSixResult {
-  const segments = ([1, 2, 3] as const).map((seg): SixSixSixSegment => {
-    const segHoles = SEGMENT_HOLES[seg - 1]
-    const { team1, team2 } = getSixSixSixTeams(foursome.player_ids, seg)
-
-    const team1BestBalls = segHoles.map(h =>
-      bestBallNet(team1, h, roundId, scores, holes, players, courseSlope),
-    )
-    const team2BestBalls = segHoles.map(h =>
-      bestBallNet(team2, h, roundId, scores, holes, players, courseSlope),
-    )
-
-    let team1Total = 0, team2Total = 0, holesCompleted = 0
-    for (let i = 0; i < 6; i++) {
-      if (team1BestBalls[i] !== null && team2BestBalls[i] !== null) {
-        team1Total += team1BestBalls[i]!
-        team2Total += team2BestBalls[i]!
-        holesCompleted++
-      }
-    }
-
-    let winner: SixSixSixSegment['winner'] = null
-    if (holesCompleted === 6) {
-      winner = team1Total < team2Total ? 'team1' : team2Total < team1Total ? 'team2' : 'tie'
-    }
-
-    return {
-      segment: seg,
-      holes: segHoles,
-      team1Ids: team1,
-      team2Ids: team2,
-      team1BestBalls,
-      team2BestBalls,
-      team1Total,
-      team2Total,
-      holesCompleted,
-      winner,
-    }
-  })
-
-  return { segments: segments as [SixSixSixSegment, SixSixSixSegment, SixSixSixSegment] }
 }
 
 // --- Nassau ---

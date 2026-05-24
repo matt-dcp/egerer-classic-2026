@@ -15,7 +15,6 @@ export default function SideGameSetup({ foursome, players, activeGames, onAddGam
   const pIds = foursome.player_ids
   const getName = (id: string) => players.find(p => p.id === id)?.name ?? '?'
 
-  const has666 = activeGames.some(g => g.type === 'six_six_six')
   const nassauConfig = activeGames.find(g => g.type === 'nassau') as NassauConfig | undefined
   // Nassau team state
   const [nassauTeam1, setNassauTeam1] = useState<[string, string]>(
@@ -40,34 +39,6 @@ export default function SideGameSetup({ foursome, players, activeGames, onAddGam
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-800">Side Games</h2>
           <button onClick={onClose} className="p-1 text-gray-400"><X size={20} /></button>
-        </div>
-
-        {/* 6/6/6 */}
-        <div className="mb-4 p-3 rounded-xl border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-semibold text-sm">Sixes</div>
-              <div className="text-[11px] text-gray-400">Each player partners with every other for 6 holes</div>
-            </div>
-            <button
-              onClick={() => has666
-                ? onRemoveGame('six_six_six')
-                : onAddGame({ type: 'six_six_six', foursome_id: foursome.id })
-              }
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-                has666 ? 'bg-red-50 text-red-600' : 'bg-forest text-white'
-              }`}
-            >
-              {has666 ? 'Remove' : 'Enable'}
-            </button>
-          </div>
-          {has666 && (
-            <div className="mt-2 text-[11px] text-gray-500 space-y-0.5">
-              <div>H1-6: {getName(pIds[0])}+{getName(pIds[1])} vs {getName(pIds[2])}+{getName(pIds[3])}</div>
-              <div>H7-12: {getName(pIds[0])}+{getName(pIds[2])} vs {getName(pIds[1])}+{getName(pIds[3])}</div>
-              <div>H13-18: {getName(pIds[0])}+{getName(pIds[3])} vs {getName(pIds[1])}+{getName(pIds[2])}</div>
-            </div>
-          )}
         </div>
 
         {/* Nassau */}

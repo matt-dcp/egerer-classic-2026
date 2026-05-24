@@ -1,9 +1,8 @@
 import { useState, useMemo } from 'react'
 import { ChevronDown, ChevronUp, Settings } from 'lucide-react'
 import type { Foursome, Player, Score, Hole, SideGameConfig, NassauConfig } from '../lib/types'
-import { calculateSixSixSix, calculateNassau } from '../lib/sideGames'
+import { calculateNassau } from '../lib/sideGames'
 import SideGameSetup from './SideGameSetup'
-import SixSixSixDisplay from './SixSixSixDisplay'
 import NassauDisplay from './NassauDisplay'
 
 interface Props {
@@ -25,13 +24,7 @@ export default function SideGameScoreboard({
   const [expanded, setExpanded] = useState(true)
   const [showSetup, setShowSetup] = useState(false)
 
-  const sixConfig = gameConfigs.find(g => g.type === 'six_six_six')
   const nassauConfig = gameConfigs.find(g => g.type === 'nassau') as NassauConfig | undefined
-
-  const sixResult = useMemo(() =>
-    sixConfig ? calculateSixSixSix(sixConfig, foursome, scores, holes, players, courseSlope, roundId) : null,
-    [sixConfig, foursome, scores, holes, players, courseSlope, roundId],
-  )
 
   const nassauResult = useMemo(() =>
     nassauConfig ? calculateNassau(nassauConfig, scores, holes, players, courseSlope, roundId) : null,
@@ -79,12 +72,6 @@ export default function SideGameScoreboard({
       {/* Expanded content */}
       {expanded && hasGames && (
         <div className="mt-2 space-y-3">
-          {sixResult && (
-            <div>
-              <div className="text-[11px] font-bold text-gray-400 mb-1 px-1">SIXES</div>
-              <SixSixSixDisplay result={sixResult} players={players} />
-            </div>
-          )}
           {nassauResult && nassauConfig && (
             <div>
               <div className="text-[11px] font-bold text-gray-400 mb-1 px-1">NASSAU</div>
