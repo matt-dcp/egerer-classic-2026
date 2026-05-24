@@ -105,6 +105,26 @@ export default function ScoreEntry() {
   // access so they can re-enable it; everyone else sees a closed notice.
   const scoringClosed = !adminSettings.showScoreEntry && !isAdmin
 
+  // Round-complete state: when every player in the active foursome has all
+  // 18 holes entered, ScoreEntry switches from the stepper to a read-only
+  // summary (Edit drops back into the stepper unless the round is locked).
+  const activeFoursomeForCheck = (isAdmin && adminFoursomeId)
+    ? foursomes.find(f => f.id === adminFoursomeId)
+    : foursomes.find(f => f.round_id === selectedRound && f.player_ids.includes(myPlayerId))
+  const allHolesComplete = useMemo(() => {
+    if (!activeFoursomeForCheck) return false
+    const uniquePlayers = [...new Set(activeFoursomeForCheck.player_ids)]
+    return uniquePlayers.every(pid =>
+      Array.from({ length: 18 }, (_, i) => i + 1).every(h =>
+        scores.some(s => s.player_id === pid && s.hole_number === h && s.round_id === selectedRound),
+      ),
+    )
+  }, [activeFoursomeForCheck, scores, selectedRound])
+  const [editMode, setEditMode] = useState(false)
+  // Reset edit mode on round / foursome change.
+  useEffect(() => { setEditMode(false) }, [selectedRound, adminFoursomeId])
+  const showSummaryOnly = allHolesComplete && !editMode
+
   const handleHoleTap = (holeNum: number, par: number) => {
     if (isRoundLocked(selectedRound)) return
     setEditingHole(holeNum)
@@ -246,8 +266,27 @@ export default function ScoreEntry() {
         </div>
       )}
 
-      {/* Match cards + foursome score entry */}
-      {(() => {
+      {/* Round Complete banner — shown when the foursome has all 18 in. */}
+      {showSummaryOnly && course && (
+        <div className="mx-4 mt-2 rounded-xl border border-birdie/30 bg-birdie/5 px-4 py-3 flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-bold text-birdie">🏁 Round Complete</div>
+            <div className="text-[11px] text-gray-500 mt-0.5">{course.name} · scorecard below</div>
+          </div>
+          {!isRoundLocked(selectedRound) && (
+            <button
+              onClick={() => setEditMode(true)}
+              className="px-3 py-2 rounded-full text-xs font-semibold bg-white border border-gray-200 text-gray-700 active:bg-gray-50"
+            >
+              Edit scores
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Match cards + foursome score entry — hidden once the round is done
+          for this group, unless the scorer hits Edit. */}
+      {!showSummaryOnly && (() => {
         const getName = (id: string) => players.find(p => p.id === id)?.name.split(' ').pop() ?? '?'
         const roundCourse = round ? courses.find(c => c.id === round.course_id) : null
         const roundHoles = round ? allHoles.filter(h => h.course_id === round.course_id) : []
