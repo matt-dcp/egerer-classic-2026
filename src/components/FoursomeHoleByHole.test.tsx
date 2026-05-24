@@ -23,21 +23,26 @@ function renderGroup(scores: Score[] = []) {
   return { onSubmitScore }
 }
 
-describe('FoursomeHoleByHole — Save & Next (P2-6)', () => {
-  it('does NOT fabricate par for untouched players', async () => {
-    const { onSubmitScore } = renderGroup([]) // nobody entered yet
+describe('FoursomeHoleByHole — Save & Next', () => {
+  it('commits the displayed value (par default) for every player in the group', async () => {
+    // Owner explicitly chose this: one-tap Save & Next on a par-by-everyone
+    // hole should record par for the whole group without per-player taps.
+    const { onSubmitScore } = renderGroup([])
     await userEvent.click(screen.getByRole('button', { name: /Save & Next/i }))
-    expect(onSubmitScore).not.toHaveBeenCalled() // previously wrote par for both
-    expect(screen.getByText('Hole 2')).toBeInTheDocument() // still advances
+    expect(onSubmitScore).toHaveBeenCalledTimes(2) // par written for p1 and p2
+    expect(onSubmitScore).toHaveBeenCalledWith('p1', 1, 4) // par 4
+    expect(onSubmitScore).toHaveBeenCalledWith('p2', 1, 4)
+    expect(screen.getByText('Hole 2')).toBeInTheDocument()
   })
 
-  it('persists only players who actually entered a score this hole', async () => {
+  it('uses an existing entered score over the par default when present', async () => {
     const entered: Score[] = [
       { id: 's-r1-p1-1', round_id: 'r1', player_id: 'p1', hole_number: 1, gross_score: 5, updated_at: '2026-05-29T00:00:00Z' },
     ]
     const { onSubmitScore } = renderGroup(entered)
     await userEvent.click(screen.getByRole('button', { name: /Save & Next/i }))
-    expect(onSubmitScore).toHaveBeenCalledTimes(1)
-    expect(onSubmitScore).toHaveBeenCalledWith('p1', 1, 5)
+    expect(onSubmitScore).toHaveBeenCalledTimes(2)
+    expect(onSubmitScore).toHaveBeenCalledWith('p1', 1, 5) // explicit entry kept
+    expect(onSubmitScore).toHaveBeenCalledWith('p2', 1, 4) // p2 still defaults to par
   })
 })

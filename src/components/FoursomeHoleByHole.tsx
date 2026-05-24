@@ -178,21 +178,17 @@ export default function FoursomeHoleByHole({
         </div>
       </div>
 
-      {/* Save & Next */}
+      {/* Save & Next — commits the displayed value for every player in the
+          group (par by default for any player not yet adjusted), so the
+          one-tap "everyone made par" flow works. Visual cues elsewhere flag
+          which players still hold the par default vs. a real entry. */}
       <button
         onClick={() => {
-          // Only persist players who actually entered a score this hole (the
-          // stepper writes immediately on tap). Previously this committed the
-          // par default for every untouched player, silently fabricating
-          // scores for golfers the scorer hadn't entered yet (audit P2-6).
-          const entered = playerData.filter(pd =>
-            scores.some(s => s.player_id === pd.player.id && s.hole_number === currentHole && s.round_id === roundId),
-          )
-          const savedScores = entered.map(pd => ({ playerId: pd.player.id, gross: pd.gross }))
-          for (const pd of entered) {
+          const savedScores = playerData.map(pd => ({ playerId: pd.player.id, gross: pd.gross }))
+          for (const pd of playerData) {
             onSubmitScore(pd.player.id, currentHole, pd.gross)
           }
-          if (savedScores.length > 0) setUndoData({ hole: currentHole, scores: savedScores })
+          setUndoData({ hole: currentHole, scores: savedScores })
           if (currentHole < 18) {
             setCurrentHole(currentHole + 1)
           } else {
