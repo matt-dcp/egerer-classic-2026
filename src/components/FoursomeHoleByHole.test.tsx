@@ -1,8 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import FoursomeHoleByHole from './FoursomeHoleByHole'
 import type { Hole, Player, Score } from '../lib/types'
+
+// Clear persisted currentHole between tests so they don't leak through localStorage.
+beforeEach(() => localStorage.clear())
 
 const HOLES: Hole[] = Array.from({ length: 18 }, (_, i) => ({
   id: `h${i + 1}`, course_id: 'c', hole_number: i + 1, par: 4, stroke_index: i + 1, yardage: 400,

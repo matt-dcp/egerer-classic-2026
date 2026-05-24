@@ -23,6 +23,9 @@ export default function ScoreStepperCompact({
         {receivesStroke && (
           <span className="w-2 h-2 rounded-full bg-forest flex-shrink-0" title="Receives stroke" />
         )}
+        {hasScore && (
+          <span className="w-2 h-2 rounded-full bg-birdie flex-shrink-0" title="Saved" />
+        )}
       </div>
       <div className="flex items-center gap-2">
         {hasScore && onClear && (
@@ -42,7 +45,9 @@ export default function ScoreStepperCompact({
           <Minus size={18} />
         </button>
         <div className="w-14 text-center">
-          <span className={`text-xl font-bold ${getHoleScoreColor(gross, par)}`}>{gross}</span>
+          <span className={`text-xl font-bold ${
+            hasScore ? getHoleScoreColor(gross, par) : 'text-gray-300 italic'
+          }`}>{gross}</span>
           <span className="text-xs text-gray-400">/{net}</span>
         </div>
         <button

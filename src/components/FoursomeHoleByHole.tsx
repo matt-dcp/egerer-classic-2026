@@ -17,8 +17,29 @@ interface Props {
 export default function FoursomeHoleByHole({
   holes, players, scores, courseSlope, roundId, onSubmitScore, onDeleteScore,
 }: Props) {
-  const [currentHole, setCurrentHole] = useState(1)
+  // Persist last-viewed hole per round so leaving for the Leaderboard and
+  // coming back drops the scorer back where they were, not hole 1.
+  const holeStorageKey = `ec-score-hole-${roundId}`
+  const readStoredHole = (key: string): number => {
+    try {
+      const v = localStorage.getItem(key)
+      if (v) { const n = parseInt(v, 10); if (n >= 1 && n <= 18) return n }
+    } catch { /* unavailable */ }
+    return 1
+  }
+  const [currentHole, setCurrentHole] = useState<number>(() => readStoredHole(holeStorageKey))
   const [showComplete, setShowComplete] = useState(false)
+
+  // On round change, restore that round's last-viewed hole (round-scoped).
+  useEffect(() => {
+    setCurrentHole(readStoredHole(holeStorageKey))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [holeStorageKey])
+
+  // Write on every change.
+  useEffect(() => {
+    try { localStorage.setItem(holeStorageKey, String(currentHole)) } catch { /* unavailable */ }
+  }, [holeStorageKey, currentHole])
 
   // Undo toast state
   const [undoData, setUndoData] = useState<{ hole: number; scores: { playerId: string; gross: number }[] } | null>(null)
@@ -65,16 +86,20 @@ export default function FoursomeHoleByHole({
     })
   }, [players, scores, currentHole, courseSlope, hole, roundId])
 
-  // Count completed holes
-  const completedHoles = useMemo(() => {
+  // Track per-hole completion state for the dot strip:
+  //   completed = every player in the group has a score
+  //   partial   = some but not all
+  const { completedHoles, partialHoles } = useMemo(() => {
     const completed = new Set<number>()
+    const partial = new Set<number>()
     for (const h of holes) {
-      const allHaveScores = players.every(p =>
+      const entered = players.filter(p =>
         scores.some(s => s.player_id === p.id && s.hole_number === h.hole_number && s.round_id === roundId),
-      )
-      if (allHaveScores) completed.add(h.hole_number)
+      ).length
+      if (entered === players.length) completed.add(h.hole_number)
+      else if (entered > 0) partial.add(h.hole_number)
     }
-    return completed
+    return { completedHoles: completed, partialHoles: partial }
   }, [holes, players, scores, roundId])
 
   // Swipe gesture handling
@@ -108,25 +133,30 @@ export default function FoursomeHoleByHole({
 
   return (
     <div>
-      {/* Progress dots — small visual marker inside a tall, full-width tap area
-          (precise hole nav is also available via the chevrons and swipe). */}
+      {/* Progress dots — 4 states: unentered (white w/ grey outline),
+          partial (grey filled), all-entered (birdie green), current (ring + scale).
+          Each dot lives inside a full-width 44px-tall tap area. */}
       <div className="flex justify-center mb-3">
-        {holes.map(h => (
-          <button
-            key={h.hole_number}
-            onClick={() => setCurrentHole(h.hole_number)}
-            aria-label={`Go to hole ${h.hole_number}`}
-            className="flex-1 min-w-0 h-11 flex items-center justify-center"
-          >
-            <span className={`w-2.5 h-2.5 rounded-full transition-colors ${
-              h.hole_number === currentHole
-                ? 'bg-forest scale-125'
-                : completedHoles.has(h.hole_number)
-                  ? 'bg-forest/40'
-                  : 'bg-gray-200'
-            }`} />
-          </button>
-        ))}
+        {holes.map(h => {
+          const isCurrent = h.hole_number === currentHole
+          const isDone = completedHoles.has(h.hole_number)
+          const isPartial = partialHoles.has(h.hole_number)
+          const stateClass =
+            isDone     ? 'bg-birdie border-birdie'           // all 4 entered
+            : isPartial ? 'bg-gray-400 border-gray-400'      // some entered
+                       : 'bg-white border-gray-300'           // none entered
+          const emphasis = isCurrent ? 'scale-125 ring-2 ring-forest ring-offset-1' : ''
+          return (
+            <button
+              key={h.hole_number}
+              onClick={() => setCurrentHole(h.hole_number)}
+              aria-label={`Go to hole ${h.hole_number}`}
+              className="flex-1 min-w-0 h-11 flex items-center justify-center"
+            >
+              <span className={`w-2.5 h-2.5 rounded-full border-2 transition-all ${stateClass} ${emphasis}`} />
+            </button>
+          )
+        })}
       </div>
 
       {/* Swipeable content area */}
