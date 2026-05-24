@@ -161,6 +161,20 @@ export default function FoursomeHoleByHole({
 
       {/* Swipeable content area */}
       <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        {/* Out-of-sequence warning — surfaces when the scorer skipped ahead
+            without any score entered for the immediately prior hole.
+            Auto-clears as soon as the prior hole gets any score. */}
+        {currentHole > 1 && !completedHoles.has(currentHole - 1) && !partialHoles.has(currentHole - 1) && (
+          <button
+            onClick={() => setCurrentHole(currentHole - 1)}
+            className="mx-4 mb-3 w-[calc(100%-2rem)] flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-left text-[11px] text-amber-800 active:bg-amber-100"
+          >
+            <span>⚠️</span>
+            <span className="flex-1">Hole {currentHole - 1} hasn't been scored yet</span>
+            <span className="font-semibold">Go back →</span>
+          </button>
+        )}
+
         {/* Hole header */}
         <div className="flex items-center justify-between mb-4">
           <button
