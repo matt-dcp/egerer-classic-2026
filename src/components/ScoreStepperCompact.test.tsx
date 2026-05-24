@@ -50,4 +50,33 @@ describe('ScoreStepperCompact', () => {
       expect(screen.getByLabelText(label).className).toMatch(/\bh-11\b/)
     }
   })
+
+  it('hides "/net" when gross equals net (no stroke received)', () => {
+    setup(4, { net: 4, receivesStroke: false })
+    expect(screen.queryByText('/4')).not.toBeInTheDocument()
+    expect(screen.getByText('4')).toBeInTheDocument()
+  })
+
+  it('shows "/net" when net differs from gross (stroke received)', () => {
+    setup(5, { net: 4, receivesStroke: true })
+    expect(screen.getByText('/4')).toBeInTheDocument()
+  })
+
+  it('tapping the muted-italic gross commits it as a score (typically par)', async () => {
+    const onChange = vi.fn()
+    render(
+      <ScoreStepperCompact
+        playerName="Tester" par={4} gross={4} net={4} receivesStroke={false}
+        onChange={onChange} hasScore={false}
+      />,
+    )
+    await userEvent.click(screen.getByLabelText(/Tap to save 4 for Tester/i))
+    expect(onChange).toHaveBeenCalledWith(4)
+  })
+
+  it('the gross display is not tappable once the score is saved', () => {
+    setup(4, { hasScore: true })
+    // No "tap to save" aria-label is present in the saved state.
+    expect(screen.queryByLabelText(/Tap to save/i)).not.toBeInTheDocument()
+  })
 })

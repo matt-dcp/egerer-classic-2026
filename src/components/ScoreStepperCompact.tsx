@@ -44,12 +44,25 @@ export default function ScoreStepperCompact({
         >
           <Minus size={18} />
         </button>
-        <div className="w-14 text-center">
-          <span className={`text-xl font-bold ${
-            hasScore ? getHoleScoreColor(gross, par) : 'text-gray-300 italic'
+        <button
+          // Tap the muted-italic default to commit that value as the score
+          // (typically par). When already saved, the button is a no-op.
+          onClick={hasScore ? undefined : () => onChange(gross)}
+          disabled={hasScore}
+          aria-label={hasScore ? undefined : `Tap to save ${gross} for ${playerName}`}
+          className="w-14 min-h-11 text-center flex flex-col items-center justify-center disabled:cursor-default active:scale-95 transition-transform"
+        >
+          <span className={`text-xl font-bold leading-none ${
+            hasScore
+              ? getHoleScoreColor(gross, par)
+              : 'text-gray-300 italic border-b border-dashed border-gray-300'
           }`}>{gross}</span>
-          <span className="text-xs text-gray-400">/{net}</span>
-        </div>
+          {/* Only show "/{net}" when the player actually receives a stroke
+              (i.e. net differs from gross — no need to repeat "4/4"). */}
+          {gross !== net && (
+            <span className="text-xs text-gray-400 leading-none mt-0.5">/{net}</span>
+          )}
+        </button>
         <button
           onClick={() => onChange(Math.min(15, gross + 1))}
           className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 active:bg-gray-200"
