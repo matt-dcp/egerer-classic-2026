@@ -50,17 +50,17 @@ export default function ScoreStepperCompact({
           onClick={hasScore ? undefined : () => onChange(gross)}
           disabled={hasScore}
           aria-label={hasScore ? undefined : `Tap to save ${gross} for ${playerName}`}
-          className="w-14 min-h-11 text-center flex flex-col items-center justify-center disabled:cursor-default active:scale-95 transition-transform"
+          className="w-14 min-h-11 flex items-baseline justify-center disabled:cursor-default active:scale-95 transition-transform"
         >
-          <span className={`text-xl font-bold leading-none ${
+          <span className={`text-xl font-bold ${
             hasScore
               ? getHoleScoreColor(gross, par)
               : 'text-gray-300 italic border-b border-dashed border-gray-300'
           }`}>{gross}</span>
-          {/* Only show "/{net}" when the player actually receives a stroke
-              (i.e. net differs from gross — no need to repeat "4/4"). */}
+          {/* When the player receives a stroke, show "/{net}" inline to the
+              right of the gross — no stacking. Hidden when net == gross. */}
           {gross !== net && (
-            <span className="text-xs text-gray-400 leading-none mt-0.5">/{net}</span>
+            <span className="text-xs text-gray-400">/{net}</span>
           )}
         </button>
         <button
