@@ -410,7 +410,7 @@ export default function ScoreEntry() {
                   <span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                     weWin ? 'bg-green-100 text-green-700' : theyWin ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'
                   }`}>
-                    {weWin ? (isFinal ? 'Won' : 'Leading') : theyWin ? (isFinal ? 'Lost' : 'Trailing') : (isFinal ? 'Halved' : 'Tied')}
+                    {weWin ? (isFinal ? 'Won' : 'Leading') : theyWin ? (isFinal ? 'Lost' : 'Trailing') : 'Tied'}
                   </span>
                 )}
               </div>

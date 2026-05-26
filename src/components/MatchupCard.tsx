@@ -162,7 +162,7 @@ export function StrokePlayCard({ result, players, teamAName, teamBName, scores, 
               <div>
                 {halved ? (
                   <div className="bg-gray-200 text-gray-600 rounded-full px-3 py-1 text-xs font-bold">
-                    HALVED
+                    Tied
                   </div>
                 ) : (
                   <div className={`rounded-full px-3 py-1 text-xs font-bold text-white ${
@@ -177,13 +177,13 @@ export function StrokePlayCard({ result, players, teamAName, teamBName, scores, 
               <div>
                 {tied ? (
                   <div className="bg-gray-100 rounded-full px-3 py-1 text-xs font-bold text-gray-600">
-                    ALL SQUARE
+                    Tied
                   </div>
                 ) : (
                   <div className={`rounded-full px-3 py-1 text-xs font-bold text-white ${
                     aWinning ? 'bg-forest' : 'bg-gold'
                   }`}>
-                    {aWinning ? lastName(playerA) : lastName(playerB)} {margin} UP
+                    {aWinning ? lastName(playerA) : lastName(playerB)} leads by {margin}
                   </div>
                 )}
                 <div className="text-[11px] text-gray-400 mt-0.5">thru {thru}</div>
@@ -306,7 +306,7 @@ export function BestBallCard({ result, players, teamAName, teamBName, scores, ho
               <div>
                 {halved ? (
                   <div className="bg-gray-200 text-gray-600 rounded-full px-3 py-1 text-xs font-bold">
-                    HALVED
+                    Tied
                   </div>
                 ) : (
                   <div className={`rounded-full px-3 py-1 text-xs font-bold text-white ${
@@ -321,13 +321,13 @@ export function BestBallCard({ result, players, teamAName, teamBName, scores, ho
               <div>
                 {tied ? (
                   <div className="bg-gray-100 rounded-full px-3 py-1 text-xs font-bold text-gray-600">
-                    ALL SQUARE
+                    Tied
                   </div>
                 ) : (
                   <div className={`rounded-full px-3 py-1 text-xs font-bold text-white ${
                     aWinning ? 'bg-forest' : 'bg-gold'
                   }`}>
-                    {aWinning ? aNames : bNames} {margin} UP
+                    {aWinning ? aNames : bNames} lead by {margin}
                   </div>
                 )}
                 <div className="text-[11px] text-gray-400 mt-0.5">thru {thru}</div>
