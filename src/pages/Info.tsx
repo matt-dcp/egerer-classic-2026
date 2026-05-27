@@ -8,9 +8,9 @@ import RoundHighlights from '../components/RoundHighlights'
 import type { Score, Hole, Player, Course, Round } from '../lib/types'
 
 const schedule = [
-  { day: 'Thursday, May 28', events: ['Arrive at Global Ambassador Hotel', 'Dinner & Player Draft'] },
-  { day: 'Friday, May 29', events: ['Round 1: Troon North – Monument Course', 'Evening: TBD'] },
-  { day: 'Saturday, May 30', events: ['Round 2: We-Ko-Pa – Saguaro Course', 'Awards Dinner & Trophy Ceremony'] },
+  { day: 'Thursday, May 28', events: ['Arrive at Global Ambassador Hotel', 'Dinner & Player Draft — Lobby Bar, 7pm'] },
+  { day: 'Friday, May 29', events: ['Round 1: Troon North – Monument · Tee off 10am', 'Rooftop drinks then dinner, 7:45pm'] },
+  { day: 'Saturday, May 30', events: ['Round 2: We-Ko-Pa – Saguaro · Tee off 10:30am', 'Awards Dinner & Trophy Ceremony'] },
   { day: 'Sunday, May 31', events: ['Checkout & Depart'] },
 ]
 
@@ -127,7 +127,7 @@ export default function Info() {
             <div className="text-xs font-bold text-forest mb-1.5">Local Rules</div>
             <div className="text-sm text-gray-700 space-y-1">
               <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>OB: Take lateral relief (no re-teeing)</div>
-              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Handicap strokes off the course rating</div>
+              <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>Handicap strokes at Commissioner's discretion</div>
               <div className="flex items-start gap-2"><span className="text-gold mt-1">•</span>One player per foursome must keep score in the official Egerer Classic app</div>
             </div>
           </div>
