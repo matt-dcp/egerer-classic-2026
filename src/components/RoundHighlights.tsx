@@ -22,6 +22,14 @@ function getLastName(fullName: string): string {
   return parts[parts.length - 1]
 }
 
+/** Join names for tied highlights — "Downing & Egerer" / "A, B & C". */
+function joinNames(names: string[]): string {
+  if (names.length === 0) return ''
+  if (names.length === 1) return names[0]
+  if (names.length === 2) return `${names[0]} & ${names[1]}`
+  return `${names.slice(0, -1).join(', ')} & ${names[names.length - 1]}`
+}
+
 function computeRoundHighlights(
   round: Round,
   course: Course,
@@ -88,26 +96,30 @@ function computeRoundHighlights(
   // Only consider players with a full round (18 holes) for low round
   const fullRoundPlayers = playerStats.filter(p => p.holesPlayed === 18)
 
-  // Low Gross
+  // Low Gross — include every player tied at the lowest gross total.
   let lowGross: RoundHighlightData['lowGross'] = null
   if (fullRoundPlayers.length > 0) {
-    const best = fullRoundPlayers.reduce((a, b) => (a.grossTotal < b.grossTotal ? a : b))
-    lowGross = { name: getLastName(best.player.name), score: best.grossTotal }
+    const minGross = Math.min(...fullRoundPlayers.map(p => p.grossTotal))
+    const tied = fullRoundPlayers.filter(p => p.grossTotal === minGross)
+    lowGross = { name: joinNames(tied.map(t => getLastName(t.player.name))), score: minGross }
   }
 
-  // Low Net
+  // Low Net — same: every tied player shown.
   let lowNet: RoundHighlightData['lowNet'] = null
   if (fullRoundPlayers.length > 0) {
-    const best = fullRoundPlayers.reduce((a, b) => (a.netTotal < b.netTotal ? a : b))
-    lowNet = { name: getLastName(best.player.name), score: best.netTotal, vsPar: best.netVsPar }
+    const minNet = Math.min(...fullRoundPlayers.map(p => p.netTotal))
+    const tied = fullRoundPlayers.filter(p => p.netTotal === minNet)
+    // vsPar is identical for tied nets on the same round, so taking the first is fine.
+    lowNet = { name: joinNames(tied.map(t => getLastName(t.player.name))), score: minNet, vsPar: tied[0].netVsPar }
   }
 
-  // Most Birdies (any player with scores, not just full round)
+  // Most Birdies (any player with scores, not just full round) — also tied-safe.
   let mostBirdies: RoundHighlightData['mostBirdies'] = null
   const withBirdies = playerStats.filter(p => p.birdieCount > 0)
   if (withBirdies.length > 0) {
-    const best = withBirdies.reduce((a, b) => (a.birdieCount > b.birdieCount ? a : b))
-    mostBirdies = { name: getLastName(best.player.name), count: best.birdieCount }
+    const maxBirdies = Math.max(...withBirdies.map(p => p.birdieCount))
+    const tied = withBirdies.filter(p => p.birdieCount === maxBirdies)
+    mostBirdies = { name: joinNames(tied.map(t => getLastName(t.player.name))), count: maxBirdies }
   }
 
   // Eagle/Ace Watch (net eagles = -2 or better vs par)
